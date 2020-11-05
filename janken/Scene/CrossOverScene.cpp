@@ -52,7 +52,7 @@ std::unique_ptr<BaseScene> CrossOverScene::Update(std::unique_ptr<BaseScene> own
 	{
 		return std::move(next_);
 	}
-	TransitionScene::Draw();
+	BaseScene::Draw();
 	return own;
 }
 

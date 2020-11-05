@@ -3,6 +3,7 @@
 NetWorkState::NetWorkState()
 {
 	active_ = ActiveState::Non;
+	sizedata_ = {0,0,0};
 }
 
 NetWorkState::~NetWorkState()

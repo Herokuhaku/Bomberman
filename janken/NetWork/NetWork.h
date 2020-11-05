@@ -8,24 +8,7 @@
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
-
-enum class MesType:unsigned char
-{
-	STANBY,			// 初期化情報送信完了(ホスト用)
-	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
-	TMX_SIZE,
-	TMX_DATA,
-	POS,
-	NON
-};
-
-struct MesHeader
-{
-	MesType type;
-	unsigned short id;
-	unsigned char cdata;
-	unsigned int length;
-};
+#define MAXSENDBYTE 1000
 
 class NetWork
 {
@@ -41,7 +24,8 @@ public:
 	bool SetNetWorkMode(NetWorkMode data);
 	void SetRevStandby(bool rev);
 
-	bool SendMes(MesHeader data);
+	bool SendMesHeader(MesHeader data);
+	bool SendMesData(MesData data);
 	void SendStandby(void);
 	void SendStart(void);
 	void SendTmxSize(void);
@@ -58,7 +42,7 @@ public:
 private:
 	std::thread mut_;
 	bool revStandby_;
-	IPDATA ipdata_;			// IPの保存
+//	IPDATA ipdata_;			// IPの保存
 	std::array<IPDATA, 5> mipdata_;
 	std::unique_ptr<NetWorkState> network_state_;	//net work state
 

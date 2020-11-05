@@ -25,10 +25,44 @@ enum class ActiveState
 
 union unionData
 {
-	char cData[8];
-	int iData[2];
-	long long lData;
+	char cData[4];
+	int iData;
+	//long long lData;
 };
+
+enum class MesType :unsigned char
+{
+	STANBY,			// 初期化情報送信完了(ホスト用)
+	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
+	TMX_SIZE,
+	TMX_DATA,
+	POS,
+	NON
+};
+
+
+struct MesHeader
+{
+	MesType type;
+	unsigned char cdata;
+	unsigned short id;
+	int length;
+};
+
+union Header
+{
+	MesHeader header;
+	int iheader[2];
+};
+
+struct MesSizeData
+{
+	unsigned int times;
+	unsigned int oneByte;
+	unsigned int AllByte;
+};
+
+using MesData = std::vector<int>;
 
 class NetWorkState
 {
@@ -49,5 +83,7 @@ protected:
 
 	std::mutex mtx_;
 	std::vector<unionData> revtmx;
+//	MesType nowtype_;
+	MesSizeData sizedata_;
 //	std::vector<int> revtmx_;
 };

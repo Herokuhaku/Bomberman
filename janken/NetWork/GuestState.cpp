@@ -38,9 +38,12 @@ bool GuestState::CheckNetWork(void)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
-		while(GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
+		if(GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 		{
 			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
+			revtmx.resize(tmp.length);
+			MesData tmpdata;
+			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmpdata,tmp.length);
 			if (tmp.type == MesType::STANBY)
 			{
 				OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
@@ -50,20 +53,27 @@ bool GuestState::CheckNetWork(void)
 				TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
 				lpNetWork.SetRevStandby(true);
 			}
-			if (tmp.type == MesType::TMX_SIZE)
+			if (tmp.length > 0)
 			{
-				/*savenum = tmp.data[0];
-				revtmx.resize(savenum);
-				begin = std::chrono::system_clock::now();
-				TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
-			}
-
-			if (tmp.type == MesType::TMX_DATA)
-			{
+				if (tmp.type == MesType::TMX_SIZE)
 				{
-					std::lock_guard<std::mutex> mut(mtx_);
-					//revtmx[tmp.id].iData[0] = tmp.data[0];
-					//revtmx[tmp.id].iData[1] = tmp.data[1];
+					//savenum = tmp.data[0];
+					//revtmx.resize(savenum);
+					begin = std::chrono::system_clock::now();
+					//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
+				}
+
+				if (tmp.type == MesType::TMX_DATA)
+				{
+					int count = 0;
+					{
+						std::lock_guard<std::mutex> mut(mtx_);
+						for (auto& d : tmpdata)
+						{
+							//revtmx[tmp.id].iData[ = tmp.data[0];
+							revtmx[count++].iData = d;
+						}
+					}
 				}
 			}
 		}
@@ -100,19 +110,18 @@ void GuestState::OutCsv(void)
 	int id = 0;
 	for (auto& i : revtmx)
 	{
-		int data[2] = { 0,0 };
-		unsigned char onedata[8];
-		for (int c = 0; c < 8; c++)
+		int data = 0;
+		unsigned char onedata[4];
+		for (int c = 0; c < 4; c++)
 		{
 			onedata[c] = i.cData[c];
 		}
-		for (int c = 0; c < 8; c++)
+		for (int c = 0; c < 4; c++)
 		{
 			unsigned char tmp[2];
 			for (int f = 0; f < 2; f++)
 			{
 				if (id < 357 * 4)
-				//if (id <= 357 * 4 - 1)
 				{
 					if (f == 0)
 					{
@@ -128,7 +137,7 @@ void GuestState::OutCsv(void)
 					}
 					if (id % 21 == 0 && id != 0)
 					{
-						if(id % 357 != 0)fp << ",";
+						if (id % 357 != 0)fp << ",";
 						fp << "\n";
 					}
 					fp << static_cast<int>(tmp[f]);
@@ -137,6 +146,44 @@ void GuestState::OutCsv(void)
 			}
 		}
 	}
+	//for (auto& i : revtmx)
+	//{
+	//	int data[2] = { 0,0 };
+	//	unsigned char onedata[8];
+	//	for (int c = 0; c < 8; c++)
+	//	{
+	//		onedata[c] = i.cData[c];
+	//	}
+	//	for (int c = 0; c < 8; c++)
+	//	{
+	//		unsigned char tmp[2];
+	//		for (int f = 0; f < 2; f++)
+	//		{
+	//			if (id <= 357 * 4 - 1)
+	//			{
+	//				if (f == 0)
+	//				{
+	//					tmp[f] = onedata[c] & 0x0f;
+	//				}
+	//				else
+	//				{
+	//					tmp[f] = onedata[c] >> 4;
+	//				}
+	//				if (id % 21 != 0)
+	//				{
+	//					fp << ",";
+	//				}
+	//				if (id % 21 == 0 && id != 0)
+	//				{
+	//					if(id % 357 != 0)fp << ",";
+	//					fp << "\n";
+	//				}
+	//				fp << static_cast<int>(tmp[f]);
+	//			}
+	//			id++;
+	//		}
+	//	}
+	//}
 }
 
 void GuestState::OutData(void)

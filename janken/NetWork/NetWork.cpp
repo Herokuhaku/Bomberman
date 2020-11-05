@@ -48,10 +48,20 @@ void NetWork::SetRevStandby(bool rev)
 {
 	revStandby_ = rev;
 }
-bool NetWork::SendMes(MesHeader data)
+bool NetWork::SendMesHeader(MesHeader data)
 {
 	NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
-	//TRACE("種類 : %d,ID : %d,data[0] : %d, data[1] : %d を送信\n\n",data.type,data.id, data.data[0], data.data[1]);
+//	TRACE("種類 : %d,ID : %d,data[0] : %d, data[1] : %d を送信\n\n",data.type,data.id,data.length);
+	return true;
+}
+bool NetWork::SendMesData(MesData data)
+{
+	NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, data.size()*4);
+	int count = 0;
+	for (auto& d : data)
+	{
+		TRACE("ID : %d  , DATA  : %d	を送信\n",count++,d);
+	}
 	return true;
 }
 void NetWork::SendStandby(void)
@@ -85,32 +95,29 @@ void NetWork::SendStart(void)
 void NetWork::SendTmxSize(void)
 {
 	std::ifstream ifp("Tiled/mapdata/map.tmx");
-	// 行数を数える
-	std::string save;
-	int i = 0;
-	int a = 0;
-	while (std::getline(ifp, save))
-	{
-		i+=static_cast<int>(save.size())+1;
-	}
-	MesHeader data = { MesType::TMX_SIZE,0,0,0};
+	ifp.seekg(0, std::ios::end);		// 最後までシークする
+	MesHeader data = { MesType::TMX_SIZE,0,0,sizeof(MesSizeData)};
+	MesData mesdata;
+	Header head;
+	head.header = data;
+	mesdata.emplace_back(head.iheader[0]);
+	mesdata.emplace_back(head.iheader[1]);
 
-	SendMes(data);
-	//std::ifstream ifp("Tiled/mapdata/map.tmx");
-	//ifp.seekg(0, std::ios::end);		// 最後までシークする
-	//
-	//// 行数を数える
-	//std::ifstream fp("Tiled/mapdata/map.tmx");
-	//std::string save;
-	//int i = 0;
-	//while (std::getline(fp, save))
-	//{
-	//	i++;
-	//}
-	// i = static_cast<int>(ifp.tellg()) - i;
-	//MesData data = {MesType::TMX_SIZE,i,0};
-	//SendMes(data);
-	return;
+	// 回数	~1400まで0 になるからそれを1にするため+1
+	// 1401~ 2800 までは 1 + 1 で回数2
+	MesSizeData tmpd;
+	tmpd.AllByte = (((357 * 4) * 4) / 8);
+	tmpd.times = tmpd.AllByte / MAXSENDBYTE + 1;
+	tmpd.oneByte = tmpd.AllByte / tmpd.times;
+
+	mesdata.emplace_back(tmpd.times);
+	// 単体バイト数
+	mesdata.emplace_back(tmpd.oneByte);
+	// 総バイト数
+	mesdata.emplace_back(tmpd.AllByte);
+
+	SendMesData(mesdata);
+	return ;
 }
 std::array<IPDATA,5> NetWork::GetIP(void)
 {
@@ -161,8 +168,8 @@ ActiveState NetWork::ConnectHost(IPDATA hostip)
 
 NetWork::NetWork()
 {
-	ipdata_ = {};
 	revStandby_ = false;
+	mipdata_ = {};
 }
 
 NetWork::~NetWork()

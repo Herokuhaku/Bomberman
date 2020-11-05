@@ -1,2 +1,3 @@
-﻿  LoginScene.cpp
-  janken.vcxproj -> C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\janken\x64\Debug\janken.exe
+﻿  NetWork.cpp
+C:\Users\herok\Desktop\11.04_家\janken\NetWork\NetWork.cpp(59,64): warning C4267: '引数': 'size_t' から 'int' に変換しました。データが失われているかもしれません。
+  janken.vcxproj -> C:\Users\herok\Desktop\11.04_家\janken\x64\Debug\janken.exe

@@ -203,7 +203,7 @@ void LoginScene::StartInit(void)
 {
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init){
 	pos_ = { 250,250 };
-
+	MesData tmp;
 	lpNetWork.SendTmxSize();
 	SendData();
 	lpNetWork.SendStandby();
@@ -216,7 +216,7 @@ void LoginScene::StartInit(void)
 	{
 
 		TRACE("‘—‚ç‚ê‚Ä‚«‚½‰Šúî•ñ‚Å‰Šú‰»‚µ‚½‚æ\n\n\n");
-		//tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
+		tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
 		lpNetWork.SendStart();
 		pos_ = { 250,250 };
 	}
@@ -363,19 +363,19 @@ void LoginScene::SendData()
 			_data.emplace_back(data);
 		}
 	}
-	int count = -1;
+	int count = 0;
+	std::vector<int> senddata;
+	
 	for(auto& chip : _data)
 	{
-		//tmp |= data << (co % 2)*4;
-	//	tmp |= test[co - 1] << co % 2 * 4;
-
 		tmp |= chip << co % 2 * 4;
 		if (++co % 2 == 0 && co != 0) {
 			c[i++] = tmp;
 			tmp = 0;
 		}
 		if (co == 16) {
-			//lpNetWork.SendMes({ MesType::TMX_DATA,id++,0, j[0],j[1] });
+			senddata.emplace_back(j[0]);
+			senddata.emplace_back(j[1]);
 			i = 0;
 			co = 0;
 		}
@@ -386,6 +386,42 @@ void LoginScene::SendData()
 			tmp |= 0 << (co++ % 2) * 4;
 			c[i++] = tmp;
 		}
-		//lpNetWork.SendMes({ MesType::TMX_DATA,id++,0, j[0],j[1] });
+		senddata.emplace_back(j[0]);
+		senddata.emplace_back(j[1]);
 	}
+
+	while (senddata.size() > MAXSENDBYTE / 4)
+	{
+		MesHeader data = { MesType::TMX_DATA,0,0,MAXSENDBYTE };
+		MesData mesdata;
+		Header head;
+		head.header = data;
+		mesdata.emplace_back(head.iheader[0]);
+		mesdata.emplace_back(head.iheader[1]);
+		for (int i = 0; i < MAXSENDBYTE; i++)
+		{
+			mesdata.emplace_back(senddata[i]);
+		}
+		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE / 4);
+		lpNetWork.SendMesData(mesdata);
+	}
+	if (senddata.size() > 0)
+	{
+		MesHeader data = { MesType::TMX_DATA,0,0,senddata.size() * 4 };
+		MesData mesdata;
+		Header head;
+		int c = 0;
+		head.header = data;
+		mesdata.emplace_back(head.iheader[0]);
+		mesdata.emplace_back(head.iheader[1]);
+		for (auto d : senddata)
+		{
+			mesdata.emplace_back(d);
+			c++;
+		}
+		senddata.erase(senddata.begin(), senddata.begin() + c);
+		lpNetWork.SendMesData(mesdata);
+	}
+
+	//lpNetWork.SendMesData(senddata);
 }
