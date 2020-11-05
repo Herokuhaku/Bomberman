@@ -1,0 +1,19 @@
+1番を選んだ時は接続IPをhostip.txtに書き込む
+
+ファイルがないときは2番を表示しない →　これをする場合 1,3になるので\nで2の番号を飛ばす
+
+kotaroぐろーばるIP : 192.168.56.1
+kotaroろーかるIP   : 172.20.41.190
+
+
+
+標準のfopen　普通に使ってok : 注意点→　fopenは開いたファイルは自分で閉じる必要がある
+
+ユニークポインタ FILE,declttype(&fclose) fp ←にfopenを入れる "wt",fclose;
+
+
+ifstream    入力 :
+ofstream fp2std::ios::trunc
+fp2 << ipString; 出力 :自動的にファイルを閉じる
+
+ipstringにfp2から値を入れる?

@@ -1,0 +1,2 @@
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\janken\Debug\janken.exe
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\janken\Debug\janken.pdb
