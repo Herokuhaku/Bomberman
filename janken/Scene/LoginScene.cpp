@@ -390,7 +390,7 @@ void LoginScene::SendData()
 		senddata.emplace_back(j[1]);
 	}
 
-	while (senddata.size() > MAXSENDBYTE / 4)
+	while (senddata.size()*4 > MAXSENDBYTE)
 	{
 		MesHeader data = { MesType::TMX_DATA,0,0,MAXSENDBYTE };
 		MesData mesdata;
@@ -402,7 +402,7 @@ void LoginScene::SendData()
 		{
 			mesdata.emplace_back(senddata[i]);
 		}
-		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE / 4);
+		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE);
 		lpNetWork.SendMesData(mesdata);
 	}
 	if (senddata.size() > 0)
@@ -422,6 +422,4 @@ void LoginScene::SendData()
 		senddata.erase(senddata.begin(), senddata.begin() + c);
 		lpNetWork.SendMesData(mesdata);
 	}
-
-	//lpNetWork.SendMesData(senddata);
 }

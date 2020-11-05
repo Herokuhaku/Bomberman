@@ -60,7 +60,7 @@ bool NetWork::SendMesData(MesData data)
 	int count = 0;
 	for (auto& d : data)
 	{
-		TRACE("ID : %d  , DATA  : %d	‚ğ‘—M\n",count++,d);
+		TRACE("%d ‚ğ‘—M\n",d);
 	}
 	return true;
 }
