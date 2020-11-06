@@ -60,12 +60,12 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 		updateMode_ = UpdateMode::SetNetWorkMode;
 	}
 	titleRun_[updateMode_]();
-	if (CheckHitKey(KEY_INPUT_A))
-	{
-		return std::make_unique<CrossOverScene>(std::move(own),std::make_unique<GameScene>());
-	}
 	lpButtonMng.Run();
 	Draw();
+	if (updateMode_ == UpdateMode::GamePlay)
+	{
+		return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
+	}
 	//lpNetWork.newUpdate();
 	return own;
 }
@@ -365,7 +365,10 @@ void LoginScene::SendData()
 	}
 	int count = 0;
 	std::vector<int> senddata;
-	
+	//for (auto& chip : _data)
+	//{
+	//	senddata.emplace_back(chip);
+	//}
 	for(auto& chip : _data)
 	{
 		tmp |= chip << co % 2 * 4;
@@ -390,30 +393,21 @@ void LoginScene::SendData()
 		senddata.emplace_back(j[1]);
 	}
 
-	while (senddata.size()*4 > MAXSENDBYTE)
+	while (senddata.size() > MAXSENDBYTE/sizeof(int))
 	{
-		MesHeader data = { MesType::TMX_DATA,0,0,MAXSENDBYTE };
-		MesData mesdata;
-		Header head;
-		head.header = data;
-		mesdata.emplace_back(head.iheader[0]);
-		mesdata.emplace_back(head.iheader[1]);
-		for (int i = 0; i < MAXSENDBYTE; i++)
+		//MesHeader data = { MesType::TMX_DATA,0,0,MAXSENDBYTE };
+		MesData mesdata = lpNetWork.SendMesHeader({ MesType::TMX_DATA,0,0,MAXSENDBYTE/sizeof(int)});
+		for (int i = 0; i < MAXSENDBYTE/4; i++)
 		{
 			mesdata.emplace_back(senddata[i]);
 		}
-		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE);
+		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE/4);
 		lpNetWork.SendMesData(mesdata);
 	}
 	if (senddata.size() > 0)
 	{
-		MesHeader data = { MesType::TMX_DATA,0,0,senddata.size() * 4 };
-		MesData mesdata;
-		Header head;
+		MesData mesdata = lpNetWork.SendMesHeader({ MesType::TMX_DATA,0,0,static_cast<unsigned int>(senddata.size())});
 		int c = 0;
-		head.header = data;
-		mesdata.emplace_back(head.iheader[0]);
-		mesdata.emplace_back(head.iheader[1]);
 		for (auto d : senddata)
 		{
 			mesdata.emplace_back(d);

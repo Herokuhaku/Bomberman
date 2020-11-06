@@ -48,15 +48,19 @@ void NetWork::SetRevStandby(bool rev)
 {
 	revStandby_ = rev;
 }
-bool NetWork::SendMesHeader(MesHeader data)
+ std::vector<int> NetWork::SendMesHeader(MesHeader data)
 {
-	NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
-//	TRACE("種類 : %d,ID : %d,data[0] : %d, data[1] : %d を送信\n\n",data.type,data.id,data.length);
-	return true;
+	 MesData mesdata;
+	 Header head;
+	 head.header = data;
+	 mesdata.emplace_back(head.iheader[0]);
+	 mesdata.emplace_back(head.iheader[1]);
+		
+	 return mesdata;
 }
 bool NetWork::SendMesData(MesData data)
 {
-	NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, data.size()*4);
+	NetWorkSend(lpNetWork.GetNetWorkHandle(),data.data(),data.size()*sizeof(int));
 	int count = 0;
 	for (auto& d : data)
 	{
@@ -72,7 +76,7 @@ void NetWork::SendStandby(void)
 	}
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
-		MesHeader data = { MesType::STANBY,0,0 };
+		MesHeader data = { MesType::STANBY,0,0,0};
 		NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
 		TRACE("スタンバイok　初期化情報をゲストに送るよ\n");
 		network_state_->SetActive(ActiveState::Standby);
@@ -87,7 +91,7 @@ void NetWork::SendStart(void)
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
 		network_state_->SetActive(ActiveState::Play);
-		MesHeader data = { MesType::GAME_START,0,0 };
+		MesHeader data = { MesType::GAME_START,0,0,0};
 		NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
 		TRACE("スタンバイok　開始していいよってホストに送るよ\n");
 	}
@@ -96,25 +100,21 @@ void NetWork::SendTmxSize(void)
 {
 	std::ifstream ifp("Tiled/mapdata/map.tmx");
 	ifp.seekg(0, std::ios::end);		// 最後までシークする
-	MesHeader data = { MesType::TMX_SIZE,0,0,sizeof(MesSizeData)};
-	MesData mesdata;
-	Header head;
-	head.header = data;
-	mesdata.emplace_back(head.iheader[0]);
-	mesdata.emplace_back(head.iheader[1]);
 
 	// 回数	~1400まで0 になるからそれを1にするため+1
 	// 1401~ 2800 までは 1 + 1 で回数2
 	MesSizeData tmpd;
+
+	MesData mesdata = SendMesHeader({ MesType::TMX_SIZE,0,0,sizeof(tmpd.AllByte) / 4 });
 	tmpd.AllByte = (((357 * 4) * 4) / 8);
 	tmpd.times = tmpd.AllByte / MAXSENDBYTE + 1;
 	tmpd.oneByte = tmpd.AllByte / tmpd.times;
 
-	mesdata.emplace_back(tmpd.times);
-	// 単体バイト数
-	mesdata.emplace_back(tmpd.oneByte);
-	// 総バイト数
-	mesdata.emplace_back(tmpd.AllByte);
+	//mesdata.emplace_back(tmpd.times);
+	//// 単体バイト数
+	//mesdata.emplace_back(tmpd.oneByte);
+	//// 総バイト数
+	mesdata.emplace_back(tmpd.AllByte/4);
 
 	SendMesData(mesdata);
 	return ;

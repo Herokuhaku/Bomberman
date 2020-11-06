@@ -28,3 +28,5 @@ C:\Users\herok\Desktop\11.04_家\janken\x64\Debug\janken.exe
 C:\Users\herok\Desktop\11.04_家\janken\x64\Debug\janken.pdb
 C:\Users\herok\Desktop\Bomberman-main\Bomberman\janken\x64\Debug\janken.exe
 C:\Users\herok\Desktop\Bomberman-main\Bomberman\janken\x64\Debug\janken.pdb
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\x64\Debug\janken.exe
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\x64\Debug\janken.pdb

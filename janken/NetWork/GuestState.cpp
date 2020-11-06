@@ -41,9 +41,6 @@ bool GuestState::CheckNetWork(void)
 		if(GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 		{
 			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-			revtmx.resize(tmp.length);
-			MesData tmpdata;
-			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmpdata,tmp.length);
 			if (tmp.type == MesType::STANBY)
 			{
 				OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
@@ -53,25 +50,33 @@ bool GuestState::CheckNetWork(void)
 				TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
 				lpNetWork.SetRevStandby(true);
 			}
-			if (tmp.length > 0)
+			MesData tmpdata;
+			tmpdata.resize(tmp.length);
+			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 			{
-				if (tmp.type == MesType::TMX_SIZE)
+				NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length*4);
+				if (tmp.length > 0)
 				{
-					//savenum = tmp.data[0];
-					//revtmx.resize(savenum);
-					begin = std::chrono::system_clock::now();
-					//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
-				}
-
-				if (tmp.type == MesType::TMX_DATA)
-				{
-					int count = 0;
+					if (tmp.type == MesType::TMX_SIZE)
 					{
-						std::lock_guard<std::mutex> mut(mtx_);
-						for (auto& d : tmpdata)
+						revtmx.resize(tmpdata[0]);
+						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d",tmp.length, tmpdata);
+						//savenum = tmp.data[0];
+						//revtmx.resize(savenum);
+						begin = std::chrono::system_clock::now();
+						//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
+					}
+					if (tmp.type == MesType::TMX_DATA)
+					{
+						//revtmx.resize(tmp.length);
+						int count = 0;
 						{
-							//revtmx[tmp.id].iData[ = tmp.data[0];
-							revtmx[count++].iData = d;
+							std::lock_guard<std::mutex> mut(mtx_);
+							for (auto& d : tmpdata)
+							{
+								//revtmx[tmp.id].iData[ = tmp.data[0];
+								revtmx[count++].iData = d;
+							}
 						}
 					}
 				}

@@ -37,7 +37,7 @@ void GameScene::Init(void)
 		}
 	}
 	tsxdata_ = lpTiledLoader.ReadTsx("Tiled/mapdata/map");
-	lpTiledLoader.TmxCsv();
+	//lpTiledLoader.TmxCsv();
 
 	Image.resize(12);
 	LoadDivGraph(tsxdata_.pass.c_str(),12,

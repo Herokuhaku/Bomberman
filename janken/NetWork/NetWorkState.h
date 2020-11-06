@@ -46,13 +46,13 @@ struct MesHeader
 	MesType type;
 	unsigned char cdata;
 	unsigned short id;
-	int length;
+	unsigned int length;
 };
 
 union Header
 {
 	MesHeader header;
-	int iheader[2];
+	unsigned int iheader[2];
 };
 
 struct MesSizeData
