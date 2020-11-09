@@ -41,15 +41,7 @@ bool GuestState::CheckNetWork(void)
 		if(GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 		{
 			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-			if (tmp.type == MesType::STANBY)
-			{
-				OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
-				OutData();		// csvと元々あるデータを参考にtmxデータを作成する
-				end = std::chrono::system_clock::now();
-				std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
-				TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
-				lpNetWork.SetRevStandby(true);
-			}
+
 			MesData tmpdata;
 			tmpdata.resize(tmp.length);
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
@@ -57,15 +49,6 @@ bool GuestState::CheckNetWork(void)
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length*4);
 				if (tmp.length > 0)
 				{
-					if (tmp.type == MesType::TMX_SIZE)
-					{
-						revtmx.resize(tmpdata[0]);
-						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d",tmp.length,tmpdata);
-						//savenum = tmp.data[0];
-						//revtmx.resize(savenum);
-						begin = std::chrono::system_clock::now();
-						//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
-					}
 					if (tmp.type == MesType::TMX_DATA)
 					{
 						//revtmx.resize(tmp.length);
@@ -74,12 +57,30 @@ bool GuestState::CheckNetWork(void)
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								//revtmx[tmp.id].iData[ = tmp.data[0];
+								//revtmx[tmp.id].iData = tmp.data[0];
 								revtmx[count++].iData = d;
 							}
 						}
 					}
+					if (tmp.type == MesType::TMX_SIZE)
+					{
+						revtmx.resize(tmpdata[0]);
+						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d", tmp.length, tmpdata);
+						//savenum = tmp.data[0];
+						//revtmx.resize(savenum);
+						begin = std::chrono::system_clock::now();
+						//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
+					}
 				}
+			}
+			if (tmp.type == MesType::STANBY)
+			{
+				OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
+				OutData();		// csvと元々あるデータを参考にtmxデータを作成する
+				end = std::chrono::system_clock::now();
+				std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+				TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
+				lpNetWork.SetRevStandby(true);
 			}
 		}
 	}
