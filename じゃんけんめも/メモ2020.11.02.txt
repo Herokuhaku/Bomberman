@@ -1,0 +1,46 @@
+TitleSceneをLoginSceneに変える
+
+Tsxは共通のを使う(zip内)
+
+GameSceneを作る
+
+オフライン、ホスト時は自分のTMXを表示
+ゲスト時は受信したTMXを表示
+
+プログラムをちゃんと終了できる(終了時に不正処理とかでないようにしてね)
+
+90回の送受信で100ms以下になること
+
+トランジションをする(フェードアウトしながらフェードイン)
+トランジションはクラスにする
+
+CrossOver Transition
+DrawOwnScreen();
+return ++count_ > 255;
+
+BaseScene→Transition→CrossOver　継承順 
+CrossOver を　makek_unique<>(引数に oldScene(LoginScene),GameScene)
+
+Updateは引数1つ
+
+CrossOverのUpdateの中で
+LoginSceneとGameSceneのUpdateを呼べる
+
+SceneのスクリーンID(画面解像度分)　ここにDrawする
+
+BaseScene:
+{
+GetScreenID
+Draw()
+DrawOwnScreen()
+int screenID
+}
+
+Drawownscreenで描画先指定(screenID)に書いてDrawで呼ぶ
+
+SceneMngのDrawで呼ぶ
+
+BaseSceneのDrawには screenScrID_←DrawGraph
+
+InitでDrawownScreenを一回よんで描画しとく
+

@@ -1,0 +1,24 @@
+データ1800 + MesType　を　lpNetWorkに送る
+lpNetWorkで1800 を 1400  400 に分割する
+ヘッダー next -> 1 or 0をいれる
+	length->1400 - 2 * 4
+	1400/4     size()
+
+next　が1の限りバッファにため続ける
+
+nextが1の間continue;で回し続ける
+nextが0になったらバッファにためてあるデータを持っていっていっぺんに処理する
+
+sendmesでやること
+// sendsize = mesPacket.size()
+iData = sendSize - MES_HEADER_INT_CNT
+ 
+sendSize : 送りたいサイズ
+
+
+sendSize*sizeof(int)
+
+do
+{
+}
+while(mesPakcket.size() > MES_HEADER_INT_CNT);

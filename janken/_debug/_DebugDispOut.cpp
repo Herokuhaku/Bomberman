@@ -7,14 +7,16 @@
 std::unique_ptr<_DebugDispOut, _DebugDispOut::_DebugDispOutDeleter> _DebugDispOut::s_Instance(new _DebugDispOut);
 _DebugDispOut::_DebugDispOut()
 {
-	_DbgScreen = -1;
-	_waitTime  = 0;
+	DbgScreen_ = -1;
+	waitTime_  = 0;
 	_alpha = 255;
-	_dispFlag = true;
-	_endKey[0] = 0;
-	_endKey[1] = 0;
-	_ghBefor = 0;
-	_clsFlag = true;
+	dispFlag_ = true;
+	endKey_[0] = 0;
+	endKey_[1] = 0;
+	pouseKey_[0] = 0;
+	pouseKey_[1] = 0;
+	ghBefor_ = 0;
+	clsFlag_ = true;
 }
 
 _DebugDispOut::~_DebugDispOut()
@@ -23,60 +25,80 @@ _DebugDispOut::~_DebugDispOut()
 
 void _DebugDispOut::SetScreen(void)
 {
-	_ghBefor = GetDrawScreen();
-	SetDrawScreen(_DbgScreen);
+	ghBefor_ = GetDrawScreen();
+	SetDrawScreen(DbgScreen_);
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, _alpha);
 }
 
 void _DebugDispOut::RevScreen(void)
 {
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-	SetDrawScreen(_ghBefor);
+	SetDrawScreen(ghBefor_);
 }
 
 void _DebugDispOut::WaitMode(void)
 {
+	f1Key_[1] = f1Key_[0];
+	f1Key_[0] = CheckHitKey(KEY_INPUT_F1);
+	if (f1Key_[0] && !f1Key_[1])
+	{
+		TRACE("デバッグ表示ON/OFF        ：Home\n");
+		TRACE("デバッグ表示クリアーON/OFF：Delete\n\n");
+
+		TRACE("スロー機能(ゆっくり)：PageDown\n");
+		TRACE("スロー機能(は や く)：PageUp\n");
+		TRACE("一時停止/スロー・一時停止解除：Pause/Break\n\n");
+	}
+
 	if (CheckHitKey(KEY_INPUT_PGDN))
 	{
-		_waitTime+=10.0;
-		TRACE("スロー：%f\n", _waitTime);
+		waitTime_+=10.0;
+		TRACE("スロー：%f\n", waitTime_);
 	}
 	if (CheckHitKey(KEY_INPUT_PGUP))
 	{
-		_waitTime -= 10.0;
-		if (_waitTime < 0.0)
+		waitTime_ -= 10.0;
+		if (waitTime_ < 0.0)
 		{
-			_waitTime = 0.0;
+			waitTime_ = 0.0;
 		}
-		TRACE("スロー：%f\n", _waitTime);
+		TRACE("スロー：%f\n", waitTime_);
 	}
-	if (CheckHitKey(KEY_INPUT_YEN))
+	pouseKey_[1] = pouseKey_[0];
+	pouseKey_[0] = CheckHitKey(KEY_INPUT_PAUSE);
+
+	if (waitTime_)
 	{
-		TRACE("一時停止\n");
-		_waitTime = -1.0;
-	}
-	if (_waitTime)
-	{
-		_startTime = std::chrono::system_clock::now();
+		startTime_ = std::chrono::system_clock::now();
 		do {
+			pouseKey_[1] = pouseKey_[0];
+			pouseKey_[0] = CheckHitKey(KEY_INPUT_PAUSE);
 			if (ProcessMessage() != 0 || CheckHitKey(KEY_INPUT_ESCAPE) == 1)
 			{
 				break;
 			}
-			if (CheckHitKey(KEY_INPUT_END))
+			if (pouseKey_[0] && !pouseKey_[1])
 			{
-				_waitTime = 0.0;
+				waitTime_ = 0.0;
 				TRACE("スロー/一時停止　解除\n");
+				pouseKey_[1] = pouseKey_[0];
 			}
-			_endTime = std::chrono::system_clock::now();
-		} while (std::chrono::duration_cast<std::chrono::milliseconds>(_endTime - _startTime).count() < _waitTime || _waitTime < 0.0);
+			endTime_ = std::chrono::system_clock::now();
+		} while (std::chrono::duration_cast<std::chrono::milliseconds>(endTime_ - startTime_).count() < waitTime_ || waitTime_ < 0.0);
 	}
-	_endKey[1] = _endKey[0];
-	_endKey[0] = CheckHitKey(KEY_INPUT_HOME);
-	if (_endKey[0] && !_endKey[1])
+	if (pouseKey_[0] && !pouseKey_[1])
 	{
-		_clsFlag ^= 1;
-		TRACE("デバッグ表示クリアー機能：%d\n",_clsFlag);
+		TRACE("一時停止\n");
+		waitTime_ = -1.0;
+		pouseKey_[1] = pouseKey_[0];
+	}
+
+	endKey_[1] = endKey_[0];
+	endKey_[0] = CheckHitKey(KEY_INPUT_DELETE);
+	if (endKey_[0] && !endKey_[1])
+	{
+		clsFlag_ ^= 1;
+		TRACE("デバッグ表示クリアー機能：%d\n",clsFlag_);
 	}
 }
 
@@ -143,8 +165,8 @@ bool _DebugDispOut::StartDrawDebug(void)
 {
 	int ghBefor;
 	ghBefor = GetDrawScreen();
-	SetDrawScreen(_DbgScreen);
-	if (_clsFlag)
+	SetDrawScreen(DbgScreen_);
+	if (clsFlag_)
 	{
 		ClsDrawScreen();
 	}
@@ -154,20 +176,17 @@ bool _DebugDispOut::StartDrawDebug(void)
 
 bool _DebugDispOut::AddDrawDebug(void)
 {
-	if (CheckHitKey(KEY_INPUT_INSERT))
+	homeKey_[1] = homeKey_[0];
+	homeKey_[0] = CheckHitKey(KEY_INPUT_HOME);
+	if (homeKey_[0] && !homeKey_[1])
 	{
-		TRACE("デバッグ表示ON\n");
-		_dispFlag = true;
+		TRACE("デバッグ表示：%d\n", dispFlag_);
+		dispFlag_ ^= 1;
 	}
-	if (CheckHitKey(KEY_INPUT_DELETE))
-	{
-		TRACE("デバッグ表示OFF\n");
-		_dispFlag = false;
-	}
-	if (_dispFlag)
+	if (dispFlag_)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-		DxLib::DrawGraph(0, 0, _DbgScreen, true);
+		DxLib::DrawGraph(0, 0, DbgScreen_, true);
 		//lpSceneMng.AddDrawQue({ _DbgScreen,lpSceneMng.ScreenSize.x/2,lpSceneMng.ScreenSize.y / 2,0,INT_MAX,LAYER::UI,DX_BLENDMODE_NOBLEND,255 });
 	}
 	WaitMode();
@@ -183,17 +202,17 @@ bool _DebugDispOut::SetAlpha(int alpha)
 
 bool _DebugDispOut::Setup(int screenSizeX, int screenSizeY,int alpha)
 {
-	if (_DbgScreen == -1)
+	if (DbgScreen_ == -1)
 	{
-		_DbgScreen = MakeScreen(screenSizeX, screenSizeY, true);
+		DbgScreen_ = MakeScreen(screenSizeX, screenSizeY, true);
 	}
 	SetAlpha(alpha);
-	return false;
+	return true;
 }
 
 bool _DebugDispOut::SetWait(double timeCnt)
 {
-	_waitTime = timeCnt;
+	waitTime_ = timeCnt;
 	return true;
 }
 

@@ -1,0 +1,3 @@
+int GetMyIPAddress( IPDATA *IpBuf ) ;// 自分のＩＰを得る
+
+IpBufに格納する

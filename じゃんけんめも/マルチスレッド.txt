@@ -1,0 +1,71 @@
+#include <thread>
+#include <mutex>
+
+NetWork;
+
+std::thread update;
+
+update = std::thread(&NetWork::Updata,this);
+update.detach();	join もある。ほとんどjoin
+
+// 作ったスレッドは必ずjoin or detachをしなければならない。そうしないと浮いたスレッドができる
+
+
+if(update.joinable())		// ジョインしてるか確かめる
+{
+  update.join();
+}
+
+こいつらを寿命を迎えない限りぐりぐり回しとく
+if(PerocessMessage())
+{
+
+}
+
+
+マルチスレッドプログラムで一番気を付ける部分
+
+コンフリクトとデッドロック
+
+
+	Ⓐ
+	↓
+	↓→→
+	↓　　Ⓑ
+  pos ->〇　　↓  ← pos　AもBもposにアクセスする場合。
+	↓　　↓	　AがRead　　BがWriteだった場合　更に　完璧にタイミングが一緒だったら ×
+	↓　　↓          AもBもWriteの場合　×
+　　　　↓←←		  コンフリクト　お互い使う可能性のある変数に対してロックとアンロックをつける
+	↓
+	↓
+	↓
+
+
+
+std::mutex tmp;
+tmp.lock();					// ロックする
+tmp.unlock();					// アンロックする
+
+ロックアンロックは手動
+
+忘れた時のために
+
+std::lock_guard<std::mutex> lock(mtx_);
+
+
+
+lock の管理クラス
+
+<std::mutex>
+
+std::lock_guard<std::mutex>lock(mtx_);
+
+
+
+受信処理が終わった後にcontinue;してる
+
+
+
+
+
+

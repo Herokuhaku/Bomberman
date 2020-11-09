@@ -1,9 +1,10 @@
 ﻿  GuestState.cpp
 C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(55,59): warning C4018: '>': signed と unsigned の数値を比較しようとしました。
-C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(63,7): warning C4477: 'printf' : 書式文字列 '%p' には、型 'void *' の引数が必要ですが、可変個引数 1 は型 'unsigned int' です
-C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(63,7): warning C4313: 'printf': 書式文字列内の '%p' が引数 1 ('unsigned int' 型) と競合しています。
 C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(63,7): warning C4477: 'printf' : 書式文字列 '%d' には、型 'int' の引数が必要ですが、可変個引数 2 は型 'MesData' です
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(78,40): error C2228: '.iData' の左側はクラス、構造体、共用体でなければなりません
+C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(78,40): message : 型は 'int' です。
 C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(208,27): warning C4267: '+=': 'size_t' から 'int' に変換しました。データが失われているかもしれません。
 C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(209,7): warning C4267: '=': 'size_t' から 'int' に変換しました。データが失われているかもしれません。
 C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\NetWork\GuestState.cpp(218,30): warning C4267: '+=': 'size_t' から 'int' に変換しました。データが失われているかもしれません。
-  janken.vcxproj -> C:\Users\herok\Desktop\学校関係\授業のフォルダ\プログラム授業\じゃんけん\Bomberman-main\Bomberman\janken\x64\Debug\janken.exe
+  LoginScene.cpp
+  コードを生成中...

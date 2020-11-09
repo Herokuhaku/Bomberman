@@ -60,7 +60,7 @@ bool GuestState::CheckNetWork(void)
 					if (tmp.type == MesType::TMX_SIZE)
 					{
 						revtmx.resize(tmpdata[0]);
-						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d",tmp.length, tmpdata);
+						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d",tmp.length,tmpdata);
 						//savenum = tmp.data[0];
 						//revtmx.resize(savenum);
 						begin = std::chrono::system_clock::now();

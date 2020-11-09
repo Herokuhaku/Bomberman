@@ -32,21 +32,21 @@ union unionData
 
 enum class MesType :unsigned char
 {
+	NON = 100,
 	STANBY,			// 初期化情報送信完了(ホスト用)
 	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
-	TMX_SIZE,
-	TMX_DATA,
-	POS,
-	NON
+	TMX_SIZE,		// TMXサイズ　総サイズ
+	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
+	POS				// ゲーム中に送る
 };
 
 
 struct MesHeader
 {
-	MesType type;
-	unsigned char cdata;
-	unsigned short id;
-	unsigned int length;
+	MesType type;				// メッセージの種別
+	unsigned char next;			// データ送信が分割の場合に、,  次がない　0 次がある　1 
+	unsigned short sendid;		// 分割送信時のナンバリング
+	unsigned int length;		// 分割かどうかは関係ない単一パケットのデータ長(intの数) バイト数/4
 };
 
 union Header

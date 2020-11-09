@@ -68,6 +68,38 @@ bool NetWork::SendMesData(MesData data)
 	}
 	return true;
 }
+bool NetWork::SendMesData(MesType type, MesData data)
+{
+	MesData mesdata = SendMesHeader({ type,0,0,0 });
+	while (data.size() > MAXSENDBYTE / sizeof(int))
+	{
+		for (int i = 0; i < MAXSENDBYTE / 4; i++)
+		{
+			mesdata.emplace_back(data[i]);
+		}
+		data.erase(data.begin(),data.begin() + MAXSENDBYTE / 4);
+		SendMesData(mesdata);
+	}
+	if (data.size() > 0)
+	{
+		MesData mesdata = lpNetWork.SendMesHeader({type,0,0,static_cast<unsigned int>(data.size()) });
+		int c = 0;
+		for (auto d : data)
+		{
+			mesdata.emplace_back(d);
+			c++;
+		}
+		data.erase(data.begin(), data.begin() + c);
+		SendMesData(mesdata);
+	}
+	return true;
+}
+bool NetWork::SendMesData(MesType type)
+{
+	MesData data;
+	SendMesData(type, data);
+	return true;
+}
 void NetWork::SendStandby(void)
 {
 	if (network_state_ == nullptr)

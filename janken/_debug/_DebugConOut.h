@@ -5,7 +5,7 @@
 #include <assert.h>
 // ÃÞÊÞ¯¸ÞÒ¯¾°¼Þ—p’è‹`
 
-#define TRACE(fmt, ...) printf(fmt, __VA_ARGS__);
+#define TRACE(fmt, ...) printf(fmt, __VA_ARGS__)
 
 class _DebugConOut
 {

@@ -26,6 +26,8 @@ public:
 
 	std::vector<int> SendMesHeader(MesHeader data);
 	bool SendMesData(MesData data);
+	bool SendMesData(MesType type, MesData data);
+	bool SendMesData(MesType type);
 	void SendStandby(void);
 	void SendStart(void);
 	void SendTmxSize(void);

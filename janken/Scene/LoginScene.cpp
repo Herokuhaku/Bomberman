@@ -100,7 +100,7 @@ void LoginScene::SetNetWorkMode(void)
 		}
 	}
 	
-	std::ifstream ifs("HostIp/Ip.txt");
+	std::ifstream ifs("ini/Ip.txt");
 	std::string str;
 	if (!ifs)
 	{
@@ -137,7 +137,7 @@ void LoginScene::SetNetWorkMode(void)
 	{
 		TRACE("GUEST【前回の接続先】	:2\n");
 	}
-	else { TRACE("\n") };
+	else { TRACE("\n"); };
 	TRACE("OFFLINE			:3\n\n");
 	// ファイルが読み込めなかったら2番を表示しない
 
@@ -268,9 +268,9 @@ void LoginScene::inHostIp(void)
 				TRACE("IPを入力してください\n");
 			}
 		} while (!state);
-		remove("HostIp/Ip.txt");
-		std::ofstream("HostIp/Ip.txt");
-		std::ofstream ofs("HostIp/Ip.txt");
+		remove("ini/Ip.txt");
+		std::ofstream("ini/Ip.txt");
+		std::ofstream ofs("ini/Ip.txt");
 
 		ofs << std::to_string(hostip.d1) << " ." <<
 			std::to_string(hostip.d2) << "." <<
@@ -345,26 +345,25 @@ void LoginScene::SendData()
 	int co = 0;
 	unsigned char tmp = 0;
 	std::vector<unsigned char> _data;
+	for (auto& data : tmxdata_.MapData["Bg"])
 	{
-		for (auto& data : tmxdata_.MapData["Bg"])
-		{
-			_data.emplace_back(data);
-		}
-		for (auto& data : tmxdata_.MapData["Item"])
-		{
-			_data.emplace_back(data);
-		}
-		for (auto& data : tmxdata_.MapData["Obj"])
-		{
-			_data.emplace_back(data);
-		}
-		for (auto& data : tmxdata_.MapData["Char"])
-		{
-			_data.emplace_back(data);
-		}
+		_data.emplace_back(data);
 	}
+	for (auto& data : tmxdata_.MapData["Item"])
+	{
+		_data.emplace_back(data);
+	}
+	for (auto& data : tmxdata_.MapData["Obj"])
+	{
+		_data.emplace_back(data);
+	}
+	for (auto& data : tmxdata_.MapData["Char"])
+	{
+		_data.emplace_back(data);
+	}
+
 	int count = 0;
-	std::vector<int> senddata;
+	MesData senddata;
 	//for (auto& chip : _data)
 	//{
 	//	senddata.emplace_back(chip);
@@ -392,28 +391,10 @@ void LoginScene::SendData()
 		senddata.emplace_back(j[0]);
 		senddata.emplace_back(j[1]);
 	}
-
-	while (senddata.size() > MAXSENDBYTE/sizeof(int))
-	{
-		//MesHeader data = { MesType::TMX_DATA,0,0,MAXSENDBYTE };
-		MesData mesdata = lpNetWork.SendMesHeader({ MesType::TMX_DATA,0,0,MAXSENDBYTE/sizeof(int)});
-		for (int i = 0; i < MAXSENDBYTE/4; i++)
-		{
-			mesdata.emplace_back(senddata[i]);
-		}
-		senddata.erase(senddata.begin(), senddata.begin() + MAXSENDBYTE/4);
-		lpNetWork.SendMesData(mesdata);
-	}
 	if (senddata.size() > 0)
 	{
-		MesData mesdata = lpNetWork.SendMesHeader({ MesType::TMX_DATA,0,0,static_cast<unsigned int>(senddata.size())});
-		int c = 0;
-		for (auto d : senddata)
-		{
-			mesdata.emplace_back(d);
-			c++;
-		}
-		senddata.erase(senddata.begin(), senddata.begin() + c);
-		lpNetWork.SendMesData(mesdata);
+		lpNetWork.SendMesData(MesType::TMX_DATA, senddata);
+	}else{
+		lpNetWork.SendMesData(MesType::TMX_DATA);
 	}
 }
