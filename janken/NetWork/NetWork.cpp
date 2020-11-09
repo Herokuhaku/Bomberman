@@ -71,18 +71,37 @@ bool NetWork::SendMesData(MesData data)
 bool NetWork::SendMesData(MesType type, MesData data)
 {
 	MesData mesdata = SendMesHeader({ type,0,0,0 });
+	Header header;
 	while (data.size() > MAXSENDBYTE / sizeof(int))
 	{
-		for (int i = 0; i < MAXSENDBYTE / 4; i++)
+		for (int i = 0; i < MAXSENDBYTE / 4- 2; i++)
 		{
 			mesdata.emplace_back(data[i]);
 		}
-		data.erase(data.begin(),data.begin() + MAXSENDBYTE / 4);
+		// 送信元データの削除を行う
+		// MaxByte /4 でintの数にしてheader分の-2 を消す。
+		data.erase(data.begin(),data.begin() + MAXSENDBYTE / 4- 2);
+		if (data.size() > 0) {
+			header.header.next = 1;
+		}
+		else { header.header.next = 0; }
+		header.header.length = MAXSENDBYTE / 4- 2;
+		mesdata[0] = header.iheader[0];
+		mesdata[1] = header.iheader[1];
+
 		SendMesData(mesdata);
+		// 送信データの削除　ヘッダーは消さないで次に回す
+		// 開始位置はheaderの終わり位置から　　終了位置はheaderの終わり位置 + intの数 - ヘッダー分; これでヘッダーを消さずに送った分だけ消せる
+		mesdata.erase(mesdata.begin() + 2, mesdata.begin() + 2 + (MAXSENDBYTE / 4 - 2));
 	}
+
+	// データに残りがなければそのまま抜ける　残りがあれば残りをmesデータに詰めて送る
 	if (data.size() > 0)
 	{
-		MesData mesdata = lpNetWork.SendMesHeader({type,0,0,static_cast<unsigned int>(data.size()) });
+		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
+		MesData tmpl = lpNetWork.SendMesHeader({ type,0,0,static_cast<unsigned int>(data.size())-2});
+		mesdata[0] = tmpl[0];
+		mesdata[1] = tmpl[1];
 		int c = 0;
 		for (auto d : data)
 		{
