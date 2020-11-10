@@ -38,15 +38,18 @@ public:
 	ActiveState GetActive(void);
 	int GetNetWorkHandle(void);
 	bool GetRevStandby(void);
-
+	int GetMaxByte(void);
 
 	ActiveState ConnectHost(IPDATA hostip);
 private:
+	bool Setting(void);
+
 	std::thread mut_;
 	bool revStandby_;
 //	IPDATA ipdata_;			// IP‚Ì•Û‘¶
 	std::array<IPDATA, 5> mipdata_;
 	std::unique_ptr<NetWorkState> network_state_;	//net work state
+	int maxByte_;
 
 	NetWork();
 	~NetWork();

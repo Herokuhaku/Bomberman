@@ -70,11 +70,15 @@ bool NetWork::SendMesData(MesData data)
 }
 bool NetWork::SendMesData(MesType type, MesData data)
 {
+	if (network_state_ == nullptr)
+	{
+		return false;
+	}
 	TRACE("MesType : %d", static_cast<int>(type));
 	MesData mesdata = SendMesHeader({ type,0,0,0 });
 	Header header = {type,0,0,0};
 	auto hSize = sizeof(MesHeader) / sizeof(int);
-	auto MaxCnt = MAXSENDBYTE / sizeof(int) - hSize;
+	auto MaxCnt = maxByte_ / sizeof(int) - hSize;
 	while (data.size() > MaxCnt)
 	{
 		for (int i = 0; i < MaxCnt; i++)
@@ -131,8 +135,9 @@ void NetWork::SendStandby(void)
 	}
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
-		MesHeader data = { MesType::STANBY,0,0,0};
-		NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
+		//MesHeader data = { MesType::STANBY,0,0,0};
+		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
+		SendMesData(MesType::STANBY);
 		TRACE("スタンバイok　初期化情報をゲストに送るよ\n");
 		network_state_->SetActive(ActiveState::Standby);
 	}
@@ -146,8 +151,9 @@ void NetWork::SendStart(void)
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
 		network_state_->SetActive(ActiveState::Play);
-		MesHeader data = { MesType::GAME_START,0,0,0};
-		NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
+		SendMesData(MesType::GAME_START);
+		//MesHeader data = { MesType::GAME_START,0,0,0};
+		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
 		TRACE("スタンバイok　開始していいよってホストに送るよ\n");
 	}
 }
@@ -212,6 +218,11 @@ bool NetWork::GetRevStandby(void)
 	return revStandby_;
 }
 
+int NetWork::GetMaxByte(void)
+{
+	return maxByte_;
+}
+
 ActiveState NetWork::ConnectHost(IPDATA hostip)
 {
 	if (network_state_ == nullptr)
@@ -221,10 +232,28 @@ ActiveState NetWork::ConnectHost(IPDATA hostip)
 	return network_state_->ConnectHost(hostip);
 }
 
+bool NetWork::Setting(void)
+{
+	maxByte_ = 0;
+	std::ifstream ifs("ini/setting.txt");
+	std::string str;
+	getline(ifs,str);
+	if (str.find_first_of("=\"") != std::string::basic_string::npos)
+	{
+		int one = str.find_first_of("\"")+1;
+		int two = str.find_last_of("\"");
+		int three = two - one;
+		maxByte_ = atoi(str.substr(one,three).c_str());
+		return true;
+	}
+	return false;
+}
+
 NetWork::NetWork()
 {
 	revStandby_ = false;
 	mipdata_ = {};
+	Setting();
 }
 
 NetWork::~NetWork()
