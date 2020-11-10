@@ -38,49 +38,52 @@ bool GuestState::CheckNetWork(void)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
-		if(GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
+		int revcount_ = 0;
+		while (ProcessMessage() == 0)
 		{
-			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-
-			MesData tmpdata;
-			tmpdata.resize(tmp.length);
-			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
+			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
-				NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length*4);
-				if (tmp.length > 0)
+				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
+
+				MesData tmpdata;
+				tmpdata.resize(tmp.length);
+				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
+					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::TMX_DATA)
 					{
-						//revtmx.resize(tmp.length);
-						int count = 0;
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								//revtmx[tmp.id].iData = tmp.data[0];
-								revtmx[count++].iData = d;
+								revtmx[revcount_++].iData = d;
 							}
 						}
+						if (tmp.next)
+						{
+							continue;
+						}
+						break;
 					}
 					if (tmp.type == MesType::TMX_SIZE)
 					{
+						//revtmx.reserve(tmpdata[0]);
 						revtmx.resize(tmpdata[0]);
-						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d", tmp.length, tmpdata);
-						//savenum = tmp.data[0];
-						//revtmx.resize(savenum);
+						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d", tmp.length, tmpdata[0]);
 						begin = std::chrono::system_clock::now();
-						//TRACE("送られてきたTMXのサイズ(%d)でrevtmxをリサイズしたよ\n", tmp.data[0]);*/
+						break;
 					}
 				}
-			}
-			if (tmp.type == MesType::STANBY)
-			{
-				OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
-				OutData();		// csvと元々あるデータを参考にtmxデータを作成する
-				end = std::chrono::system_clock::now();
-				std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
-				TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
-				lpNetWork.SetRevStandby(true);
+				if (tmp.type == MesType::STANBY)
+				{
+					OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
+					OutData();		// csvと元々あるデータを参考にtmxデータを作成する
+					end = std::chrono::system_clock::now();
+					std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+					TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
+					lpNetWork.SetRevStandby(true);
+					break;
+				}
 			}
 		}
 	}

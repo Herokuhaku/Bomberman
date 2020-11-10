@@ -70,36 +70,40 @@ bool NetWork::SendMesData(MesData data)
 }
 bool NetWork::SendMesData(MesType type, MesData data)
 {
+	TRACE("MesType : %d", static_cast<int>(type));
 	MesData mesdata = SendMesHeader({ type,0,0,0 });
-	Header header;
-	while (data.size() > MAXSENDBYTE / sizeof(int))
+	Header header = {type,0,0,0};
+	auto hSize = sizeof(MesHeader) / sizeof(int);
+	auto MaxCnt = MAXSENDBYTE / sizeof(int) - hSize;
+	while (data.size() > MaxCnt)
 	{
-		for (int i = 0; i < MAXSENDBYTE / 4- 2; i++)
+		for (int i = 0; i < MaxCnt; i++)
 		{
 			mesdata.emplace_back(data[i]);
 		}
 		// 送信元データの削除を行う
 		// MaxByte /4 でintの数にしてheader分の-2 を消す。
-		data.erase(data.begin(),data.begin() + MAXSENDBYTE / 4- 2);
+		data.erase(data.begin(),data.begin() + MaxCnt);
 		if (data.size() > 0) {
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-		header.header.length = MAXSENDBYTE / 4- 2;
+		header.header.length = MaxCnt;
 		mesdata[0] = header.iheader[0];
 		mesdata[1] = header.iheader[1];
+		header.header.sendid++;
 
 		SendMesData(mesdata);
 		// 送信データの削除　ヘッダーは消さないで次に回す
 		// 開始位置はheaderの終わり位置から　　終了位置はheaderの終わり位置 + intの数 - ヘッダー分; これでヘッダーを消さずに送った分だけ消せる
-		mesdata.erase(mesdata.begin() + 2, mesdata.begin() + 2 + (MAXSENDBYTE / 4 - 2));
+		mesdata.erase(mesdata.begin() + 2, mesdata.begin() + 2 + MaxCnt);
 	}
 
 	// データに残りがなければそのまま抜ける　残りがあれば残りをmesデータに詰めて送る
 	if (data.size() > 0)
 	{
 		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
-		MesData tmpl = lpNetWork.SendMesHeader({ type,0,0,static_cast<unsigned int>(data.size())-2});
+		MesData tmpl = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size())});
 		mesdata[0] = tmpl[0];
 		mesdata[1] = tmpl[1];
 		int c = 0;
@@ -116,7 +120,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 bool NetWork::SendMesData(MesType type)
 {
 	MesData data;
-	SendMesData(type, data);
+	SendMesData(type, std::move(data));
 	return true;
 }
 void NetWork::SendStandby(void)
