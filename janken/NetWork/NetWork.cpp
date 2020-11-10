@@ -4,6 +4,7 @@
 #include "HostState.h"
 #include "GuestState.h"
 #include "../_debug/_DebugConOut.h"
+#include "../TiledLoader.h"
 
 void NetWork::newUpdate(void)
 {
@@ -92,7 +93,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-		header.header.length = MaxCnt;
+		header.header.length = MaxCnt;	// ヘッダーを除いたデータ部の数
 		mesdata[0] = header.iheader[0];
 		mesdata[1] = header.iheader[1];
 		header.header.sendid++;
@@ -107,9 +108,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	if (data.size() > 0)
 	{
 		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
-		MesData tmpl = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size())});
-		mesdata[0] = tmpl[0];
-		mesdata[1] = tmpl[1];
+		mesdata = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size()) });
 		int c = 0;
 		for (auto d : data)
 		{
@@ -161,7 +160,7 @@ void NetWork::SendTmxSize(void)
 {
 	std::ifstream ifp("Tiled/mapdata/map.tmx");
 	ifp.seekg(0, std::ios::end);		// 最後までシークする
-
+	TmxData tmx = lpTiledLoader.ReadTmx("Tiled/mapdata/map");
 	// 回数	~1400まで0 になるからそれを1にするため+1
 	// 1401~ 2800 までは 1 + 1 で回数2
 	MesSizeData tmpd;
@@ -170,12 +169,17 @@ void NetWork::SendTmxSize(void)
 	tmpd.AllByte = (((357 * 4) * 4) / 8);
 	tmpd.times = tmpd.AllByte / MAXSENDBYTE + 1;
 	tmpd.oneByte = tmpd.AllByte / tmpd.times;
-
+	unionData uni;
+	uni.cData[0] = std::atoi(tmx.num["width"].c_str());	// たて
+	uni.cData[1] = std::atoi(tmx.num["height"].c_str());		// よこ
+	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
+	uni.cData[3] = 0;	// リザーブ
 	//mesdata.emplace_back(tmpd.times);
 	//// 単体バイト数
 	//mesdata.emplace_back(tmpd.oneByte);
 	//// 総バイト数
-	mesdata.emplace_back(tmpd.AllByte/4);
+	mesdata.emplace_back(uni.iData);
+	//mesdata.emplace_back(tmpd.AllByte/4);
 
 	SendMesData(mesdata);
 	return ;
