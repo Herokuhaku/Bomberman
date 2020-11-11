@@ -34,12 +34,15 @@ public:
 	void Draw(void)override;
 	void OnlyDraw(void)override;
 private:
+	void KeyLoad(void);
 	void SetNetWorkMode(void);
 	void StartInit(void);
 	void inHostIp(void);
 	void GamePlay(void);
 
 	void SendData();
+	void NumPadInput(void);
+	bool Trg(int id);
 	std::map<UpdateMode, std::function<void(void)>> titleRun_;
 	int screen_size_x_;
 	int screen_size_y_;
@@ -52,6 +55,10 @@ private:
 	bool savehostip;
 	IPDATA hostip_;
 	GuestMode haveip_;
+	std::vector<std::string> inputKey;
+	char oldbuf[256];
+	char nowbuf[256];
+
 	/*std::map<std::string,LAYER> layer_;
 	std::map<std::string,std::vector<int>> mapdata_;*/
 };

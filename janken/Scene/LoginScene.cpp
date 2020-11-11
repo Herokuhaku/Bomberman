@@ -26,7 +26,7 @@ LoginScene::~LoginScene()
 void LoginScene::Init(void)
 {
 	plimage_ = LoadGraph("image/謎のにこちゃん.png");
-	pos_ = { 100,100 };
+	pos_ = { 0,0 };
 
 	sendpos_ = false;
 	savehostip = false;
@@ -60,6 +60,9 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 		updateMode_ = UpdateMode::SetNetWorkMode;
 	}
 	titleRun_[updateMode_]();
+	
+	KeyLoad();
+
 	lpButtonMng.Run();
 	Draw();
 	if (updateMode_ == UpdateMode::GamePlay)
@@ -72,7 +75,7 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 
 void LoginScene::Draw(void)
 {
-	DrawGraph(0, 0, plimage_, true);
+	//DrawGraph(0, 0, plimage_, true);
 	//lpImageMng.AddDraw({ lpImageMng.GetID("image/謎のにこちゃん.png")[0],pos_.x,pos_.y,1.0f,0.0f,LAYER::BG,100 });
 }
 
@@ -81,8 +84,20 @@ void LoginScene::OnlyDraw(void)
 	DrawGraph(0, 0, plimage_, true);
 }
 
+void LoginScene::KeyLoad(void)
+{
+	int i = 0;
+	for (auto& buf : nowbuf)
+	{
+		oldbuf[i++] = buf;
+	}
+	GetHitKeyStateAll(nowbuf);
+	NumPadInput();
+}
+
 void LoginScene::SetNetWorkMode(void)
 {
+	int nextf = false;
 	auto tmpip = lpNetWork.GetIP();
 	for (auto& ip : tmpip)
 	{
@@ -92,60 +107,79 @@ void LoginScene::SetNetWorkMode(void)
 		}
 		if (ip.d1 != 192)
 		{
-			TRACE("ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			DrawFormatString(pos_.x, pos_.y, 0xffffff, "ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			//TRACE("ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 		}
 		else
 		{
-			TRACE("グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			DrawFormatString(pos_.x, pos_.y, 0xffffff, "グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			//TRACE("グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 		}
 	}
-	
-	std::ifstream ifs("ini/Ip.txt");
-	std::string str;
-	if (!ifs)
+	Vector2 pos = pos_;
+	for (auto& key : inputKey)
 	{
-		savehostip = false;
+		//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
+		DrawString(pos.x, pos.y + 100, key.c_str(), 0xffffff, true);
+		pos.x += GetFontSize() / 2;
+		if (key == "Enter") {
+			nextf = true;
+			inputKey.pop_back();
+		}
 	}
-	else
+	int num = -1;
+	if (nextf)
 	{
-		std::getline(ifs, str);
-		if (str.size() <= 0)
+		std::ifstream ifs("ini/Ip.txt");
+		std::string str;
+		if (!ifs)
 		{
 			savehostip = false;
 		}
 		else
 		{
-			std::string save;
-			std::istringstream stream(str);
-			
-			auto oneip = [&]() {std::getline(stream, save, '.');
-			return atoi(save.c_str());
-			};
-			hostip_.d1 = oneip();
-			hostip_.d2 = oneip();
-			hostip_.d3 = oneip();
-			hostip_.d4 = oneip();
+			std::getline(ifs, str);
+			if (str.size() <= 0)
+			{
+				savehostip = false;
+			}
+			else
+			{
+				std::string save;
+				std::istringstream stream(str);
 
-			savehostip = true;
+				auto oneip = [&]() {std::getline(stream, save, '.');
+				return atoi(save.c_str());
+				};
+				hostip_.d1 = oneip();
+				hostip_.d2 = oneip();
+				hostip_.d3 = oneip();
+				hostip_.d4 = oneip();
+
+				savehostip = true;
+			}
 		}
-	}
 
-	TRACE("自分の選択するモードの値を入力してください\n");
-	TRACE("HOST			:0\n");
-	TRACE("GUEST			:1\n");
-	if (savehostip)
-	{
-		TRACE("GUEST【前回の接続先】	:2\n");
-	}
-	else { TRACE("\n"); };
-	TRACE("OFFLINE			:3\n\n");
-	// ファイルが読み込めなかったら2番を表示しない
+		//TRACE("自分の選択するモードの値を入力してください\n");
+		//TRACE("HOST			:0\n");
+		//TRACE("GUEST			:1\n");
+		//if (savehostip)
+		//{
+		//	TRACE("GUEST【前回の接続先】	:2\n");
+		//}
+		//else { TRACE("\n"); };
+		//TRACE("OFFLINE			:3\n\n");
+		//ファイルが読み込めなかったら2番を表示しない
 
-	int num = -1;
+		//num = -1;
 
-	while (0 > num || num > 3)
-	{
-		std::cin >> num;
+	//	while (0 > num || num > 3)
+			//std::cin >> num;
+		std::string tmp;
+		for (auto& key : inputKey) {
+			tmp += key;
+		}
+		num = atoi(tmp.c_str());
 		//scanf_s("%d", &num);
 		if (num == 0)
 		{
@@ -169,33 +203,38 @@ void LoginScene::SetNetWorkMode(void)
 		{
 			TRACE("選択できないモードです\n");
 			num = -1;
+			inputKey.clear();
 		}
 	}
-	switch (lpNetWork.GetNetWorkMode())
+	if (num != -1)
 	{
-	case NetWorkMode::HOST:
-		TRACE("ホストになりました\n");
-		updateMode_ = UpdateMode::StartInit;
-		break;
-	case NetWorkMode::GUEST:
-		if (haveip_ == GuestMode::NOIP)
+		switch (lpNetWork.GetNetWorkMode())
 		{
-			TRACE("ゲストになりました\n");
-			TRACE("IPを入力してください\n");
+		case NetWorkMode::HOST:
+			TRACE("ホストになりました\n");
+			updateMode_ = UpdateMode::StartInit;
+			break;
+		case NetWorkMode::GUEST:
+			if (haveip_ == GuestMode::NOIP)
+			{
+				TRACE("ゲストになりました\n");
+				TRACE("IPを入力してください\n");
+			}
+			else {
+				TRACE("前回の接続先へ繋ぎます\n");
+				TRACE("検索中...\n");
+			}
+			updateMode_ = UpdateMode::inHostIp;
+			break;
+		case NetWorkMode::OFFLINE:
+			TRACE("オフラインモードです\n");
+			updateMode_ = UpdateMode::StartInit;
+			break;
+		default:
+			TRACE("\n\n存在しないモードです\n");
+			break;
 		}
-		else {
-			TRACE("前回の接続先へ繋ぎます\n");
-			TRACE("検索中...\n");
-		}
-		updateMode_ = UpdateMode::inHostIp;
-		break;
-	case NetWorkMode::OFFLINE:
-		TRACE("オフラインモードです\n");
-		updateMode_ = UpdateMode::StartInit;
-		break;
-	default:
-		TRACE("\n\n存在しないモードです\n");
-		break;
+		inputKey.clear();
 	}
 }
 
@@ -231,6 +270,7 @@ void LoginScene::inHostIp(void)
 {
 	IPDATA hostip = {};
 	bool state = false;
+	bool nextf = false;
 
 	if (haveip_ == GuestMode::IP)
 	{
@@ -244,13 +284,30 @@ void LoginScene::inHostIp(void)
 	}
 	else if (haveip_ == GuestMode::NOIP)
 	{
-		do
+		//do
+	//	{
+		std::string _ip;
+		std::string save;
+
+		//std::cin >> _ip;
+		Vector2 pos = pos_;
+		for (auto& key : inputKey)
 		{
-			std::string _ip;
-			std::string save;
-
-			std::cin >> _ip;
-
+			//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
+			DrawString(pos.x, pos.y + 100, key.c_str(), 0xffffff, true);
+			pos.x += GetFontSize() / 2;
+			if (key == "Enter") {
+				nextf = true;
+				inputKey.pop_back();
+			}
+		}
+		if (nextf)
+		{
+			std::string tmp;
+			for (auto& key : inputKey) {
+				tmp += key;
+			}
+			_ip = tmp;
 			std::istringstream stream(_ip);
 			auto oneip = [&]() {std::getline(stream, save, '.');
 			return atoi(save.c_str());
@@ -265,26 +322,31 @@ void LoginScene::inHostIp(void)
 			state = lpNetWork.GetActive() == ActiveState::Init;
 			TRACE("状態は %d です\n", state);
 			if (!state) {
+				inputKey.clear();
 				TRACE("IPを入力してください\n");
 			}
-		} while (!state);
-		remove("ini/Ip.txt");
-		std::ofstream("ini/Ip.txt");
-		std::ofstream ofs("ini/Ip.txt");
+		}
+		//		} while (!state);
+		if (state)
+		{
+			remove("ini/Ip.txt");
+			std::ofstream("ini/Ip.txt");
+			std::ofstream ofs("ini/Ip.txt");
 
-		ofs << std::to_string(hostip.d1) << " ." <<
-			std::to_string(hostip.d2) << "." <<
-			std::to_string(hostip.d3) << "." <<
-			std::to_string(hostip.d4) << std::endl;
+			ofs << std::to_string(hostip.d1) << " ." <<
+				std::to_string(hostip.d2) << "." <<
+				std::to_string(hostip.d3) << "." <<
+				std::to_string(hostip.d4) << std::endl;
+		}
 	}
 	if (state == 1) {
 		updateMode_ = UpdateMode::StartInit;
 	}
-	else
-	{
-		TRACE("接続をキャンセルしてモード選択に戻ります\n");
-		updateMode_ = UpdateMode::SetNetWorkMode;
-	}
+	//else
+	//{
+	//	TRACE("接続をキャンセルしてモード選択に戻ります\n");
+	//	updateMode_ = UpdateMode::SetNetWorkMode;
+	//}
 }
 
 void LoginScene::GamePlay(void)
@@ -397,4 +459,26 @@ void LoginScene::SendData()
 	}else{
 		lpNetWork.SendMesData(MesType::TMX_DATA);
 	}
+}
+
+void LoginScene::NumPadInput(void)
+{
+	if (Trg(KEY_INPUT_NUMPAD0)) { inputKey.emplace_back("0"); }
+	if (Trg(KEY_INPUT_NUMPAD1)) { inputKey.emplace_back("1"); }
+	if (Trg(KEY_INPUT_NUMPAD2)) { inputKey.emplace_back("2"); }
+	if (Trg(KEY_INPUT_NUMPAD3)) { inputKey.emplace_back("3"); }
+	if (Trg(KEY_INPUT_NUMPAD4)) { inputKey.emplace_back("4"); }
+	if (Trg(KEY_INPUT_NUMPAD5)) { inputKey.emplace_back("5"); }
+	if (Trg(KEY_INPUT_NUMPAD6)) { inputKey.emplace_back("6"); }
+	if (Trg(KEY_INPUT_NUMPAD7)) { inputKey.emplace_back("7"); }
+	if (Trg(KEY_INPUT_NUMPAD8)) { inputKey.emplace_back("8"); }
+	if (Trg(KEY_INPUT_NUMPAD9)) { inputKey.emplace_back("9"); }
+	if (Trg(KEY_INPUT_DECIMAL)) { inputKey.emplace_back("."); }
+	if (Trg(KEY_INPUT_NUMPADENTER)) { inputKey.emplace_back("Enter");}
+	if (Trg(KEY_INPUT_BACK)) { inputKey.pop_back(); }
+}
+
+bool LoginScene::Trg(int id)
+{
+	return !oldbuf[id] && nowbuf[id];
 }

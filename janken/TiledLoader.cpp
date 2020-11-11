@@ -18,8 +18,8 @@ TmxData TiledLoader::ReadTmx(std::string filename)
 	xml::xml_document<> doc; //コールする
 	MapData.clear();
 
- //try
-	//{
+	try
+	{
 		xml::file<>input(filename.c_str());
 		doc.parse<0>(input.data());
 		// 親データ
@@ -94,13 +94,13 @@ TmxData TiledLoader::ReadTmx(std::string filename)
 			}
 			tmxdata_.MapData[d.first] = num;
 		}
-	//}
-	//catch (...)
-	//{
-	//	TmxData errordata = {};
-	//	TRACE("そのファイルはないよ！\n");
-	//	return errordata;
-	//}
+	}
+	catch (...)
+	{
+		TmxData errordata = {};
+		TRACE("そのファイルはないよ！\n");
+		return errordata;
+	}
 
 	
 	return tmxdata_;

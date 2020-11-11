@@ -13,6 +13,7 @@ void SceneMng::Run(void)
 	{
 		SetDrawScreen(DX_SCREEN_BACK);
 		ClsDrawScreen();
+		
 		sceneNow_ = sceneNow_->Update(std::move(sceneNow_));
 
 		ScreenFlip();

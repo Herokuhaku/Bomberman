@@ -3,6 +3,7 @@
 #include "SceneMng.h"
 #include "../Graphic/ImageMng.h"
 #include "../NetWork/NetWork.h"
+#include "../Obj/Player.h"
 
 GameScene::GameScene()
 {
@@ -42,11 +43,19 @@ void GameScene::Init(void)
 	Image.resize(12);
 	LoadDivGraph(tsxdata_.pass.c_str(),12,
 		4,3,32,32,&Image[0]);
+
+	// pos , size
+	objlist_.emplace_back(std::make_shared<Player>(Vector2{32,32}, Vector2{20,32},tmxdata_));
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	Draw();
+	for (auto& obj : objlist_)
+	{
+		obj->Update();
+		obj->Draw();
+	}
 	return own;
 }
 

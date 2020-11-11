@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "BaseScene.h"
+#include "../Obj/Obj.h"
 class GameScene :
 	public BaseScene
 {
@@ -13,4 +14,5 @@ public:
 	void Draw(void)override;
 private:
 	std::vector<int> Image;
+	std::vector<std::shared_ptr<Obj>> objlist_;
 };
