@@ -105,7 +105,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	}
 
 	// データに残りがなければそのまま抜ける　残りがあれば残りをmesデータに詰めて送る
-	if (data.size() > 0)
+	if (data.size() >= 0)
 	{
 		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
 		mesdata = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size()) });
@@ -149,7 +149,7 @@ void NetWork::SendStart(void)
 	}
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
-		network_state_->SetActive(ActiveState::Play);
+		network_state_->SetActive(ActiveState::Instance);
 		SendMesData(MesType::GAME_START);
 		//MesHeader data = { MesType::GAME_START,0,0,0};
 		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
@@ -183,6 +183,18 @@ void NetWork::SendTmxSize(void)
 
 	SendMesData(mesdata);
 	return ;
+}
+std::vector<unionData> NetWork::TakeOutRevData(void)
+{
+	if (network_state_ == nullptr)
+	{
+		std::vector<unionData> data;
+		unionData i;
+		i.iData = -1;
+		data.insert(data.begin(), i);
+		return data;
+	}
+	return network_state_->GetRevdata();
 }
 std::array<IPDATA,5> NetWork::GetIP(void)
 {

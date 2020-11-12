@@ -27,7 +27,7 @@ void LoginScene::Init(void)
 {
 	plimage_ = LoadGraph("image/謎のにこちゃん.png");
 	pos_ = { 0,0 };
-
+	fpos_ = { 0,0 };
 	sendpos_ = false;
 	savehostip = false;
 
@@ -127,54 +127,53 @@ void LoginScene::SetNetWorkMode(void)
 			inputKey.pop_back();
 		}
 	}
-	int num = -1;
-	if (nextf)
+	std::ifstream ifs("ini/Ip.txt");
+	std::string str;
+	if (!ifs)
 	{
-		std::ifstream ifs("ini/Ip.txt");
-		std::string str;
-		if (!ifs)
+		savehostip = false;
+	}
+	else
+	{
+		std::getline(ifs, str);
+		if (str.size() <= 0)
 		{
 			savehostip = false;
 		}
 		else
 		{
-			std::getline(ifs, str);
-			if (str.size() <= 0)
-			{
-				savehostip = false;
-			}
-			else
-			{
-				std::string save;
-				std::istringstream stream(str);
+			std::string save;
+			std::istringstream stream(str);
 
-				auto oneip = [&]() {std::getline(stream, save, '.');
-				return atoi(save.c_str());
-				};
-				hostip_.d1 = oneip();
-				hostip_.d2 = oneip();
-				hostip_.d3 = oneip();
-				hostip_.d4 = oneip();
+			auto oneip = [&]() {std::getline(stream, save, '.');
+			return atoi(save.c_str());
+			};
+			hostip_.d1 = oneip();
+			hostip_.d2 = oneip();
+			hostip_.d3 = oneip();
+			hostip_.d4 = oneip();
 
-				savehostip = true;
-			}
+			savehostip = true;
 		}
+	}
 
-		//TRACE("自分の選択するモードの値を入力してください\n");
-		//TRACE("HOST			:0\n");
-		//TRACE("GUEST			:1\n");
-		//if (savehostip)
-		//{
-		//	TRACE("GUEST【前回の接続先】	:2\n");
-		//}
-		//else { TRACE("\n"); };
-		//TRACE("OFFLINE			:3\n\n");
-		//ファイルが読み込めなかったら2番を表示しない
-
-		//num = -1;
-
-	//	while (0 > num || num > 3)
-			//std::cin >> num;
+	Vector2 tmpos = fpos_;
+	int fsize = GetFontSize();
+	auto fauto = [&](const char* name) {
+		tmpos.y += fsize;
+		DrawString(tmpos.x, tmpos.y, name, 0xffffff);
+	};
+	fauto("自分の選択するモードの値を入力してください");
+	fauto("HOST                     :0");
+	fauto("GUEST                    :1");
+	if (savehostip)
+	{
+	fauto("GUEST【前回の接続先】     :2");
+	}
+	fauto("OFFLINE                  :3");
+	int num = -1;
+	if (nextf)
+	{
 		std::string tmp;
 		for (auto& key : inputKey) {
 			tmp += key;
@@ -253,13 +252,12 @@ void LoginScene::StartInit(void)
 	}
 	if (lpNetWork.GetRevStandby())
 	{
-
 		TRACE("送られてきた初期情報で初期化したよ\n\n\n");
 		tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
 		lpNetWork.SendStart();
 		pos_ = { 250,250 };
 	}
-	if (lpNetWork.GetActive() == ActiveState::Play)
+	if (lpNetWork.GetActive() == ActiveState::Instance)
 	{
 		updateMode_ = UpdateMode::GamePlay;
 		TRACE("ゲームを開始します！\n");
@@ -475,7 +473,7 @@ void LoginScene::NumPadInput(void)
 	if (Trg(KEY_INPUT_NUMPAD9)) { inputKey.emplace_back("9"); }
 	if (Trg(KEY_INPUT_DECIMAL)) { inputKey.emplace_back("."); }
 	if (Trg(KEY_INPUT_NUMPADENTER)) { inputKey.emplace_back("Enter");}
-	if (Trg(KEY_INPUT_BACK)) { inputKey.pop_back(); }
+	if (Trg(KEY_INPUT_BACK)) { if(inputKey.size() > 0)inputKey.pop_back(); }
 }
 
 bool LoginScene::Trg(int id)

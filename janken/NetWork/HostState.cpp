@@ -24,7 +24,7 @@ bool HostState::CheckNetWork(void)
 			if (tmp.type == MesType::GAME_START)
 			{
 				TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
-				active_ = ActiveState::Play;
+				active_ = ActiveState::Instance;
 			}
 		}
 	}

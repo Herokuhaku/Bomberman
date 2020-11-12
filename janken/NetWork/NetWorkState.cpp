@@ -40,3 +40,11 @@ bool NetWorkState::CheckNetWork(void)
 {
 	return true;
 }
+
+std::vector<unionData> NetWorkState::GetRevdata(void)
+{
+	std::vector<unionData> tmp = revdata_;
+	revdata_.clear();
+	revdata_.shrink_to_fit();
+	return tmp;
+}

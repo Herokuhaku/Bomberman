@@ -49,6 +49,7 @@ private:
 
 	int plimage_;
 	Vector2 pos_;
+	Vector2 fpos_;
 	bool sendpos_;
 	UpdateMode updateMode_;
 

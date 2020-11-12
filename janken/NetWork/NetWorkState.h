@@ -20,6 +20,7 @@ enum class ActiveState
 	Init,		// 初期化中(ゲーム開始準備中)(ホスト/ゲスト)
 	Standby,	// 初期化情報送信済みの開始待ち(ホスト用)
 	Play,		// ゲーム中(ホスト/ゲスト)
+	Instance,	// インスタンス中
 	OFFLINE,
 };
 
@@ -37,6 +38,7 @@ enum class MesType :unsigned char
 	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
 	TMX_SIZE,		// TMXサイズ　総サイズ
 	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
+	INSTANCE,		// インスタンス
 	POS				// ゲーム中に送る
 };
 
@@ -76,6 +78,7 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
+	std::vector<unionData> GetRevdata(void);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
@@ -85,5 +88,6 @@ protected:
 	std::vector<unionData> revtmx;
 //	MesType nowtype_;
 	MesSizeData sizedata_;
+	std::vector<unionData> revdata_;
 //	std::vector<int> revtmx_;
 };

@@ -165,6 +165,7 @@
     <ClCompile Include="Scene\LoginScene.cpp" />
     <ClCompile Include="TiledLoader.cpp" />
     <ClCompile Include="Scene\TransitionScene.cpp" />
+    <ClCompile Include="Wall.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
@@ -188,6 +189,7 @@
     <ClInclude Include="Scene\LoginScene.h" />
     <ClInclude Include="TiledLoader.h" />
     <ClInclude Include="Scene\TransitionScene.h" />
+    <ClInclude Include="Wall.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

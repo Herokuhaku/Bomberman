@@ -73,6 +73,18 @@ bool GuestState::CheckNetWork(void)
 						begin = std::chrono::system_clock::now();
 						break;
 					}
+					if (tmp.type == MesType::INSTANCE)
+					{
+						revdata_.resize(tmp.length);
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							for (auto& d : tmpdata)
+							{
+								revdata_[revcount_++].iData = d;
+							}
+						}
+						active_ = ActiveState::Play;
+					}
 				}
 				if (tmp.type == MesType::STANBY)
 				{

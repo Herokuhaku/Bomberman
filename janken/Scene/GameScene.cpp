@@ -45,7 +45,35 @@ void GameScene::Init(void)
 		4,3,32,32,&Image[0]);
 
 	// pos , size
-	objlist_.emplace_back(std::make_shared<Player>(Vector2{32,32}, Vector2{20,32},tmxdata_));
+	wall_ = std::make_shared<Wall>();
+	wall_->SetMapData(tmxdata_.MapData);
+	while (ProcessMessage() == 0)
+	{
+		if (lpNetWork.GetActive() == ActiveState::Play)
+		{
+			break;
+		}
+	}
+	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+	{
+		std::vector<unionData> rev = lpNetWork.TakeOutRevData();
+		Vector2 tmp = {};
+		int i = 0;
+		for (auto& d : rev)
+		{
+			if (++i % 2 == 0) {
+				tmp.y = d.iData;
+				objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 },wall_));
+			}
+			else
+			{
+				tmp.x = d.iData;
+			}
+		}
+
+	}
+	//objlist_.emplace_back(std::make_shared<Player>(Vector2{32,32}, Vector2{32,51},MOVE_TYPE::ME));
+	//objlist_.emplace_back(std::make_shared<Player>(Vector2{21*32 - (32*2), 17*32 - (32*2) }, Vector2{ 32,51 },MOVE_TYPE::YOUR));
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
