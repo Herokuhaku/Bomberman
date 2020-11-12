@@ -8,6 +8,7 @@ public:
 	~Obj();
 	virtual void Draw(void) = 0;
 	virtual void Update(void) = 0;
+	virtual int GetNo() = 0;
 protected:
 	Vector2 pos_;
 	Vector2 size_;

@@ -32,6 +32,7 @@ public:
 	~Player();
 	void Draw(void)override;
 	void Update(void)override;
+	int GetNo()override;
 private:
 	void MeUpdate();
 	void YouUpdate();

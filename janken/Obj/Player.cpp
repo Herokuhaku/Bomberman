@@ -36,6 +36,11 @@ void Player::Update(void)
 	update_();
 }
 
+int Player::GetNo()
+{
+	return plid_;
+}
+
 void Player::MeUpdate()
 {
 	Vector2 dirpos = { pos_.x,pos_.y };
@@ -103,7 +108,18 @@ void Player::MeUpdate()
 
 void Player::YouUpdate()
 {
-
+	std::vector<unionData> rev = lpNetWork.TakeOutRevData();
+	int i = 0;
+	for (auto& d : rev)
+	{
+		if (++i % 2 == 0) {
+			pos_.y = d.iData;
+		}
+		else
+		{
+			pos_.x = d.iData;
+		}
+	}
 }
 
 void Player::Init(void)

@@ -21,7 +21,8 @@ void GameScene::Init(void)
 	if (lpNetWork.GetNetWorkMode() != NetWorkMode::GUEST) {
 		tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/map");
 	}
-	else {
+	else 
+	{
 		tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
 	}
 
@@ -59,21 +60,35 @@ void GameScene::Init(void)
 		std::vector<unionData> rev = lpNetWork.TakeOutRevData();
 		Vector2 tmp = {};
 		int i = 0;
+		int id = 0;
+		bool flag = false;
 		for (auto& d : rev)
 		{
-			if (++i % 2 == 0) {
-				tmp.y = d.iData;
-				objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 },wall_));
+			if (i % 3 == 0) {
+				id = d.iData;
 			}
-			else
+			else if(i % 3 == 1)
 			{
 				tmp.x = d.iData;
 			}
+			else if (i++ % 3 == 2)
+			{
+				tmp.y = d.iData;
+				for (auto& obj : objlist_)
+				{
+					if (obj->GetNo() == id)
+					{
+						flag = true;
+						break;
+					}
+				}
+				if (!flag)
+				{
+					objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
+				}
+			}
 		}
-
 	}
-	//objlist_.emplace_back(std::make_shared<Player>(Vector2{32,32}, Vector2{32,51},MOVE_TYPE::ME));
-	//objlist_.emplace_back(std::make_shared<Player>(Vector2{21*32 - (32*2), 17*32 - (32*2) }, Vector2{ 32,51 },MOVE_TYPE::YOUR));
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
@@ -94,7 +109,6 @@ void GameScene::Draw(void)
 		for (auto& no : data.second)
 		{
 			if (0 <= no && 12 > no) {
-				//lpImageMng.AddDraw({ IMAGE_ID("Block")[no],x * 32 + 16,y * 32 + 16,1.0f,0.0f,layer_[data.first],100 });
 				DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f,Image[no], true);
 			}
 			x++;
