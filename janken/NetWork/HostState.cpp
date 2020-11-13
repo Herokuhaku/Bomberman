@@ -18,13 +18,35 @@ bool HostState::CheckNetWork(void)
 	if (active_ == ActiveState::Standby)
 	{
 		MesHeader tmp;
-		if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
+		int revcount_ = 0;
+		while (ProcessMessage() == 0)
 		{
-			NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-			if (tmp.type == MesType::GAME_START)
+			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
-				TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
-				active_ = ActiveState::Instance;
+				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
+				MesData tmpdata;
+				tmpdata.resize(tmp.length);
+				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
+				{
+					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
+					if (tmp.type == MesType::POS)
+					{
+						revdata_.resize(tmp.length);
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							for (auto& d : tmpdata)
+							{
+								revdata_[revcount_++].iData = d;
+							}
+						}
+						revcount_ = 0;
+					}
+				}
+				if (tmp.type == MesType::GAME_START)
+				{
+					TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
+					active_ = ActiveState::Instance;
+				}
 			}
 		}
 	}

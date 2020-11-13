@@ -45,8 +45,8 @@ private:
 	int frame_;
 	const int oneanimCnt = 10;
 	std::function<void()> update_;
-	MOVE_TYPE movetype_;
 	std::shared_ptr<Wall> wall_;
 	static int plid_;
+	int id_;
 };
 

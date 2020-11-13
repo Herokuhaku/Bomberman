@@ -9,7 +9,6 @@ Player::Player()
 {
 	pos_ = { 0,0 };
 	size_ = { 0,0 };
-	movetype_ = MOVE_TYPE::ME;
 	Init();
 }
 
@@ -104,21 +103,28 @@ void Player::MeUpdate()
 		TRACE("ë∂ç›ÇµÇ»Ç¢DIRÇå¸Ç¢ÇƒÇÈÇÊ");
 		break;
 	}
+	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y });
 }
 
 void Player::YouUpdate()
 {
 	std::vector<unionData> rev = lpNetWork.TakeOutRevData();
 	int i = 0;
+	int id = 0;
 	for (auto& d : rev)
 	{
-		if (++i % 2 == 0) {
-			pos_.y = d.iData;
+		if (i % 3 == 0) {
+			id = d.iData;
 		}
-		else
+		else if (i % 3 == 1)
 		{
 			pos_.x = d.iData;
 		}
+		else if (i % 3 == 2)
+		{
+			pos_.y = d.iData;
+		}
+		i++;
 	}
 }
 
@@ -160,5 +166,5 @@ void Player::Init(void)
 	}
 	Mapdata = wall_->GetMapData();
 	//screen = MakeScreen(size_.x,size_.y);
-	plid_++;
+	id_ = plid_++;
 }

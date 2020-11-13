@@ -48,7 +48,7 @@ void GameScene::Init(void)
 	// pos , size
 	wall_ = std::make_shared<Wall>();
 	wall_->SetMapData(tmxdata_.MapData);
-	while (ProcessMessage() == 0)
+	while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
 		if (lpNetWork.GetActive() == ActiveState::Play)
 		{
@@ -64,29 +64,58 @@ void GameScene::Init(void)
 		bool flag = false;
 		for (auto& d : rev)
 		{
-			if (i % 3 == 0) {
-				id = d.iData;
-			}
-			else if(i % 3 == 1)
+			if (i % 2 == 0)
 			{
 				tmp.x = d.iData;
 			}
-			else if (i++ % 3 == 2)
+			else if(i % 2 == 1)
 			{
 				tmp.y = d.iData;
-				for (auto& obj : objlist_)
-				{
-					if (obj->GetNo() == id)
-					{
-						flag = true;
-						break;
-					}
-				}
-				if (!flag)
-				{
-					objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
-				}
+				objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
 			}
+			i++;
+		}
+		//for (auto& d : rev)
+		//{
+		//	if (i % 3 == 0) {
+		//		id = d.iData;
+		//	}
+		//	else if(i % 3 == 1)
+		//	{
+		//		tmp.x = d.iData;
+		//	}
+		//	else if (i++ % 3 == 2)
+		//	{
+		//		tmp.y = d.iData;
+		//		for (auto& obj : objlist_)
+		//		{
+		//			if (obj->GetNo() == id)
+		//			{
+		//				flag = true;
+		//				break;
+		//			}
+		//		}
+		//		if (!flag)
+		//		{
+		//			objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
+		//		}
+		//	}
+		//}
+	}
+	else
+	{
+		Vector2 tmp[2] = {{32,32},{ 32 * 19, 32 * 15 }};
+		objlist_.emplace_back(std::make_shared<Player>(tmp[0], Vector2{ 32,51 }, wall_));
+		objlist_.emplace_back(std::make_shared<Player>(tmp[1], Vector2{ 32,51 }, wall_));
+		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
+		{
+			MesData data;
+			for (int i = 0; i < 2; i++)
+			{
+				data.emplace_back(tmp[i].x);
+				data.emplace_back(tmp[i].y);
+			}
+			lpNetWork.SendMesData(MesType::INSTANCE,data);
 		}
 	}
 }

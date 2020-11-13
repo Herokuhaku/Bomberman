@@ -83,7 +83,20 @@ bool GuestState::CheckNetWork(void)
 								revdata_[revcount_++].iData = d;
 							}
 						}
+						revcount_ = 0;
 						active_ = ActiveState::Play;
+					}
+					if (tmp.type == MesType::POS)
+					{
+						revdata_.resize(tmp.length);
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							for (auto& d : tmpdata)
+							{
+								revdata_[revcount_++].iData = d;
+							}
+						}
+						revcount_ = 0;
 					}
 				}
 				if (tmp.type == MesType::STANBY)

@@ -63,6 +63,13 @@ bool NetWork::SendMesData(MesData data)
 {
 	NetWorkSend(lpNetWork.GetNetWorkHandle(),data.data(),data.size()*sizeof(int));
 	int count = 0;
+	std::vector<unionData> tmp;
+	for (auto& j : data)
+	{
+		unionData t;
+		t.iData = j;
+		tmp.emplace_back(t);
+	}
 	for (auto& d : data)
 	{
 		TRACE("%d を送信\n",d);
@@ -75,11 +82,13 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	{
 		return false;
 	}
-	TRACE("MesType : %d", static_cast<int>(type));
+	TRACE("MesType : %d\n", static_cast<int>(type));
 	MesData mesdata = SendMesHeader({ type,0,0,0 });
 	Header header = {type,0,0,0};
 	auto hSize = sizeof(MesHeader) / sizeof(int);
 	auto MaxCnt = maxByte_ / sizeof(int) - hSize;
+	bool headerf = false;
+	if (data.size() <= 0)headerf = true;
 	while (data.size() > MaxCnt)
 	{
 		for (int i = 0; i < MaxCnt; i++)
@@ -105,7 +114,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	}
 
 	// データに残りがなければそのまま抜ける　残りがあれば残りをmesデータに詰めて送る
-	if (data.size() >= 0)
+	if (data.size() > 0 || headerf)
 	{
 		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
 		mesdata = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size()) });
@@ -170,14 +179,17 @@ void NetWork::SendTmxSize(void)
 	tmpd.times = tmpd.AllByte / MAXSENDBYTE + 1;
 	tmpd.oneByte = tmpd.AllByte / tmpd.times;
 	unionData uni;
-	uni.cData[0] = std::atoi(tmx.num["width"].c_str());	// たて
+	uni.cData[0] = std::atoi(tmx.num["width"].c_str());			// たて
 	uni.cData[1] = std::atoi(tmx.num["height"].c_str());		// よこ
 	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
-	uni.cData[3] = 0;	// リザーブ
+	uni.cData[3] = 0;											// リザーブ
+	uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
 	//mesdata.emplace_back(tmpd.times);
 	//// 単体バイト数
 	//mesdata.emplace_back(tmpd.oneByte);
 	//// 総バイト数
+	uni.iData /= 8;
+	if (uni.iData % 8 == 0) { uni.iData++; }
 	mesdata.emplace_back(uni.iData);
 	//mesdata.emplace_back(tmpd.AllByte/4);
 
