@@ -74,12 +74,13 @@ bool GuestState::CheckNetWork(void)
 					{
 						//revtmx.reserve(tmpdata[0]);
 						revtmx.resize(tmpdata[0]);
-						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d", tmp.length, tmpdata[0]);
+						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
 						begin = std::chrono::system_clock::now();
 						break;
 					}
 					if (tmp.type == MesType::INSTANCE)
 					{
+						TRACE("%d Instance",tmp.length);
 						revdata_.resize(tmp.length);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
