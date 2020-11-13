@@ -56,7 +56,12 @@ bool GuestState::CheckNetWork(void)
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								revtmx[revcount_++].iData = d;
+								if (revtmx.size() <= revcount_)
+								{
+									break;
+								}
+								revtmx[revcount_].iData = d;
+								revcount_++;
 							}
 						}
 						if (tmp.next)
@@ -88,12 +93,17 @@ bool GuestState::CheckNetWork(void)
 					}
 					if (tmp.type == MesType::POS)
 					{
-						revdata_.resize(tmp.length);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								revdata_[revcount_++].iData = d;
+								int id = 0;
+								if (d % 3 == 0)
+								{
+									id = d;
+									posdata_[id].resize(tmp.length);
+								}
+								posdata_[id][revcount_++].iData = d;
 							}
 						}
 						revcount_ = 0;
