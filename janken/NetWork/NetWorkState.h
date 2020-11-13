@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include <vector>
 #include <mutex>
+#include <map>
 #include "../_debug/_DebugConOut.h"
 
 enum class NetWorkMode
@@ -79,6 +80,7 @@ public:
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
 	std::vector<unionData> GetRevdata(void);
+	std::vector<unionData> GetPosdata(int no);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
@@ -89,5 +91,6 @@ protected:
 //	MesType nowtype_;
 	MesSizeData sizedata_;
 	std::vector<unionData> revdata_;
+	std::map<int,std::vector<unionData>> posdata_;
 //	std::vector<int> revtmx_;
 };

@@ -196,7 +196,7 @@ void NetWork::SendTmxSize(void)
 	SendMesData(mesdata);
 	return ;
 }
-std::vector<unionData> NetWork::TakeOutRevData(void)
+std::vector<unionData> NetWork::TakeOutRevData(int no)
 {
 	if (network_state_ == nullptr)
 	{
@@ -206,7 +206,7 @@ std::vector<unionData> NetWork::TakeOutRevData(void)
 		data.insert(data.begin(), i);
 		return data;
 	}
-	return network_state_->GetRevdata();
+	return network_state_->GetPosdata(no);
 }
 std::array<IPDATA,5> NetWork::GetIP(void)
 {

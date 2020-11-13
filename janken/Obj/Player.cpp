@@ -108,7 +108,7 @@ void Player::MeUpdate()
 
 void Player::YouUpdate()
 {
-	std::vector<unionData> rev = lpNetWork.TakeOutRevData();
+	std::vector<unionData> rev = lpNetWork.TakeOutRevData(id_);
 	int i = 0;
 	int id = 0;
 	for (auto& d : rev)

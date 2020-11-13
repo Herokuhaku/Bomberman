@@ -48,3 +48,22 @@ std::vector<unionData> NetWorkState::GetRevdata(void)
 	revdata_.shrink_to_fit();
 	return tmp;
 }
+
+std::vector<unionData> NetWorkState::GetPosdata(int no)
+{
+	std::vector<unionData> tmp = revdata_;
+	int id = tmp[0].iData;
+	if (id == no)
+	{
+		revdata_.clear();
+		revdata_.shrink_to_fit();
+		if (tmp.size() != 0)
+		{
+			tmp.erase(tmp.begin());
+			posdata_.try_emplace(id, tmp);
+			return posdata_[id];
+		}
+	}
+	std::vector<unionData> null;
+	return null;
+}

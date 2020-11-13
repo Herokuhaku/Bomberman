@@ -57,7 +57,7 @@ void GameScene::Init(void)
 	}
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
-		std::vector<unionData> rev = lpNetWork.TakeOutRevData();
+		std::vector<unionData> rev = lpNetWork.TakeOutRevData(0);
 		Vector2 tmp = {};
 		int i = 0;
 		int id = 0;
