@@ -424,32 +424,49 @@ void LoginScene::SendData()
 
 	int count = 0;
 	MesData senddata;
-	//for (auto& chip : _data)
+	//for(auto& chip : _data)
 	//{
-	//	senddata.emplace_back(chip);
+	//	tmp |= chip << co % 2 * 4;
+	//	if (++co % 2 == 0 && co != 0) {
+	//		c[i++] = tmp;
+	//		tmp = 0;
+	//	}
+	//	if (co == 16) {
+	//		senddata.emplace_back(j[0]);
+	//		senddata.emplace_back(j[1]);
+	//		i = 0;
+	//		co = 0;
+	//	}
 	//}
-	for(auto& chip : _data)
+	//if (co != 0)
+	//{
+	//	while (i < 8) {
+	//		tmp |= 0 << (co++ % 2) * 4;
+	//		c[i++] = tmp;
+	//	}
+	//	senddata.emplace_back(j[0]);
+	//	senddata.emplace_back(j[1]);
+	//}
+	for (auto& chip : _data)
 	{
 		tmp |= chip << co % 2 * 4;
 		if (++co % 2 == 0 && co != 0) {
 			c[i++] = tmp;
 			tmp = 0;
 		}
-		if (co == 16) {
+		if (co == 8) {
 			senddata.emplace_back(j[0]);
-			senddata.emplace_back(j[1]);
 			i = 0;
 			co = 0;
 		}
 	}
 	if (co != 0)
 	{
-		while (i < 8) {
+		while (i < 4) {
 			tmp |= 0 << (co++ % 2) * 4;
 			c[i++] = tmp;
 		}
 		senddata.emplace_back(j[0]);
-		senddata.emplace_back(j[1]);
 	}
 	if (senddata.size() > 0)
 	{

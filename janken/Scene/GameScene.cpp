@@ -57,24 +57,54 @@ void GameScene::Init(void)
 	}
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
-		std::vector<unionData> rev = lpNetWork.TakeOutRevData();
-		Vector2 tmp = {};
-		int i = 0;
-		int id = 0;
-		bool flag = false;
-		for (auto& d : rev)
+		int size = lpNetWork.RevPosSize();
+		for (int c = 0;c < size;c++)
 		{
-			if (i % 2 == 0)
+			std::vector<unionData> rev = lpNetWork.TakeOutRevData(c);
+			Vector2 tmp = {};
+			int i = 0;
+			int id = 0;
+			bool flag = false;
+			for (auto& d : rev)
 			{
-				tmp.x = d.iData;
+				if (i % 3 == 0)
+				{
+					id = d.iData;
+				}
+				else if (i % 3 == 1)
+				{
+					tmp.x = d.iData;
+				}
+				else if (i % 3 == 2)
+				{
+					tmp.y = d.iData;
+					objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
+				}
+				i++;
 			}
-			else if(i % 2 == 1)
-			{
-				tmp.y = d.iData;
-				objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
-			}
-			i++;
 		}
+		//std::vector<unionData> rev = lpNetWork.TakeOutRevData();
+		//Vector2 tmp = {};
+		//int i = 0;
+		//int id = 0;
+		//bool flag = false;
+		//for (auto& d : rev)
+		//{
+		//	if (i % 3 == 0)
+		//	{
+		//		id = d.iData;
+		//	}
+		//	else if(i % 3 == 1)
+		//	{
+		//		tmp.x = d.iData;
+		//	}
+		//	else if (i % 3 == 2)
+		//	{
+		//		tmp.y = d.iData;
+		//		objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
+		//	}
+		//	i++;
+		//}
 		//for (auto& d : rev)
 		//{
 		//	if (i % 3 == 0) {
@@ -112,10 +142,11 @@ void GameScene::Init(void)
 			MesData data;
 			for (int i = 0; i < 2; i++)
 			{
+				data.emplace_back(i);
 				data.emplace_back(tmp[i].x);
 				data.emplace_back(tmp[i].y);
 			}
-			lpNetWork.SendMesData(MesType::INSTANCE,data);
+			lpNetWork.SendMesData(MesType::POS,data);
 		}
 	}
 }

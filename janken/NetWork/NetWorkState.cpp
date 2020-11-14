@@ -68,3 +68,8 @@ std::vector<unionData> NetWorkState::GetPosdata(int no)
 	std::vector<unionData> null;
 	return null;
 }
+
+int NetWorkState::RevPosSize(void)
+{
+	return static_cast<int>(posdata_.size());
+}

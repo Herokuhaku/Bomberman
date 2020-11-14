@@ -183,7 +183,11 @@ void NetWork::SendTmxSize(void)
 	uni.cData[1] = std::atoi(tmx.num["height"].c_str());		// よこ
 	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
 	uni.cData[3] = 0;											// リザーブ
-	uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
+	
+																
+	//uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
+	
+	
 	//mesdata.emplace_back(tmpd.times);
 	//// 単体バイト数
 	//mesdata.emplace_back(tmpd.oneByte);
@@ -219,6 +223,10 @@ std::vector<unionData> NetWork::TakeOutRevData(void)
 		return data;
 	}
 	return network_state_->GetRevdata();
+}
+int NetWork::RevPosSize(void)
+{
+	return network_state_->RevPosSize();
 }
 std::array<IPDATA,5> NetWork::GetIP(void)
 {

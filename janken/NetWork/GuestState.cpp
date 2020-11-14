@@ -34,7 +34,8 @@ ActiveState GuestState::ConnectHost(IPDATA hostip)
 
 bool GuestState::CheckNetWork(void)
 {
-	if (active_ == ActiveState::Init)
+	if (active_ != ActiveState::Wait && active_ != ActiveState::Non)
+//	if (active_ == ActiveState::Init)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
@@ -47,6 +48,7 @@ bool GuestState::CheckNetWork(void)
 
 				MesData tmpdata;
 				tmpdata.resize(tmp.length);
+				TRACE("MesType : %d  を受信\n", tmp.type);
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
@@ -73,41 +75,43 @@ bool GuestState::CheckNetWork(void)
 					if (tmp.type == MesType::TMX_SIZE)
 					{
 						//revtmx.reserve(tmpdata[0]);
-						revtmx.resize(tmpdata[0]);
-						TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
+						unionData uni;
+						uni.iData = tmpdata[0];
+						uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
+						uni.iData /= 8;
+						if (uni.iData % 8 != 0) { uni.iData++; }
+						revtmx.resize(uni.iData);
+						//TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
 						begin = std::chrono::system_clock::now();
 						break;
-					}
-					if (tmp.type == MesType::INSTANCE)
-					{
-						TRACE("%d Instance",tmp.length);
-						revdata_.resize(tmp.length);
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							for (auto& d : tmpdata)
-							{
-								revdata_[revcount_++].iData = d;
-							}
-						}
-						revcount_ = 0;
-						active_ = ActiveState::Play;
 					}
 					if (tmp.type == MesType::POS)
 					{
 						{
+							int id = 0;
+							int i = 0;
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								int id = 0;
-								if (d % 3 == 0)
+								if (i++ % tmp.length == 0)
 								{
 									id = d;
+									TRACE("id :  %d　のPOSを受信したよ\n", id);
+									if(posdata_.find(id) != posdata_.end())
+									{ 
+										active_ = ActiveState::Play;
+									}
 									posdata_[id].resize(tmp.length);
 								}
 								posdata_[id][revcount_++].iData = d;
 							}
 						}
 						revcount_ = 0;
+					}
+					else
+					{
+						tmp.type;
+						int a = 0;
 					}
 				}
 				if (tmp.type == MesType::STANBY)

@@ -48,5 +48,6 @@ private:
 	std::shared_ptr<Wall> wall_;
 	static int plid_;
 	int id_;
+	Vector2 oldpos_;
 };
 

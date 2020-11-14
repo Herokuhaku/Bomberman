@@ -39,7 +39,7 @@ enum class MesType :unsigned char
 	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
 	TMX_SIZE,		// TMXサイズ　総サイズ
 	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
-	INSTANCE,		// インスタンス
+//	INSTANCE,		// インスタンス
 	POS				// ゲーム中に送る
 };
 
@@ -81,6 +81,7 @@ public:
 	virtual bool CheckNetWork(void);
 	std::vector<unionData> GetRevdata(void);
 	std::vector<unionData> GetPosdata(int no);
+	int RevPosSize(void);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;

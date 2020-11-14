@@ -126,6 +126,23 @@ void Player::YouUpdate()
 		}
 		i++;
 	}
+	if (pos_.x - oldpos_.x < 0)
+	{
+		pldir_ = DIR::LEFT;
+	}
+	else if (pos_.x - oldpos_.x > 0)
+	{
+		pldir_ = DIR::RIGHT;
+	}
+	else if (pos_.y - oldpos_.y < 0)
+	{
+		pldir_ = DIR::UP;
+	}
+	else if (pos_.y - oldpos_.y > 0)
+	{
+		pldir_ = DIR::DOWN;
+	}
+		oldpos_ = pos_;
 }
 
 void Player::Init(void)
@@ -166,5 +183,6 @@ void Player::Init(void)
 	}
 	Mapdata = wall_->GetMapData();
 	//screen = MakeScreen(size_.x,size_.y);
+	oldpos_ = pos_;
 	id_ = plid_++;
 }
