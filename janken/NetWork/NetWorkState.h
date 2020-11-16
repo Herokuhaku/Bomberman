@@ -21,7 +21,7 @@ enum class ActiveState
 	Init,		// 初期化中(ゲーム開始準備中)(ホスト/ゲスト)
 	Standby,	// 初期化情報送信済みの開始待ち(ホスト用)
 	Play,		// ゲーム中(ホスト/ゲスト)
-	Instance,	// インスタンス中
+	//Instance,	// インスタンス中
 	OFFLINE,
 };
 

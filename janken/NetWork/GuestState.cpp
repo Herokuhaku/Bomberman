@@ -39,7 +39,9 @@ bool GuestState::CheckNetWork(void)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
-		int revcount_ = 0;
+		int revcount_ = 0;	
+		int id = 0;
+		int i = 0;
 		while (ProcessMessage() == 0)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
@@ -52,6 +54,31 @@ bool GuestState::CheckNetWork(void)
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
+					if (tmp.type == MesType::POS)
+					{
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							for (auto& d : tmpdata)
+							{
+								if (i++ == 0)
+								{
+									id = d;
+									TRACE("id :  %d　のPOSを受信したよ\n", id);
+									if (posdata_[id].size() < tmp.length)
+									{
+										posdata_[id].resize(tmp.length);
+									}
+									else
+									{
+										active_ = ActiveState::Play;
+									}
+								}
+								posdata_[id][revcount_++].iData = d;
+							}
+						}
+						revcount_ = 0;
+						break;
+					}
 					if (tmp.type == MesType::TMX_DATA)
 					{
 						{
@@ -85,34 +112,7 @@ bool GuestState::CheckNetWork(void)
 						begin = std::chrono::system_clock::now();
 						break;
 					}
-					if (tmp.type == MesType::POS)
-					{
-						{
-							int id = 0;
-							int i = 0;
-							std::lock_guard<std::mutex> mut(mtx_);
-							for (auto& d : tmpdata)
-							{
-								if ((i++ % tmp.length) == 0)
-								{
-									id = d;
-									TRACE("id :  %d　のPOSを受信したよ\n", id);
-									if(posdata_.find(id) != posdata_.end())
-									{ 
-										active_ = ActiveState::Play;
-									}
-									posdata_[id].resize(tmp.length);
-								}
-								posdata_[id][revcount_++].iData = d;
-							}
-						}
-						revcount_ = 0;
-					}
-					else
-					{
-						tmp.type;
-						int a = 0;
-					}
+
 				}
 				if (tmp.type == MesType::STANBY)
 				{

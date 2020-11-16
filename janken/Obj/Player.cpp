@@ -26,8 +26,13 @@ Player::~Player()
 
 void Player::Draw(void)
 {
-	DrawRotaGraph(pos_.x + size_.x /2, pos_.y + size_.y / 6,1.0f,0.0f,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]],true);
+	SetDrawScreen(screen);
+	ClsDrawScreen();
+	//DrawRotaGraph(pos_.x + size_.x /2, pos_.y + size_.y / 6,1.0f,0.0f,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]],true);
+	DrawGraph(0,0,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]], true);
 	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
+	SetDrawScreen(DX_SCREEN_BACK);
+	DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6,1.0f,0.0f,screen,true);
 }
 
 void Player::Update(void)
@@ -51,8 +56,6 @@ void Player::MeUpdate()
 	{
 	case DIR::RIGHT:
 		dirpos.x += size_.x;
-		a = (dirpos.x / width);
-		b = (dirpos.y / height)* 21;
 		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
 		{
 			pos_.x += 5;
@@ -115,16 +118,17 @@ void Player::YouUpdate()
 	int id = 0;
 	for (auto& d : rev)
 	{
-		if (i % 3 == 0) {
+		if (i % 4 == 0) {
 			id = d.iData;
 		}
-		else if (i % 3 == 1)
-		{
+		else if (i % 4 == 1){
 			pos_.x = d.iData;
 		}
-		else if (i % 3 == 2)
-		{
+		else if (i % 4 == 2){
 			pos_.y = d.iData;
+		}
+		else if (i % 4 == 3){
+			pldir_ = static_cast<DIR>(d.iData);
 		}
 		i++;
 	}
@@ -132,23 +136,6 @@ void Player::YouUpdate()
 	{
 		TRACE("PosData‚È‚µ\n");
 	}
-	if (pos_.x - oldpos_.x < 0)
-	{
-		pldir_ = DIR::LEFT;
-	}
-	else if (pos_.x - oldpos_.x > 0)
-	{
-		pldir_ = DIR::RIGHT;
-	}
-	else if (pos_.y - oldpos_.y < 0)
-	{
-		pldir_ = DIR::UP;
-	}
-	else if (pos_.y - oldpos_.y > 0)
-	{
-		pldir_ = DIR::DOWN;
-	}
-		oldpos_ = pos_;
 }
 
 void Player::Init(void)
@@ -191,4 +178,5 @@ void Player::Init(void)
 	//screen = MakeScreen(size_.x,size_.y);
 	oldpos_ = pos_;
 	id_ = plid_++;
+	screen = MakeScreen(size_.x,size_.y,true);
 }

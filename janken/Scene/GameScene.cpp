@@ -55,14 +55,14 @@ void GameScene::Init(void)
 			break;
 		}
 	}
-	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST || true)
+	//if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
 		int i = 0;
 		for (auto& map : mapdata_["Char"])
 		{
 			if (map != -1)
 			{
-				objlist_.emplace_back(std::make_shared<Player>(Vector2({i%32*21,i/21}), Vector2{ 32,51 }, wall_));
+				objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
 			}
 			i++;
 		}
@@ -93,23 +93,23 @@ void GameScene::Init(void)
 		//	}
 		//}
 	}
-	else
-	{
-		Vector2 tmp[2] = {{32,32},{ 32 * 19, 32 * 15 }};
-		objlist_.emplace_back(std::make_shared<Player>(tmp[0], Vector2{ 32,51 }, wall_));
-		objlist_.emplace_back(std::make_shared<Player>(tmp[1], Vector2{ 32,51 }, wall_));
-		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
-		{
-			MesData data;
-			for (int i = 0; i < 2; i++)
-			{
-				data.emplace_back(i);
-				data.emplace_back(tmp[i].x);
-				data.emplace_back(tmp[i].y);
-			}
-			//lpNetWork.SendMesData(MesType::POS,data);
-		}
-	}
+//	else
+	//{
+	//	Vector2 tmp[2] = {{32,32},{ 32 * 19, 32 * 15 }};
+	//	objlist_.emplace_back(std::make_shared<Player>(tmp[0], Vector2{ 32,51 }, wall_));
+	//	objlist_.emplace_back(std::make_shared<Player>(tmp[1], Vector2{ 32,51 }, wall_));
+	//	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
+	//	{
+	//		MesData data;
+	//		for (int i = 0; i < 2; i++)
+	//		{
+	//			data.emplace_back(i);
+	//			data.emplace_back(tmp[i].x);
+	//			data.emplace_back(tmp[i].y);
+	//		}
+	//		//lpNetWork.SendMesData(MesType::POS,data);
+	//	}
+	//}
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
@@ -125,6 +125,8 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 
 void GameScene::Draw(void)
 {
+	SetDrawScreen(screenID);
+	ClsDrawScreen();
 	for (auto& data : mapdata_) {
 		int x = 0, y = 0;
 		for (auto& no : data.second)
@@ -136,4 +138,6 @@ void GameScene::Draw(void)
 			if (x >= 21) { y++; x = 0; }
 		}
 	}
+	SetDrawScreen(DX_SCREEN_BACK);
+	DrawGraph(0, 0, screenID, true);
 }

@@ -257,7 +257,7 @@ void LoginScene::StartInit(void)
 		lpNetWork.SendStart();
 		pos_ = { 250,250 };
 	}
-	if (lpNetWork.GetActive() == ActiveState::Instance)
+	if (lpNetWork.GetActive() == ActiveState::Play)
 	{
 		updateMode_ = UpdateMode::GamePlay;
 		TRACE("ゲームを開始します！\n");

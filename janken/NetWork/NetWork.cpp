@@ -158,7 +158,7 @@ void NetWork::SendStart(void)
 	}
 	if (network_state_->GetActive() == ActiveState::Init)
 	{
-		network_state_->SetActive(ActiveState::Instance);
+		network_state_->SetActive(ActiveState::Play);
 		SendMesData(MesType::GAME_START);
 		//MesHeader data = { MesType::GAME_START,0,0,0};
 		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
