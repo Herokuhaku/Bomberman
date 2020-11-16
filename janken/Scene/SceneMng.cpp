@@ -1,24 +1,31 @@
 #include <DxLib.h>
+#include <time.h>
 #include "SceneMng.h"
 #include "../_debug/_DebugDispOut.h"
+//#include "../_debug/_DebugConOut.h"
 #include "LoginScene.h"
 #include "../Graphic/ImageMng.h"
-#include <time.h>
+
  SceneMng* SceneMng::sInstance = nullptr;
 
-void SceneMng::Run(void)
-{
-	sceneNow_ = std::make_unique<LoginScene>();
-	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
-	{
-		SetDrawScreen(DX_SCREEN_BACK);
-		ClsDrawScreen();
-		
-		sceneNow_ = sceneNow_->Update(std::move(sceneNow_));
+ void SceneMng::Run(void)
+ {
+	 sceneNow_ = std::make_unique<LoginScene>();
 
-		ScreenFlip();
-	}
-}
+	 _dbgSetDrawPosFps(FPS_SIDE::LEFT, FPS_VER::TOP);
+	 while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
+	 {
+		 _dbgStartDraw();
+		 SetDrawScreen(DX_SCREEN_BACK);
+		 ClsDrawScreen();
+
+		 sceneNow_ = sceneNow_->Update(std::move(sceneNow_));
+		 _dbgDrawFPS();
+		 
+		 _dbgAddDraw();
+		 ScreenFlip();
+	 }
+ }
 
 Vector2 SceneMng::GetScreenSize(void)
 {

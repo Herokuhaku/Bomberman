@@ -55,80 +55,41 @@ void GameScene::Init(void)
 			break;
 		}
 	}
-	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST || true)
 	{
-		int size = lpNetWork.RevPosSize();
-		for (int c = 0;c < size;c++)
+		int i = 0;
+		for (auto& map : mapdata_["Char"])
 		{
-			std::vector<unionData> rev = lpNetWork.TakeOutRevData(c);
-			Vector2 tmp = {};
-			int i = 0;
-			int id = 0;
-			bool flag = false;
-			for (auto& d : rev)
+			if (map != -1)
 			{
-				if (i % 3 == 0)
-				{
-					id = d.iData;
-				}
-				else if (i % 3 == 1)
-				{
-					tmp.x = d.iData;
-				}
-				else if (i % 3 == 2)
-				{
-					tmp.y = d.iData;
-					objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
-				}
-				i++;
+				objlist_.emplace_back(std::make_shared<Player>(Vector2({i%32*21,i/21}), Vector2{ 32,51 }, wall_));
 			}
+			i++;
 		}
-		//std::vector<unionData> rev = lpNetWork.TakeOutRevData();
-		//Vector2 tmp = {};
-		//int i = 0;
-		//int id = 0;
-		//bool flag = false;
-		//for (auto& d : rev)
+		//int size = lpNetWork.RevPosSize();
+		//for (int c = 0;c < size;c++)
 		//{
-		//	if (i % 3 == 0)
+		//	std::vector<unionData> rev = lpNetWork.TakeOutRevData(c);
+		//	Vector2 tmp = {};
+		//	int i = 0;
+		//	int id = 0;
+		//	bool flag = false;
+		//	for (auto& d : rev)
 		//	{
-		//		id = d.iData;
-		//	}
-		//	else if(i % 3 == 1)
-		//	{
-		//		tmp.x = d.iData;
-		//	}
-		//	else if (i % 3 == 2)
-		//	{
-		//		tmp.y = d.iData;
-		//		objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
-		//	}
-		//	i++;
-		//}
-		//for (auto& d : rev)
-		//{
-		//	if (i % 3 == 0) {
-		//		id = d.iData;
-		//	}
-		//	else if(i % 3 == 1)
-		//	{
-		//		tmp.x = d.iData;
-		//	}
-		//	else if (i++ % 3 == 2)
-		//	{
-		//		tmp.y = d.iData;
-		//		for (auto& obj : objlist_)
+		//		if (i % 3 == 0)
 		//		{
-		//			if (obj->GetNo() == id)
-		//			{
-		//				flag = true;
-		//				break;
-		//			}
+		//			id = d.iData;
 		//		}
-		//		if (!flag)
+		//		else if (i % 3 == 1)
 		//		{
+		//			tmp.x = d.iData;
+		//		}
+		//		else if (i % 3 == 2)
+		//		{
+		//			tmp.y = d.iData;
 		//			objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
 		//		}
+		//		i++;
 		//	}
 		//}
 	}
@@ -146,7 +107,7 @@ void GameScene::Init(void)
 				data.emplace_back(tmp[i].x);
 				data.emplace_back(tmp[i].y);
 			}
-			lpNetWork.SendMesData(MesType::POS,data);
+			//lpNetWork.SendMesData(MesType::POS,data);
 		}
 	}
 }

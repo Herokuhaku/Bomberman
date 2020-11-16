@@ -192,8 +192,8 @@ void NetWork::SendTmxSize(void)
 	//// 単体バイト数
 	//mesdata.emplace_back(tmpd.oneByte);
 	//// 総バイト数
-	uni.iData /= 8;
-	if (uni.iData % 8 != 0) { uni.iData++; }
+//	uni.iData /= 8;
+//	if (uni.iData % 8 != 0) { uni.iData++; }
 	mesdata.emplace_back(uni.iData);
 	//mesdata.emplace_back(tmpd.AllByte/4);
 

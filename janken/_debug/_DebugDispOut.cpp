@@ -15,8 +15,16 @@ _DebugDispOut::_DebugDispOut()
 	endKey_[1] = 0;
 	pouseKey_[0] = 0;
 	pouseKey_[1] = 0;
+	homeKey_[0] = 0;
+	homeKey_[1] = 0;
+	f1Key_[0] = 0;
+	f1Key_[1] = 0;
+	backSp_[0] = 0;
+	backSp_[1] = 0;
 	ghBefor_ = 0;
 	clsFlag_ = true;
+	fpsCount_ = 0;
+	fpsView_ = 0;
 }
 
 _DebugDispOut::~_DebugDispOut()
@@ -48,6 +56,8 @@ void _DebugDispOut::WaitMode(void)
 		TRACE("スロー機能(ゆっくり)：PageDown\n");
 		TRACE("スロー機能(は や く)：PageUp\n");
 		TRACE("一時停止/スロー・一時停止解除：Pause/Break\n\n");
+
+		TRACE("バックグラウンド処理有効/無効：BackSpace\n");
 	}
 
 	if (CheckHitKey(KEY_INPUT_PGDN))
@@ -100,6 +110,15 @@ void _DebugDispOut::WaitMode(void)
 		clsFlag_ ^= 1;
 		TRACE("デバッグ表示クリアー機能：%d\n",clsFlag_);
 	}
+
+	backSp_[1] = backSp_[0];
+	backSp_[0] = CheckHitKey(KEY_INPUT_BACK);
+	if (backSp_[0] && !backSp_[1])
+	{
+		SetAlwaysRunFlag(GetAlwaysRunFlag() ^ 1);
+		TRACE("バックグラウンド処理：%d\n", GetAlwaysRunFlag());
+	}
+
 }
 
 int _DebugDispOut::DrawGraph(int x, int y, int GrHandle, int TransFlag)
@@ -161,6 +180,45 @@ int _DebugDispOut::DrawPixel(int x, int y, unsigned int Color)
 	return rtnFlag;
 }
 
+#define FPS_BOX_SIZE_X 80
+#define FPS_BOX_SIZE_Y 24
+void _DebugDispOut::DrawFPS(void)
+{
+	fpsEndTime_ = std::chrono::system_clock::now();
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(fpsEndTime_ - fpsStartTime_).count() >= 1000)
+	{
+		fpsView_ = fpsCount_;
+		fpsCount_ = 0;
+		fpsStartTime_ = fpsEndTime_;
+	}
+	else
+	{
+		fpsCount_++;
+	}
+	_DebugDispOut::DrawBox(fpsPosX, fpsPosY, fpsPosX + FPS_BOX_SIZE_X, fpsPosY + FPS_BOX_SIZE_Y, 0, true);
+	_dbgDrawFormatString(fpsPosX + 4, fpsPosY + 4, 0xffffff, "fps:1/%d", fpsView_);
+}
+
+void _DebugDispOut::SetDrawPosFps(FPS_SIDE side, FPS_VER ver)
+{
+	if (side == FPS_SIDE::LEFT)
+	{
+		fpsPosX = 0;
+	}
+	else
+	{
+		fpsPosX = screenSizeX_- FPS_BOX_SIZE_X;
+	}
+	if (ver == FPS_VER::TOP)
+	{
+		fpsPosY = 0;
+	}
+	else
+	{
+		fpsPosY = screenSizeY_ - FPS_BOX_SIZE_Y;
+	}
+}
+
 bool _DebugDispOut::StartDrawDebug(void)
 {
 	int ghBefor;
@@ -207,6 +265,9 @@ bool _DebugDispOut::Setup(int screenSizeX, int screenSizeY,int alpha)
 		DbgScreen_ = MakeScreen(screenSizeX, screenSizeY, true);
 	}
 	SetAlpha(alpha);
+	screenSizeX_ = screenSizeX;
+	screenSizeY_ = screenSizeY;
+
 	return true;
 }
 

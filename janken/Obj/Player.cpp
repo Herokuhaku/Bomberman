@@ -46,11 +46,13 @@ void Player::MeUpdate()
 	int width = 32;
 	int height = 32;
 	int a = 0;
+	int b = 0;
 	switch (pldir_)
 	{
 	case DIR::RIGHT:
 		dirpos.x += size_.x;
-		a = (dirpos.x / width) + ((dirpos.y / height) * width);
+		a = (dirpos.x / width);
+		b = (dirpos.y / height)* 21;
 		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
 		{
 			pos_.x += 5;
@@ -103,7 +105,7 @@ void Player::MeUpdate()
 		TRACE("ë∂ç›ÇµÇ»Ç¢DIRÇå¸Ç¢ÇƒÇÈÇÊ");
 		break;
 	}
-	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y });
+	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y,static_cast<int>(pldir_)});
 }
 
 void Player::YouUpdate()
@@ -125,6 +127,10 @@ void Player::YouUpdate()
 			pos_.y = d.iData;
 		}
 		i++;
+	}
+	if (rev.size() == 0)
+	{
+		TRACE("PosDataÇ»Çµ\n");
 	}
 	if (pos_.x - oldpos_.x < 0)
 	{

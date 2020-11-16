@@ -93,7 +93,7 @@ bool GuestState::CheckNetWork(void)
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								if (i++ % tmp.length == 0)
+								if ((i++ % tmp.length) == 0)
 								{
 									id = d;
 									TRACE("id :  %d@‚ÌPOS‚ğóM‚µ‚½‚æ\n", id);
