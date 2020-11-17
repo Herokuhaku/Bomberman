@@ -4,6 +4,7 @@
 #include "../NetWork/NetWork.h"
 
 int Player::plid_ = 0;
+int Player::fallCount = 0;
 
 Player::Player()
 {
@@ -132,9 +133,10 @@ void Player::YouUpdate()
 		}
 		i++;
 	}
-	if (rev.size() == 0)
+	if (rev.size() < 2)
 	{
 		TRACE("PosData‚È‚µ\n");
+		fallCount++;
 	}
 }
 

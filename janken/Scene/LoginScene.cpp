@@ -97,35 +97,38 @@ void LoginScene::KeyLoad(void)
 
 void LoginScene::SetNetWorkMode(void)
 {
+	Vector2 tmpos = fpos_;
+	int fsize = GetFontSize();
 	int nextf = false;
 	auto tmpip = lpNetWork.GetIP();
 	for (auto& ip : tmpip)
 	{
 		if (ip.d1 == 0)
 		{
-			continue;
+			break;
 		}
 		if (ip.d1 != 192)
 		{
-			DrawFormatString(pos_.x, pos_.y, 0xffffff, "ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			DrawFormatString(tmpos.x, tmpos.y, 0xffffff, "ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 			//TRACE("ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 		}
 		else
 		{
-			DrawFormatString(pos_.x, pos_.y, 0xffffff, "グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+			DrawFormatString(tmpos.x,tmpos.y, 0xffffff, "グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 			//TRACE("グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
 		}
+		tmpos.y += fsize;
 	}
 	Vector2 pos = pos_;
 	for (auto& key : inputKey)
 	{
-		//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
-		DrawString(pos.x, pos.y + 100, key.c_str(), 0xffffff, true);
-		pos.x += GetFontSize() / 2;
 		if (key == "Enter") {
 			nextf = true;
 			inputKey.pop_back();
 		}
+		//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
+		DrawString(pos.x, tmpos.y + 100, key.c_str(), 0xffffff, true);
+		pos.x += GetFontSize() / 2;
 	}
 	std::ifstream ifs("ini/Ip.txt");
 	std::string str;
@@ -157,8 +160,7 @@ void LoginScene::SetNetWorkMode(void)
 		}
 	}
 
-	Vector2 tmpos = fpos_;
-	int fsize = GetFontSize();
+
 	auto fauto = [&](const char* name) {
 		tmpos.y += fsize;
 		DrawString(tmpos.x, tmpos.y, name, 0xffffff);

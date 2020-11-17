@@ -70,10 +70,10 @@ bool NetWork::SendMesData(MesData data)
 		t.iData = j;
 		tmp.emplace_back(t);
 	}
-	for (auto& d : data)
-	{
-		TRACE("%d ‚ğ‘—M\n",d);
-	}
+	//for (auto& d : data)
+	//{
+	//	TRACE("%d ‚ğ‘—M\n",d);
+	//}
 	return true;
 }
 bool NetWork::SendMesData(MesType type, MesData data)
@@ -82,7 +82,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	{
 		return false;
 	}
-	TRACE("MesType : %d\n", static_cast<int>(type));
+	//TRACE("MesType : %d\n", static_cast<int>(type));
 	MesData mesdata = SendMesHeader({ type,0,0,0 });
 	Header header = {type,0,0,0};
 	auto hSize = sizeof(MesHeader) / sizeof(int);

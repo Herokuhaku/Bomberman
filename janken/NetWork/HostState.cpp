@@ -19,6 +19,8 @@ bool HostState::CheckNetWork(void)
 	{
 		MesHeader tmp;
 		int revcount_ = 0;
+		int i = 0;
+		int id = 0;
 		while (ProcessMessage() == 0)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
@@ -31,16 +33,37 @@ bool HostState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						revdata_.resize(tmp.length);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								revdata_[revcount_++].iData = d;
+								if (i++ == 0)
+								{
+									id = d;
+									TRACE("id :  %dÅ@ÇÃPOSÇéÛêMÇµÇΩÇÊ\n", id);
+									if (posdata_[id].size() < tmp.length)
+									{
+										posdata_[id].resize(tmp.length);
+									}
+								}
+								posdata_[id][revcount_++].iData = d;
 							}
 						}
 						revcount_ = 0;
+						break;
 					}
+					//if (tmp.type == MesType::POS)
+					//{
+					//	revdata_.resize(tmp.length);
+					//	{
+					//		std::lock_guard<std::mutex> mut(mtx_);
+					//		for (auto& d : tmpdata)
+					//		{
+					//			revdata_[revcount_++].iData = d;
+					//		}
+					//	}
+					//	revcount_ = 0;
+					//}
 				}
 				if (tmp.type == MesType::GAME_START)
 				{

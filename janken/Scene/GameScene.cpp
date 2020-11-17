@@ -4,6 +4,7 @@
 #include "../Graphic/ImageMng.h"
 #include "../NetWork/NetWork.h"
 #include "../Obj/Player.h"
+#include "../_debug/_DebugDispOut.h"
 
 GameScene::GameScene()
 {
@@ -55,61 +56,16 @@ void GameScene::Init(void)
 			break;
 		}
 	}
-	//if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+	int i = 0;
+	for (auto& map : mapdata_["Char"])
 	{
-		int i = 0;
-		for (auto& map : mapdata_["Char"])
+		if (map != -1)
 		{
-			if (map != -1)
-			{
-				objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
-			}
-			i++;
+			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
 		}
-		//int size = lpNetWork.RevPosSize();
-		//for (int c = 0;c < size;c++)
-		//{
-		//	std::vector<unionData> rev = lpNetWork.TakeOutRevData(c);
-		//	Vector2 tmp = {};
-		//	int i = 0;
-		//	int id = 0;
-		//	bool flag = false;
-		//	for (auto& d : rev)
-		//	{
-		//		if (i % 3 == 0)
-		//		{
-		//			id = d.iData;
-		//		}
-		//		else if (i % 3 == 1)
-		//		{
-		//			tmp.x = d.iData;
-		//		}
-		//		else if (i % 3 == 2)
-		//		{
-		//			tmp.y = d.iData;
-		//			objlist_.emplace_back(std::make_shared<Player>(tmp, Vector2{ 32,51 }, wall_));
-		//		}
-		//		i++;
-		//	}
-		//}
+		i++;
 	}
-//	else
-	//{
-	//	Vector2 tmp[2] = {{32,32},{ 32 * 19, 32 * 15 }};
-	//	objlist_.emplace_back(std::make_shared<Player>(tmp[0], Vector2{ 32,51 }, wall_));
-	//	objlist_.emplace_back(std::make_shared<Player>(tmp[1], Vector2{ 32,51 }, wall_));
-	//	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
-	//	{
-	//		MesData data;
-	//		for (int i = 0; i < 2; i++)
-	//		{
-	//			data.emplace_back(i);
-	//			data.emplace_back(tmp[i].x);
-	//			data.emplace_back(tmp[i].y);
-	//		}
-	//		//lpNetWork.SendMesData(MesType::POS,data);
-	//	}
-	//}
+	begin = std::chrono::system_clock::now();
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
@@ -120,6 +76,14 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		obj->Update();
 		obj->Draw();
 	}
+	end = std::chrono::system_clock::now();
+	if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 1)
+	{
+		begin = end;
+		fpsCnt_++;
+	}
+	_dbgDrawFormatString(100, 0, 0x000000, "%d / %d", Player::fallCount, fpsCnt_);
+	//_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
 	return own;
 }
 

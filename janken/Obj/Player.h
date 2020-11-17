@@ -49,5 +49,8 @@ private:
 	static int plid_;
 	int id_;
 	Vector2 oldpos_;
+
+public:
+	static int fallCount;
 };
 
