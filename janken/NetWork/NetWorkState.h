@@ -80,7 +80,7 @@ public:
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
 	std::vector<unionData> GetRevdata(void);
-	std::vector<unionData> GetPosdata(int no);
+	MesData GetPosdata(int no);
 	int RevPosSize(void);
 protected:
 	const int portNum_ = 8086;
@@ -92,6 +92,6 @@ protected:
 //	MesType nowtype_;
 	MesSizeData sizedata_;
 	std::vector<unionData> revdata_;
-	std::map<int,std::vector<unionData>> posdata_;
+	std::map<int,std::vector<int>> posdata_;
 //	std::vector<int> revtmx_;
 };

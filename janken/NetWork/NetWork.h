@@ -32,7 +32,7 @@ public:
 	void SendStart(void);
 	void SendTmxSize(void);
 	
-	std::vector<unionData> TakeOutRevData(int no);
+	MesData TakeOutRevData(int no);
 	std::vector<unionData> TakeOutRevData(void);
 	int RevPosSize(void);
 	//IPDATA GetIP(void);		// ipdata‚Ì’†g‚ğ•Ô‚è’l‚Æ‚µ‚Ä•Ô‚·

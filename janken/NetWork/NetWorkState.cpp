@@ -49,23 +49,23 @@ std::vector<unionData> NetWorkState::GetRevdata(void)
 	return tmp;
 }
 
-std::vector<unionData> NetWorkState::GetPosdata(int no)
+MesData NetWorkState::GetPosdata(int no)
 {
-	std::vector<unionData> tmp = posdata_[no];
+	MesData tmp = posdata_[no];
 	int id = -1;
-	if (tmp.size() >= 1)id = tmp[0].iData;
+	if (tmp.size() >= 1)id = tmp[0];
 	if (id == no)
 	{
 		if (tmp.size() != 0)
 		{
-			std::vector<unionData> tmpd = posdata_[id];
+			MesData tmpd = posdata_[id];
 			posdata_[id].clear();
 			tmp.erase(tmp.begin());
 			//posdata_.try_emplace(id, tmp);
 			return tmpd;
 		}
 	}
-	std::vector<unionData> null;
+	MesData null;
 	return null;
 }
 

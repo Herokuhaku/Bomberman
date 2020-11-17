@@ -58,25 +58,16 @@ bool GuestState::CheckNetWork(void)
 					{
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							for (auto& d : tmpdata)
+							if (posdata_[id].size() < tmp.length)
 							{
-								if (i++ == 0)
-								{
-									id = d;
-									TRACE("id :  %d@‚ÌPOS‚ðŽóM‚µ‚½‚æ\n", id);
-									if (posdata_[id].size() < tmp.length)
-									{
-										posdata_[id].resize(tmp.length);
-									}
-									else
-									{
-										active_ = ActiveState::Play;
-									}
-								}
-								posdata_[id][revcount_++].iData = d;
+								posdata_[id].resize(tmp.length);
 							}
+							else
+							{
+								active_ = ActiveState::Play;
+							}
+							posdata_[tmpdata[0]] = tmpdata;
 						}
-						revcount_ = 0;
 						break;
 					}
 					if (tmp.type == MesType::TMX_DATA)

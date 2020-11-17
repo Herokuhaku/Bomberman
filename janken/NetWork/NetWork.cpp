@@ -200,14 +200,12 @@ void NetWork::SendTmxSize(void)
 	SendMesData(mesdata);
 	return ;
 }
-std::vector<unionData> NetWork::TakeOutRevData(int no)
+MesData NetWork::TakeOutRevData(int no)
 {
 	if (network_state_ == nullptr)
 	{
-		std::vector<unionData> data;
-		unionData i;
-		i.iData = -1;
-		data.insert(data.begin(), i);
+		MesData data;
+		data.insert(data.begin(),-1);
 		return data;
 	}
 	return network_state_->GetPosdata(no);

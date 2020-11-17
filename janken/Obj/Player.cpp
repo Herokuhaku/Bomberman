@@ -114,22 +114,22 @@ void Player::MeUpdate()
 
 void Player::YouUpdate()
 {
-	std::vector<unionData> rev = lpNetWork.TakeOutRevData(id_);
+	MesData rev = lpNetWork.TakeOutRevData(id_);
 	int i = 0;
 	int id = 0;
 	for (auto& d : rev)
 	{
 		if (i % 4 == 0) {
-			id = d.iData;
+			id = d;
 		}
 		else if (i % 4 == 1){
-			pos_.x = d.iData;
+			pos_.x = d;
 		}
 		else if (i % 4 == 2){
-			pos_.y = d.iData;
+			pos_.y = d;
 		}
 		else if (i % 4 == 3){
-			pldir_ = static_cast<DIR>(d.iData);
+			pldir_ = static_cast<DIR>(d);
 		}
 		i++;
 	}

@@ -15,7 +15,8 @@ HostState::~HostState()
 
 bool HostState::CheckNetWork(void)
 {
-	if (active_ == ActiveState::Standby)
+	//if (active_ == ActiveState::Standby)
+	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;
 		int revcount_ = 0;
@@ -35,21 +36,26 @@ bool HostState::CheckNetWork(void)
 					{
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							for (auto& d : tmpdata)
+							if (posdata_[id].size() < tmp.length)
 							{
-								if (i++ == 0)
-								{
-									id = d;
-									TRACE("id :  %d　のPOSを受信したよ\n", id);
-									if (posdata_[id].size() < tmp.length)
-									{
-										posdata_[id].resize(tmp.length);
-									}
-								}
-								posdata_[id][revcount_++].iData = d;
+								posdata_[id].resize(tmp.length);
 							}
+							posdata_[tmpdata[0]] = tmpdata;
+							//for (auto& d : tmpdata)
+							//{
+							//	if (i++ == 0)
+							//	{
+							//		id = d;
+							//		TRACE("id :  %d　のPOSを受信したよ\n", id);
+							//		if (posdata_[id].size() < tmp.length)
+							//		{
+							//			posdata_[id].resize(tmp.length);
+							//		}
+							//	}
+							//	posdata_[id][revcount_++] = d;
+							//}
 						}
-						revcount_ = 0;
+						//revcount_ = 0;
 						break;
 					}
 					//if (tmp.type == MesType::POS)
