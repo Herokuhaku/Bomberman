@@ -50,14 +50,11 @@ void Player::MeUpdate()
 {
 	Vector2 dirpos = { pos_.x,pos_.y };
 	int width = 32;
-	int height = 32;
-	int a = 0;
-	int b = 0;
 	switch (pldir_)
 	{
 	case DIR::RIGHT:
 		dirpos.x += size_.x;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
+		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
 		{
 			pos_.x += 5;
 		}
@@ -69,7 +66,7 @@ void Player::MeUpdate()
 		break;
 	case DIR::LEFT:
 		dirpos.x -= 5;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
+		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
 		{
 			pos_.x -= 5;
 		}
@@ -81,7 +78,7 @@ void Player::MeUpdate()
 		break;
 	case DIR::UP:
 		dirpos.y -= 5;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
+		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
 		{
 			pos_.y -= 5;
 		}
@@ -93,7 +90,7 @@ void Player::MeUpdate()
 		break;
 	case DIR::DOWN:
 		dirpos.y += 32;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / height) * 21)] == 0)
+		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
 		{
 			pos_.y += 5;
 		}
