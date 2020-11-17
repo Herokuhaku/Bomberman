@@ -8,10 +8,10 @@
 #include "../TiledLoader.h"
 enum class DIR
 {
+	DOWN,
 	LEFT,
 	RIGHT,
 	UP,
-	DOWN,
 	DEATH
 };
 

@@ -61,7 +61,7 @@ void GameScene::Init(void)
 	{
 		if (map != -1)
 		{
-			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
+			objlist_.emplace_back(std::make_unique<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
 		}
 		i++;
 	}
@@ -82,8 +82,8 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		begin = end;
 		fpsCnt_++;
 	}
-	_dbgDrawFormatString(100, 0, 0x000000, "%d / %d", Player::fallCount, fpsCnt_);
-	//_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
+	_dbgDrawFormatString(300, 0, 0x000000, "%d / %d", Player::fallCount, fpsCnt_);
+	_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
 	return own;
 }
 

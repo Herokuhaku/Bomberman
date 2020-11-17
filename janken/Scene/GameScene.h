@@ -17,7 +17,7 @@ public:
 	void Draw(void)override;
 private:
 	std::vector<int> Image;
-	std::vector<std::shared_ptr<Obj>> objlist_;
+	std::vector<std::unique_ptr<Obj>> objlist_;
 	std::shared_ptr<Wall> wall_;
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;
