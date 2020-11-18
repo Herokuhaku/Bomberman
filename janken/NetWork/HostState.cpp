@@ -21,7 +21,7 @@ bool HostState::CheckNetWork(void)
 		MesHeader tmp;
 		int revcount_ = 0;
 		int i = 0;
-		int id = 0;
+		int id = -1;
 		while (ProcessMessage() == 0)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
@@ -34,47 +34,23 @@ bool HostState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
+						id = tmpdata[0];
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							if (posdata_[id].size() < tmp.length)
 							{
 								posdata_[id].resize(tmp.length);
 							}
-							posdata_[tmpdata[0]] = tmpdata;
-							//for (auto& d : tmpdata)
-							//{
-							//	if (i++ == 0)
-							//	{
-							//		id = d;
-							//		TRACE("id :  %d　のPOSを受信したよ\n", id);
-							//		if (posdata_[id].size() < tmp.length)
-							//		{
-							//			posdata_[id].resize(tmp.length);
-							//		}
-							//	}
-							//	posdata_[id][revcount_++] = d;
-							//}
+							posdata_[id] = tmpdata;
 						}
-						//revcount_ = 0;
 						break;
 					}
-					//if (tmp.type == MesType::POS)
-					//{
-					//	revdata_.resize(tmp.length);
-					//	{
-					//		std::lock_guard<std::mutex> mut(mtx_);
-					//		for (auto& d : tmpdata)
-					//		{
-					//			revdata_[revcount_++].iData = d;
-					//		}
-					//	}
-					//	revcount_ = 0;
-					//}
 				}
 				if (tmp.type == MesType::GAME_START)
 				{
 					TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
 					active_ = ActiveState::Play;
+					break;
 				}
 			}
 		}

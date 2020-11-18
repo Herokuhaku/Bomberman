@@ -5,6 +5,7 @@
 
 int Player::plid_ = 0;
 int Player::fallCount = 0;
+int Player::nfallCount = 0;
 
 Player::Player()
 {
@@ -112,25 +113,17 @@ void Player::MeUpdate()
 void Player::YouUpdate()
 {
 	MesData rev = lpNetWork.TakeOutRevData(id_);
-	int i = 0;
 	int id = 0;
-	for (auto& d : rev)
+
+	if (rev.size() == 4)
 	{
-		if (i % 4 == 0) {
-			id = d;
-		}
-		else if (i % 4 == 1){
-			pos_.x = d;
-		}
-		else if (i % 4 == 2){
-			pos_.y = d;
-		}
-		else if (i % 4 == 3){
-			pldir_ = static_cast<DIR>(d);
-		}
-		i++;
+		id = rev[0];
+		pos_.x = rev[1];
+		pos_.y = rev[2];
+		pldir_ = static_cast<DIR>(rev[3]);
+		nfallCount++;
 	}
-	if (rev.size() < 2)
+	else
 	{
 		TRACE("PosData‚È‚µ\n");
 		fallCount++;

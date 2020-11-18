@@ -52,5 +52,6 @@ private:
 
 public:
 	static int fallCount;
+	static int nfallCount;
 };
 

@@ -119,12 +119,13 @@ bool NetWork::SendMesData(MesType type, MesData data)
 		// unionData‚ğì‚Á‚Äheader ‚ğ‘‚«Š·‚¦‚é // length‚Ídata‚ÌƒTƒCƒY•ª
 		mesdata = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size()) });
 		int c = 0;
-		for (auto d : data)
+		for (auto& d : data)
 		{
 			mesdata.emplace_back(d);
 			c++;
 		}
-		data.erase(data.begin(), data.begin() + c);
+		//data.erase(data.begin(), data.begin() + c);
+		data.clear();
 		SendMesData(mesdata);
 	}
 	return true;

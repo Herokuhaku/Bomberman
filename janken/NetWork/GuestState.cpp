@@ -40,22 +40,21 @@ bool GuestState::CheckNetWork(void)
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
 		int revcount_ = 0;	
-		int id = 0;
+		int id = -1;
 		int i = 0;
 		while (ProcessMessage() == 0)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-
 				MesData tmpdata;
 				tmpdata.resize(tmp.length);
-				TRACE("MesType : %d  ‚ðŽóM\n", tmp.type);
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
+						id = tmpdata[0];
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							if (posdata_[id].size() < tmp.length)
@@ -66,7 +65,7 @@ bool GuestState::CheckNetWork(void)
 							{
 								active_ = ActiveState::Play;
 							}
-							posdata_[tmpdata[0]] = tmpdata;
+							posdata_[id] = tmpdata;
 						}
 						break;
 					}

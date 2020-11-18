@@ -84,6 +84,9 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	}
 	_dbgDrawFormatString(300, 0, 0x000000, "%d / %d", Player::fallCount, fpsCnt_);
 	_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
+	_dbgDrawFormatString(500, 0, 0x000000, "%d", Player::nfallCount/fpsCnt_);
+	_dbgDrawFormatString(300, 100, 0xffffff, "%d", (Player::nfallCount + Player::fallCount)/ fpsCnt_);
+
 	return own;
 }
 

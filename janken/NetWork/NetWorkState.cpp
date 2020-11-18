@@ -59,9 +59,9 @@ MesData NetWorkState::GetPosdata(int no)
 		if (tmp.size() != 0)
 		{
 			MesData tmpd = posdata_[id];
-			//posdata_[id].clear();
+			posdata_[id].clear();
 			//posdata_.try_emplace(id, tmp);
-			return posdata_[id];
+			return tmpd;
 			//return tmpd;
 		}
 	}
