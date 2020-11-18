@@ -82,16 +82,13 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	{
 		return false;
 	}
-	//TRACE("MesType : %d\n", static_cast<int>(type));
-	MesData mesdata = SendMesHeader({ type,0,0,0 });
-	Header header = {type,0,0,0};
-	auto hSize = sizeof(MesHeader) / sizeof(int);
-	auto MaxCnt = maxByte_ / sizeof(int) - hSize;
+	MesData mesdata;// = SendMesHeader({ type,0,0,0 });
+	Header header = { type,0,0,0 };
+	auto MaxCnt = maxByte_ / sizeof(int) - (sizeof(MesHeader) / sizeof(int));
 	int size = 0;
-	TRACE("MesType : %d を送ったよ\n", type);
 	do
 	{
-		for (int i = 0;data.size() > i&& i < MaxCnt; i++)
+		for (int i = 0;data.size() > i && i < MaxCnt; i++)
 		{
 			mesdata.emplace_back(data[i]);
 			size++;
@@ -99,31 +96,32 @@ bool NetWork::SendMesData(MesType type, MesData data)
 		// 送信元データの削除を行う
 		// MaxByte /4 でintの数にしてheader分の-2 を消す。
 		header.header.length = size;	// ヘッダーを除いたデータ部の数
-		mesdata[0] = header.iheader[0];
-		mesdata[1] = header.iheader[1];
-		header.header.sendid++;
 
 		data.erase(data.begin(), data.begin() + size);
 		if (data.size() > 0) {
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-
-		SendMesData(mesdata);
+		mesdata[0] = header.iheader[0];
+		mesdata[1] = header.iheader[1];
+		header.header.sendid++;
+		NetWorkSend(lpNetWork.GetNetWorkHandle(), mesdata.data(), mesdata.size() * sizeof(int));
 		// 送信データの削除　ヘッダーは消さないで次に回す
 		// 開始位置はheaderの終わり位置から　　終了位置はheaderの終わり位置 + intの数 - ヘッダー分; これでヘッダーを消さずに送った分だけ消せる
-		mesdata.erase(mesdata.begin() + 2,mesdata.end());
 		size = 0;
+		mesdata.erase(mesdata.begin() + 2, mesdata.end());
 	} while (header.header.next);
-
+	
 	return true;
 }
+
 bool NetWork::SendMesData(MesType type)
 {
 	MesData data;
 	SendMesData(type, std::move(data));
 	return true;
 }
+
 void NetWork::SendStandby(void)
 {
 	if (network_state_ == nullptr)

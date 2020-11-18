@@ -33,6 +33,7 @@ public:
 	void Draw(void)override;
 	void Update(void)override;
 	int GetNo()override;
+	int OkNum()override;
 private:
 	void MeUpdate();
 	void YouUpdate();

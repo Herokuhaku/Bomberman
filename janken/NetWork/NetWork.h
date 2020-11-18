@@ -54,8 +54,6 @@ private:
 	std::unique_ptr<NetWorkState> network_state_;	//net work state
 	int maxByte_;
 
-	std::map<int, std::vector<int>> posdata;
-
 	NetWork();
 	~NetWork();
 };

@@ -47,6 +47,11 @@ int Player::GetNo()
 	return plid_;
 }
 
+int Player::OkNum()
+{
+	return lpNetWork.TakeOutRevData(id_).size();
+}
+
 void Player::MeUpdate()
 {
 	Vector2 dirpos = { pos_.x,pos_.y };
@@ -125,7 +130,7 @@ void Player::YouUpdate()
 	}
 	else
 	{
-		TRACE("Not Data : %d\n",id_);
+		TRACE("PosData‚È‚µ\n");
 		fallCount++;
 	}
 }
