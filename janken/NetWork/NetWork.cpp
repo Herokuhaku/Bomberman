@@ -87,47 +87,35 @@ bool NetWork::SendMesData(MesType type, MesData data)
 	Header header = {type,0,0,0};
 	auto hSize = sizeof(MesHeader) / sizeof(int);
 	auto MaxCnt = maxByte_ / sizeof(int) - hSize;
-	bool headerf = false;
-	if (data.size() <= 0)headerf = true;
-	while (data.size() > MaxCnt)
+	int size = 0;
+	TRACE("MesType : %d を送ったよ\n", type);
+	do
 	{
-		for (int i = 0; i < MaxCnt; i++)
+		for (int i = 0;data.size() > i&& i < MaxCnt; i++)
 		{
 			mesdata.emplace_back(data[i]);
+			size++;
 		}
 		// 送信元データの削除を行う
 		// MaxByte /4 でintの数にしてheader分の-2 を消す。
-		data.erase(data.begin(),data.begin() + MaxCnt);
-		if (data.size() > 0) {
-			header.header.next = 1;
-		}
-		else { header.header.next = 0; }
-		header.header.length = MaxCnt;	// ヘッダーを除いたデータ部の数
+		header.header.length = size;	// ヘッダーを除いたデータ部の数
 		mesdata[0] = header.iheader[0];
 		mesdata[1] = header.iheader[1];
 		header.header.sendid++;
 
+		data.erase(data.begin(), data.begin() + size);
+		if (data.size() > 0) {
+			header.header.next = 1;
+		}
+		else { header.header.next = 0; }
+
 		SendMesData(mesdata);
 		// 送信データの削除　ヘッダーは消さないで次に回す
 		// 開始位置はheaderの終わり位置から　　終了位置はheaderの終わり位置 + intの数 - ヘッダー分; これでヘッダーを消さずに送った分だけ消せる
-		mesdata.erase(mesdata.begin() + 2, mesdata.begin() + 2 + MaxCnt);
-	}
+		mesdata.erase(mesdata.begin() + 2,mesdata.end());
+		size = 0;
+	} while (header.header.next);
 
-	// データに残りがなければそのまま抜ける　残りがあれば残りをmesデータに詰めて送る
-	if (data.size() > 0 || headerf)
-	{
-		// unionDataを作ってheader を書き換える // lengthはdataのサイズ分
-		mesdata = SendMesHeader({ type,0,header.header.sendid,static_cast<unsigned int>(data.size()) });
-		int c = 0;
-		for (auto& d : data)
-		{
-			mesdata.emplace_back(d);
-			c++;
-		}
-		//data.erase(data.begin(), data.begin() + c);
-		data.clear();
-		SendMesData(mesdata);
-	}
 	return true;
 }
 bool NetWork::SendMesData(MesType type)

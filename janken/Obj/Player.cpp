@@ -125,7 +125,7 @@ void Player::YouUpdate()
 	}
 	else
 	{
-		TRACE("PosData‚È‚µ\n");
+		TRACE("Not Data : %d\n",id_);
 		fallCount++;
 	}
 }

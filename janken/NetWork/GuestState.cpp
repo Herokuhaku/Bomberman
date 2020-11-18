@@ -1,3 +1,4 @@
+#include <DxLib.h>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -42,7 +43,7 @@ bool GuestState::CheckNetWork(void)
 		int revcount_ = 0;	
 		int id = -1;
 		int i = 0;
-		while (ProcessMessage() == 0)
+		while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
