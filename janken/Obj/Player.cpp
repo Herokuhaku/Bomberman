@@ -5,7 +5,6 @@
 
 int Player::plid_ = 0;
 int Player::fallCount = 0;
-int Player::nfallCount = 0;
 
 Player::Player()
 {
@@ -54,83 +53,24 @@ int Player::OkNum()
 
 void Player::MeUpdate()
 {
-	Vector2 dirpos = { pos_.x,pos_.y };
-	int width = 32;
-	switch (pldir_)
-	{
-	case DIR::RIGHT:
-		dirpos.x += size_.x;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
-		{
-			pos_.x += 5;
-		}
-		else
-		{
-			pldir_ = DIR::DOWN;
-			frame_ = oneanimCnt * 2;
-		}
-		break;
-	case DIR::LEFT:
-		dirpos.x -= 5;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
-		{
-			pos_.x -= 5;
-		}
-		else
-		{
-			pldir_ = DIR::UP;
-			frame_ = oneanimCnt * 2;
-		}
-		break;
-	case DIR::UP:
-		dirpos.y -= 5;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
-		{
-			pos_.y -= 5;
-		}
-		else
-		{
-			pldir_ = DIR::RIGHT;
-			frame_ = oneanimCnt * 2;
-		}
-		break;
-	case DIR::DOWN:
-		dirpos.y += 32;
-		if (wall_->GetMapData()["Obj"][(dirpos.x / width) + ((dirpos.y / width) * 21)] == 0)
-		{
-			pos_.y += 5;
-		}
-		else
-		{
-			pldir_ = DIR::LEFT;
-			frame_ = oneanimCnt * 2;
-		}
-		break;
-	case DIR::DEATH:
-		break;
-	default:
-		TRACE("ë∂ç›ÇµÇ»Ç¢DIRÇå¸Ç¢ÇƒÇÈÇÊ");
-		break;
-	}
+	dirupdate_[pldir_](pos_,width);
+
 	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y,static_cast<int>(pldir_)});
 }
 
 void Player::YouUpdate()
 {
 	MesData rev = lpNetWork.TakeOutRevData(id_);
-	int id = 0;
 
 	if (rev.size() == 4)
 	{
-		id = rev[0];
 		pos_.x = rev[1];
 		pos_.y = rev[2];
 		pldir_ = static_cast<DIR>(rev[3]);
-		nfallCount++;
 	}
 	else
 	{
-		TRACE("PosDataÇ»Çµ\n");
+		TRACE("NotData  Å°Å°%dÅ°Å° \n",id_);
 		fallCount++;
 	}
 }
@@ -171,9 +111,68 @@ void Player::Init(void)
 			update_ = std::bind(&Player::MeUpdate, this);
 		}
 	}
+	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
+	dirupdate_[DIR::LEFT] = [&](Vector2 pos, int width) {DirLeft(pos, width);};
+	dirupdate_[DIR::UP] = [&](Vector2 pos, int width) {DirUp(pos, width);};
+	dirupdate_[DIR::DOWN] = [&](Vector2 pos, int width) {DirDown(pos, width);};
+	dirupdate_[DIR::DEATH] = [&](Vector2 pos, int width) {DirDeath(pos, width);};
 	Mapdata = wall_->GetMapData();
 	//screen = MakeScreen(size_.x,size_.y);
 	oldpos_ = pos_;
 	id_ = plid_++;
 	screen = MakeScreen(size_.x,size_.y,true);
+}
+void Player::DirRight(Vector2 pos, int width)
+{
+	pos.x += size_.x;
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	{
+		pos_.x += 5;
+	}
+	else
+	{
+		pldir_ = DIR::DOWN;
+		frame_ = oneanimCnt * 2;
+	}
+}
+void Player::DirLeft(Vector2 pos, int width)
+{
+	pos.x -= 5;
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	{
+		pos_.x -= 5;
+	}
+	else
+	{
+		pldir_ = DIR::UP;
+		frame_ = oneanimCnt * 2;
+	}
+}
+
+void Player::DirUp(Vector2 pos, int width)
+{
+	pos.y -= 5;
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	{
+		pos_.y -= 5;
+	}
+	else
+	{
+		pldir_ = DIR::RIGHT;
+		frame_ = oneanimCnt * 2;
+	}
+}
+
+void Player::DirDown(Vector2 pos, int width)
+{
+	pos.y += 32;
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	{
+		pos_.y += 5;
+	}
+	else
+	{
+		pldir_ = DIR::LEFT;
+		frame_ = oneanimCnt * 2;
+	}
 }

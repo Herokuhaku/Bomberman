@@ -5,6 +5,12 @@
 #include "../Obj/Obj.h"
 #include "../Wall.h"
 
+using UniObj = std::unique_ptr<Obj>;
+using ShareObj = std::shared_ptr<Obj>;
+
+
+using VecObj = std::vector<ShareObj>;
+
 class GameScene :
 	public BaseScene
 {
@@ -17,7 +23,7 @@ public:
 	void Draw(void)override;
 private:
 	std::vector<int> Image;
-	std::vector<std::unique_ptr<Obj>> objlist_;
+	VecObj objlist_;
 	std::shared_ptr<Wall> wall_;
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;

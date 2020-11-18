@@ -19,10 +19,7 @@ bool HostState::CheckNetWork(void)
 	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;
-		int revcount_ = 0;
-		int i = 0;
-		int id = -1;
-		while (ProcessMessage() == 0)
+		while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
@@ -34,14 +31,13 @@ bool HostState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						id = tmpdata[0];
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							if (posdata_[id].size() < tmp.length)
+							if (posdata_[tmpdata[0]].size() < tmp.length)
 							{
-								posdata_[id].resize(tmp.length);
+								posdata_[tmpdata[0]].resize(tmp.length);
 							}
-							posdata_[id] = tmpdata;
+							posdata_[tmpdata[0]] = tmpdata;
 						}
 						break;
 					}

@@ -38,6 +38,13 @@ private:
 	void MeUpdate();
 	void YouUpdate();
 	void Init(void);
+
+	void DirRight(Vector2,int);
+	void DirLeft(Vector2,int);
+	void DirUp(Vector2,int);
+	void DirDown(Vector2,int);
+	void DirDeath(Vector2, int) {};
+
 	std::vector<int> animation_;
 	int screen;
 	DIR pldir_;
@@ -46,13 +53,16 @@ private:
 	int frame_;
 	const int oneanimCnt = 10;
 	std::function<void()> update_;
+	
+	std::map<DIR,std::function<void(Vector2,int)>> dirupdate_;
+
 	std::shared_ptr<Wall> wall_;
 	static int plid_;
 	int id_;
 	Vector2 oldpos_;
 
+	const int width = 32;
 public:
 	static int fallCount;
-	static int nfallCount;
 };
 

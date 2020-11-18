@@ -59,59 +59,38 @@ void NetWork::SetRevStandby(bool rev)
 		
 	 return mesdata;
 }
-bool NetWork::SendMesData(MesData data)
-{
-	NetWorkSend(lpNetWork.GetNetWorkHandle(),data.data(),data.size()*sizeof(int));
-	int count = 0;
-	std::vector<unionData> tmp;
-	for (auto& j : data)
-	{
-		unionData t;
-		t.iData = j;
-		tmp.emplace_back(t);
-	}
-	//for (auto& d : data)
-	//{
-	//	TRACE("%d を送信\n",d);
-	//}
-	return true;
-}
+
 bool NetWork::SendMesData(MesType type, MesData data)
 {
 	if (network_state_ == nullptr)
 	{
 		return false;
 	}
-	MesData mesdata;// = SendMesHeader({ type,0,0,0 });
-	Header header = { type,0,0,0 };
-	auto MaxCnt = maxByte_ / sizeof(int) - (sizeof(MesHeader) / sizeof(int));
-	int size = 0;
+	header = { type,0,0,0 };
+	size_ = 0;
 	do
 	{
 		for (int i = 0;data.size() > i && i < MaxCnt; i++)
 		{
-			mesdata.emplace_back(data[i]);
-			size++;
+			tmpmesdata_.emplace_back(data[i]);
+			size_++;
 		}
-		// 送信元データの削除を行う
-		// MaxByte /4 でintの数にしてheader分の-2 を消す。
-		header.header.length = size;	// ヘッダーを除いたデータ部の数
+		header.header.length = size_;
 
-		data.erase(data.begin(), data.begin() + size);
+		data.erase(data.begin(), data.begin() + size_);
 		if (data.size() > 0) {
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-		mesdata[0] = header.iheader[0];
-		mesdata[1] = header.iheader[1];
+		tmpmesdata_[0] = header.iheader[0];
+		tmpmesdata_[1] = header.iheader[1];
 		header.header.sendid++;
-		NetWorkSend(lpNetWork.GetNetWorkHandle(), mesdata.data(), mesdata.size() * sizeof(int));
-		// 送信データの削除　ヘッダーは消さないで次に回す
-		// 開始位置はheaderの終わり位置から　　終了位置はheaderの終わり位置 + intの数 - ヘッダー分; これでヘッダーを消さずに送った分だけ消せる
-		size = 0;
-		mesdata.erase(mesdata.begin() + 2, mesdata.end());
+		
+		NetWorkSend(lpNetWork.GetNetWorkHandle(), tmpmesdata_.data(), tmpmesdata_.size() * sizeof(int));
+		
+		tmpmesdata_.erase(tmpmesdata_.begin() + 2, tmpmesdata_.end());
+		size_ = 0;
 	} while (header.header.next);
-	
 	return true;
 }
 
@@ -154,38 +133,16 @@ void NetWork::SendStart(void)
 }
 void NetWork::SendTmxSize(void)
 {
-	std::ifstream ifp("Tiled/mapdata/map.tmx");
-	ifp.seekg(0, std::ios::end);		// 最後までシークする
 	TmxData tmx = lpTiledLoader.ReadTmx("Tiled/mapdata/map");
-	// 回数	~1400まで0 になるからそれを1にするため+1
-	// 1401~ 2800 までは 1 + 1 で回数2
-	MesSizeData tmpd;
 
-	MesData mesdata = SendMesHeader({ MesType::TMX_SIZE,0,0,sizeof(tmpd.AllByte) / 4 });
-	tmpd.AllByte = (((357 * 4) * 4) / 8);
-	tmpd.times = tmpd.AllByte / MAXSENDBYTE + 1;
-	tmpd.oneByte = tmpd.AllByte / tmpd.times;
 	unionData uni;
 	uni.cData[0] = std::atoi(tmx.num["width"].c_str());			// たて
 	uni.cData[1] = std::atoi(tmx.num["height"].c_str());		// よこ
 	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
 	uni.cData[3] = 0;											// リザーブ
 	
-																
-	//uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
-	
-	
-	//mesdata.emplace_back(tmpd.times);
-	//// 単体バイト数
-	//mesdata.emplace_back(tmpd.oneByte);
-	//// 総バイト数
-//	uni.iData /= 8;
-//	if (uni.iData % 8 != 0) { uni.iData++; }
-	mesdata.emplace_back(uni.iData);
-	//mesdata.emplace_back(tmpd.AllByte/4);
-
-	SendMesData(mesdata);
-	return ;
+	SendMesData(MesType::TMX_SIZE,{uni.iData});
+	return;
 }
 MesData NetWork::TakeOutRevData(int no)
 {
@@ -268,6 +225,9 @@ ActiveState NetWork::ConnectHost(IPDATA hostip)
 bool NetWork::Setting(void)
 {
 	maxByte_ = 0;
+	tmpmesdata_.resize(2);
+	size_ = 0;
+	MaxCnt = maxByte_ / sizeof(int) - (sizeof(MesHeader) / sizeof(int));
 	std::ifstream ifs("ini/setting.txt");
 	std::string str;
 	getline(ifs,str);

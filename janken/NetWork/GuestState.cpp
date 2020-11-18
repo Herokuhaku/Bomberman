@@ -35,13 +35,11 @@ ActiveState GuestState::ConnectHost(IPDATA hostip)
 bool GuestState::CheckNetWork(void)
 {
 	if (active_ != ActiveState::Wait && active_ != ActiveState::Non)
-//	if (active_ == ActiveState::Init)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
 		int revcount_ = 0;	
 		int id = -1;
-		int i = 0;
 		while (ProcessMessage() == 0)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
@@ -57,15 +55,15 @@ bool GuestState::CheckNetWork(void)
 						id = tmpdata[0];
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							if (posdata_[id].size() < tmp.length)
+							if (posdata_[tmpdata[0]].size() < tmp.length)
 							{
-								posdata_[id].resize(tmp.length);
+								posdata_[tmpdata[0]].resize(tmp.length);
 							}
-							else
+							else if(active_ != ActiveState::Play)
 							{
 								active_ = ActiveState::Play;
 							}
-							posdata_[id] = tmpdata;
+							posdata_[tmpdata[0]] = tmpdata;
 						}
 						break;
 					}

@@ -25,7 +25,6 @@ public:
 	void SetRevStandby(bool rev);
 
 	std::vector<int> SendMesHeader(MesHeader data);
-	bool SendMesData(MesData data);
 	bool SendMesData(MesType type, MesData data);
 	bool SendMesData(MesType type);
 	void SendStandby(void);
@@ -54,6 +53,14 @@ private:
 	std::unique_ptr<NetWorkState> network_state_;	//net work state
 	int maxByte_;
 
+
+	// SendMesで送るデータの宣言　毎回作るよりは早そう 
+	MesData tmpmesdata_;
+	int size_;
+	Header header;
+	unsigned long long MaxCnt;
+	//
+	
 	NetWork();
 	~NetWork();
 };
