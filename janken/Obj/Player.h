@@ -6,6 +6,7 @@
 #include "Obj.h"
 #include "../Wall.h"
 #include "../TiledLoader.h"
+#include "../NetWork/NetWork.h"
 //#include "../Scene/BaseScene.h"
 class BaseScene;
 
@@ -38,7 +39,6 @@ public:
 	void Draw(void)override;
 	void Update(void)override;
 	int GetNo()override;
-	int OkNum()override;
 private:
 	void UpdateDef();
 	void UpdateAuto();
@@ -66,6 +66,8 @@ private:
 	static int countid_;
 	int playerid_;
 	Vector2 oldpos_;
+	//std::pair<MesType, MesPacket> meslist_;
+	MesList meslist_;
 	
 	const int width = 32;
 	std::unique_ptr<BaseScene> scene_;

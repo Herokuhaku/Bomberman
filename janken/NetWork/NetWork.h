@@ -31,8 +31,6 @@ public:
 	void SendStart(void);
 	void SendTmxSize(void);
 	
-	MesData TakeOutRevData(int no);
-	int RevPosSize(void);
 	//IPDATA GetIP(void);		// ipdata‚Ì’†g‚ğ•Ô‚è’l‚Æ‚µ‚Ä•Ô‚·
 	std::array<IPDATA, 5> GetIP(void);
 	NetWorkMode GetNetWorkMode(void);
@@ -42,6 +40,7 @@ public:
 	int GetMaxByte(void);
 
 	ActiveState ConnectHost(IPDATA hostip);
+	//void AddMesList(int id,MesList&,std::mutex& mtx);
 private:
 	bool Setting(void);
 

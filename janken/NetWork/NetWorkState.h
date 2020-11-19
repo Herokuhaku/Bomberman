@@ -3,6 +3,7 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <utility>
 #include "../_debug/_DebugConOut.h"
 
 enum class NetWorkMode
@@ -69,7 +70,9 @@ struct MesSizeData
 
 using MesData = std::vector<int>;
 using MesPacket = std::vector<unionData>;
-using MesList = std::vector<std::pair<MesType, MesPacket>>;
+using SavePacket = std::pair<MesType, MesPacket>;
+//using SavePacket = std::vector<int>;
+using MesList = std::vector<SavePacket>;		// Obj全般の情報
 
 class NetWorkState
 {
@@ -83,20 +86,18 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
-	MesData GetPosdata(int no);
-	int RevPosSize(void);
+	virtual void SetPlayerList(int id, MesList&, std::mutex& mtx);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
 
 	std::mutex mtx_;
-//	std::vector<unionData> revtmx;
+	MesPacket revtmx;
 //	MesType nowtype_;
 	MesSizeData sizedata_;
 	//std::vector<unionData> revdata_;
-
-	std::pair<MesType, std::vector<unionData>> revtmx_;
-	MesList revlist_;
-	std::map<int,std::vector<int>> posdata_;
+//
+//	std::pair<MesType, std::vector<unionData>> revtmx_;
+	std::map<int,std::pair<MesList&, std::mutex&>> revlist_;
 };

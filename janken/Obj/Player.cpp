@@ -47,10 +47,10 @@ int Player::GetNo()
 	return countid_;
 }
 
-int Player::OkNum()
-{
-	return lpNetWork.TakeOutRevData(id_).size();
-}
+//int Player::OkNum()
+//{
+//	return lpNetWork.TakeOutRevData(id_).size();
+//}
 
 void Player::UpdateDef()
 {
@@ -73,13 +73,13 @@ void Player::UpdateAuto()
 
 void Player::UpdateNet()
 {
-	MesData rev = lpNetWork.TakeOutRevData(id_);
-
-	if (rev.size() == 4)
+	if (meslist_.size() != 0)
 	{
-		pos_.x = rev[1];
-		pos_.y = rev[2];
-		pldir_ = static_cast<DIR>(rev[3]);
+		auto tmp = meslist_.front();
+		meslist_.erase(meslist_.begin());
+		pos_.x = tmp.second[1].iData;
+		pos_.y = tmp.second[2].iData;
+		pldir_ = static_cast<DIR>(tmp.second[3].iData);
 	}
 	else
 	{

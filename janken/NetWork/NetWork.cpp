@@ -145,21 +145,7 @@ void NetWork::SendTmxSize(void)
 	SendMesData(MesType::TMX_SIZE,{uni.iData});
 	return;
 }
-MesData NetWork::TakeOutRevData(int no)
-{
-	if (network_state_ == nullptr)
-	{
-		MesData data;
-		data.insert(data.begin(),-1);
-		return data;
-	}
-	return network_state_->GetPosdata(no);
-}
 
-int NetWork::RevPosSize(void)
-{
-	return network_state_->RevPosSize();
-}
 std::array<IPDATA,5> NetWork::GetIP(void)
 {
 	GetMyIPAddress(mipdata_.data(),5);
@@ -211,6 +197,15 @@ ActiveState NetWork::ConnectHost(IPDATA hostip)
 	}
 	return network_state_->ConnectHost(hostip);
 }
+
+//void NetWork::AddMesList(int id, MesList& list, std::mutex& mtx)
+//{
+//	if (network_state_ == nullptr)
+//	{
+//		return;
+//	}
+//	network_state_->SetPlayerList(id,list,mtx);
+//}
 
 bool NetWork::Setting(void)
 {

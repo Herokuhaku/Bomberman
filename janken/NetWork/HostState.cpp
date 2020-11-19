@@ -26,20 +26,12 @@ bool HostState::CheckNetWork(void)
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
 				MesData tmpdata;
 				tmpdata.resize(tmp.length);
-				revtmx_.first = tmp.type;
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						if (posdata_[tmpdata[0]].size() < tmp.length)
-						{
-							posdata_[tmpdata[0]].resize(tmp.length);
-						}
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							posdata_[tmpdata[0]] = tmpdata;
-						}
+
 						break;
 					}
 				}
