@@ -6,6 +6,8 @@ class Bomb :
 public:
 	Bomb();
 	~Bomb();
+	void Draw(void)override;
+	void Update(void)override;
+	int GetNo()override;
 private:
-
 };

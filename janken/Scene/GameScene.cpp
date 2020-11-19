@@ -112,4 +112,5 @@ void GameScene::Draw(void)
 void GameScene::SetBomb()
 {
 	objlist_.emplace_back(std::make_shared<Bomb>());
+
 }

@@ -76,7 +76,7 @@ private:
 	std::unique_ptr<BaseScene> scene_;
 	// ‘€ì
 	std::unique_ptr<Control>controller_;
-	std::map < INPUT_ID, std::function<bool(TrgBool data)>> keymove_;
+	std::map < INPUT_ID, std::function<void(TrgBool data)>> keymove_;
 	const int width = 32;
 public:
 	static int fallCount;
