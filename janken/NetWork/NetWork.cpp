@@ -8,7 +8,7 @@
 
 void NetWork::newUpdate(void)
 {
-	while (ProcessMessage() == 0)
+	while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 	{
 		if (network_state_ != nullptr)
 		{
@@ -91,6 +91,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 		tmpmesdata_.erase(tmpmesdata_.begin() + 2, tmpmesdata_.end());
 		size_ = 0;
 	} while (header.header.next);
+
 	return true;
 }
 
@@ -154,18 +155,7 @@ MesData NetWork::TakeOutRevData(int no)
 	}
 	return network_state_->GetPosdata(no);
 }
-std::vector<unionData> NetWork::TakeOutRevData(void)
-{
-	if (network_state_ == nullptr)
-	{
-		std::vector<unionData> data;
-		unionData i;
-		i.iData = -1;
-		data.insert(data.begin(), i);
-		return data;
-	}
-	return network_state_->GetRevdata();
-}
+
 int NetWork::RevPosSize(void)
 {
 	return network_state_->RevPosSize();

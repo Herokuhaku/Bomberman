@@ -45,6 +45,7 @@ bool SceneMng::SysInit(void)
 	}
 	srand((unsigned int)time(NULL));
 	SetAlwaysRunFlag(true);
+	SetDoubleStartValidFlag(TRUE);
 	SetDrawScreen(DX_SCREEN_BACK);
 	return true;
 }

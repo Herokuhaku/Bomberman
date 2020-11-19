@@ -21,6 +21,7 @@ public:
 	void Init(void)override;
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
+	void SetBomb();
 private:
 	std::vector<int> Image;
 	VecObj objlist_;

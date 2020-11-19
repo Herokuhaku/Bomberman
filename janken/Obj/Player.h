@@ -6,6 +6,11 @@
 #include "Obj.h"
 #include "../Wall.h"
 #include "../TiledLoader.h"
+//#include "../Scene/BaseScene.h"
+class BaseScene;
+
+#define UNIT_ID_BASE 5
+
 enum class DIR
 {
 	DOWN,
@@ -28,15 +33,16 @@ class Player :
 {
 public:
 	Player();
-	Player(Vector2 pos,Vector2 size,std::shared_ptr<Wall> wall);
+	Player(Vector2 pos,Vector2 size,std::shared_ptr<Wall> wall,BaseScene& scene);
 	~Player();
 	void Draw(void)override;
 	void Update(void)override;
 	int GetNo()override;
 	int OkNum()override;
 private:
-	void MeUpdate();
-	void YouUpdate();
+	void UpdateDef();
+	void UpdateAuto();
+	void UpdateNet();
 	void Init(void);
 
 	void DirRight(Vector2,int);
@@ -57,11 +63,12 @@ private:
 	std::map<DIR,std::function<void(Vector2,int)>> dirupdate_;
 
 	std::shared_ptr<Wall> wall_;
-	static int plid_;
-	int id_;
+	static int countid_;
+	int playerid_;
 	Vector2 oldpos_;
-
+	
 	const int width = 32;
+	std::unique_ptr<BaseScene> scene_;
 public:
 	static int fallCount;
 };

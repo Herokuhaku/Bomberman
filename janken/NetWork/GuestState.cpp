@@ -47,22 +47,22 @@ bool GuestState::CheckNetWork(void)
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
 				MesData tmpdata;
 				tmpdata.resize(tmp.length);
+				revtmx_.first = tmp.type;
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						id = tmpdata[0];
+						if (posdata_[tmpdata[0]].size() < tmp.length)
+						{
+							posdata_[tmpdata[0]].resize(tmp.length);
+						}
+						else if(active_ != ActiveState::Play)
+						{
+							active_ = ActiveState::Play;
+						}
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							if (posdata_[tmpdata[0]].size() < tmp.length)
-							{
-								posdata_[tmpdata[0]].resize(tmp.length);
-							}
-							else if(active_ != ActiveState::Play)
-							{
-								active_ = ActiveState::Play;
-							}
 							posdata_[tmpdata[0]] = tmpdata;
 						}
 						break;
@@ -73,11 +73,16 @@ bool GuestState::CheckNetWork(void)
 							std::lock_guard<std::mutex> mut(mtx_);
 							for (auto& d : tmpdata)
 							{
-								if (revtmx.size() <= revcount_)
+								if (revtmx_.second.size() <= revcount_)
 								{
 									break;
 								}
-								revtmx[revcount_].iData = d;
+								//if (revtmx.size() <= revcount_)
+								//{
+								//	break;
+								//}
+								//revtmx[revcount_].iData = d;
+								revtmx_.second[revcount_].iData = d;
 								revcount_++;
 							}
 						}
@@ -95,7 +100,8 @@ bool GuestState::CheckNetWork(void)
 						uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
 						uni.iData /= 8;
 						if (uni.iData % 8 != 0) { uni.iData++; }
-						revtmx.resize(uni.iData);
+						//revtmx.resize(uni.iData);
+						revtmx_.second.resize(uni.iData);
 						//TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
 						begin = std::chrono::system_clock::now();
 						break;
@@ -145,7 +151,7 @@ void GuestState::OutCsv(void)
 		fp.clear();
 	}
 	int id = 0;
-	for (auto& i : revtmx)
+	for (auto& i : revtmx_.second)
 	{
 		int data = 0;
 		unsigned char onedata[4];

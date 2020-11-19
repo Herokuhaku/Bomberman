@@ -40,15 +40,6 @@ bool NetWorkState::CheckNetWork(void)
 {
 	return true;
 }
-
-std::vector<unionData> NetWorkState::GetRevdata(void)
-{
-	std::vector<unionData> tmp = revdata_;
-	revdata_.clear();
-	revdata_.shrink_to_fit();
-	return tmp;
-}
-
 MesData NetWorkState::GetPosdata(int no)
 {
 	MesData tmp = posdata_[no];
@@ -60,9 +51,7 @@ MesData NetWorkState::GetPosdata(int no)
 		{
 			MesData tmpd = posdata_[id];
 			posdata_[id].clear();
-			//posdata_.try_emplace(id, tmp);
 			return tmpd;
-			//return tmpd;
 		}
 	}
 	MesData null;

@@ -2,8 +2,9 @@
 #include "Player.h"
 #include "../_debug/_DebugConOut.h"
 #include "../NetWork/NetWork.h"
+#include "../Scene/GameScene.h"
 
-int Player::plid_ = 0;
+int Player::countid_ = 0;
 int Player::fallCount = 0;
 
 Player::Player()
@@ -13,7 +14,7 @@ Player::Player()
 	Init();
 }
 
-Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall> wall)
+Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall> wall,BaseScene& scene) :scene_(std::move(&scene))
 {
 	pos_ = pos;
 	size_ = size;
@@ -43,7 +44,7 @@ void Player::Update(void)
 
 int Player::GetNo()
 {
-	return plid_;
+	return countid_;
 }
 
 int Player::OkNum()
@@ -51,14 +52,26 @@ int Player::OkNum()
 	return lpNetWork.TakeOutRevData(id_).size();
 }
 
-void Player::MeUpdate()
+void Player::UpdateDef()
+{
+	if (CheckHitKey(KEY_INPUT_D)) { pos_.x+=5; }
+	if (CheckHitKey(KEY_INPUT_S)) { pos_.y+=5; }
+	if (CheckHitKey(KEY_INPUT_A)) { pos_.x-=5; }
+	if (CheckHitKey(KEY_INPUT_W)) { pos_.y-=5; }
+	Header tmp = { MesType::POS,0,0,1 };
+	lpNetWork.SendMesData(MesType::POS, { id_,pos_.x,pos_.y,static_cast<int>(pldir_) });
+
+	//dynamic_cast<GameScene&>(*scene_).SetBomb();
+}
+
+void Player::UpdateAuto()
 {
 	dirupdate_[pldir_](pos_,width);
-
+	Header tmp = { MesType::POS,0,0,1 };
 	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y,static_cast<int>(pldir_)});
 }
 
-void Player::YouUpdate()
+void Player::UpdateNet()
 {
 	MesData rev = lpNetWork.TakeOutRevData(id_);
 
@@ -77,6 +90,7 @@ void Player::YouUpdate()
 
 void Player::Init(void)
 {
+	id_ = countid_;
 	animation_.resize(20);
 	LoadDivGraph("Tiled/image/bomberman.png", 20, 5, 4, size_.x, size_.y, animation_.data());
 	//if (animation_[0] = LoadGraph("Tiled/image/bomberman.png"),animation_[0] == -1)
@@ -93,22 +107,31 @@ void Player::Init(void)
 
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
 	{
-		if (plid_ % 2 == 0)	{
-			update_ = std::bind(&Player::MeUpdate, this);
+		if (id_ == 0)	{
+			update_ = std::bind(&Player::UpdateDef, this);
 		}
-		else {
-			update_ = std::bind(&Player::YouUpdate, this);
+		else if(id_ % 5 == 0 && id_ % 10 != 0)
+		{
+			update_ = std::bind(&Player::UpdateAuto, this);
+		}
+		else
+		{
+			update_ = std::bind(&Player::UpdateNet, this);
 		}
 	}
 	else
 	{
-		if (plid_ % 2 == 0) {
-
-			update_ = std::bind(&Player::YouUpdate, this);
+		if (id_ == 5)
+		{
+			update_ = std::bind(&Player::UpdateDef, this);
+		}
+		else if(id_ % 5 == 0 && id_ % 10 == 0)
+		{
+			update_ = std::bind(&Player::UpdateAuto, this);
 		}
 		else
 		{
-			update_ = std::bind(&Player::MeUpdate, this);
+			update_ = std::bind(&Player::UpdateNet, this);
 		}
 	}
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
@@ -119,7 +142,8 @@ void Player::Init(void)
 	Mapdata = wall_->GetMapData();
 	//screen = MakeScreen(size_.x,size_.y);
 	oldpos_ = pos_;
-	id_ = plid_++;
+	countid_ +=5;
+	playerid_++;
 	screen = MakeScreen(size_.x,size_.y,true);
 }
 void Player::DirRight(Vector2 pos, int width)

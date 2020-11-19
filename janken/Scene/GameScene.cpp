@@ -1,4 +1,5 @@
 #include <DxLib.h>
+#include <algorithm>
 #include "GameScene.h"
 #include "SceneMng.h"
 #include "../Graphic/ImageMng.h"
@@ -61,7 +62,7 @@ void GameScene::Init(void)
 	{
 		if (map != -1)
 		{
-			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_));
+			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_,*this));
 		}
 		i++;
 	}
@@ -71,7 +72,7 @@ void GameScene::Init(void)
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	Draw();
-	//std::sort(objlist_.begin(), objlist_.end(), [](ShareObj obj1, ShareObj obj2) {return obj1->OkNum() < obj2->OkNum();});
+	//std::sort(objlist_.begin(), objlist_.end(), [](ShareObj obj1, ShareObj obj2) {return obj1->OkNum() > obj2->OkNum();});
 	for (auto& obj : objlist_)
 	{
 		obj->Update();
@@ -105,4 +106,8 @@ void GameScene::Draw(void)
 	}
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawGraph(0, 0, screenID, true);
+}
+
+void GameScene::SetBomb()
+{
 }

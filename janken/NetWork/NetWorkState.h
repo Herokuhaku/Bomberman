@@ -39,8 +39,9 @@ enum class MesType :unsigned char
 	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
 	TMX_SIZE,		// TMXサイズ　総サイズ
 	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
-//	INSTANCE,		// インスタンス
-	POS				// ゲーム中に送る
+	POS,			// ゲーム中に送る
+	SET_BOMB,		
+	MAX
 };
 
 
@@ -56,6 +57,7 @@ union Header
 {
 	MesHeader header;
 	unsigned int iheader[2];
+	int uheader[2];
 };
 
 struct MesSizeData
@@ -66,6 +68,8 @@ struct MesSizeData
 };
 
 using MesData = std::vector<int>;
+using MesPacket = std::vector<unionData>;
+using MesList = std::vector<std::pair<MesType, MesPacket>>;
 
 class NetWorkState
 {
@@ -79,7 +83,6 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
-	std::vector<unionData> GetRevdata(void);
 	MesData GetPosdata(int no);
 	int RevPosSize(void);
 protected:
@@ -88,10 +91,12 @@ protected:
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
 
 	std::mutex mtx_;
-	std::vector<unionData> revtmx;
+//	std::vector<unionData> revtmx;
 //	MesType nowtype_;
 	MesSizeData sizedata_;
-	std::vector<unionData> revdata_;
+	//std::vector<unionData> revdata_;
+
+	std::pair<MesType, std::vector<unionData>> revtmx_;
+	MesList revlist_;
 	std::map<int,std::vector<int>> posdata_;
-//	std::vector<int> revtmx_;
 };

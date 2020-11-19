@@ -13,6 +13,7 @@ public:
 protected:
 	Vector2 pos_;
 	Vector2 size_;
+	int id_;
 private:
 };
 
