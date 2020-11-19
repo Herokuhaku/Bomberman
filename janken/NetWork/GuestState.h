@@ -19,7 +19,6 @@ private:
 	int savenum;
 
 	bool revflag_;
-
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;
 };

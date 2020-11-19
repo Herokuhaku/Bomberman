@@ -68,7 +68,8 @@ private:
 	Vector2 oldpos_;
 	//std::pair<MesType, MesPacket> meslist_;
 	MesList meslist_;
-	
+	std::mutex mtx_;
+
 	const int width = 32;
 	std::unique_ptr<BaseScene> scene_;
 public:

@@ -86,7 +86,7 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
-	virtual void SetPlayerList(int id, MesList&, std::mutex& mtx);
+	virtual void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
@@ -96,8 +96,11 @@ protected:
 	MesPacket revtmx;
 //	MesType nowtype_;
 	MesSizeData sizedata_;
+
 	//std::vector<unionData> revdata_;
-//
-//	std::pair<MesType, std::vector<unionData>> revtmx_;
-	std::map<int,std::pair<MesList&, std::mutex&>> revlist_;
+
+	//std::pair<MesType, std::vector<unionData>> revtmx_;
+	//std::map<int,std::pair<MesList, std::mutex>> revlist_;
+	std::vector<std::pair<MesList&,std::mutex&>> revlist;
+	MesList reset;
 };

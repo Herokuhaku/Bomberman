@@ -141,10 +141,14 @@ void Player::Init(void)
 	dirupdate_[DIR::DEATH] = [&](Vector2 pos, int width) {DirDeath(pos, width);};
 	Mapdata = wall_->GetMapData();
 	//screen = MakeScreen(size_.x,size_.y);
+
+	lpNetWork.AddMesList(id_,meslist_,mtx_);
 	oldpos_ = pos_;
 	countid_ +=5;
 	playerid_++;
 	screen = MakeScreen(size_.x,size_.y,true);
+
+
 }
 void Player::DirRight(Vector2 pos, int width)
 {

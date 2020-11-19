@@ -198,14 +198,14 @@ ActiveState NetWork::ConnectHost(IPDATA hostip)
 	return network_state_->ConnectHost(hostip);
 }
 
-//void NetWork::AddMesList(int id, MesList& list, std::mutex& mtx)
-//{
-//	if (network_state_ == nullptr)
-//	{
-//		return;
-//	}
-//	network_state_->SetPlayerList(id,list,mtx);
-//}
+void NetWork::AddMesList(int id, MesList& list, std::mutex& mtx)
+{
+	if (network_state_ == nullptr)
+	{
+		return;
+	}
+	network_state_->SetPlayerList(id,list,mtx);
+}
 
 bool NetWork::Setting(void)
 {

@@ -57,7 +57,17 @@ bool GuestState::CheckNetWork(void)
 
 							//using SavePacket = std::pair<MesType, MesPacket>;
 							//using MesList = std::vector<SavePacket>;		// Obj‘S”Ê‚Ìî•ñ
-							revlist_[tmpdata[0]].first.emplace_back(std::pair<MesType,MesPacket>(tmp.type,tmpdata));
+							MesPacket u;
+							for (auto& d : tmpdata)
+							{
+								unionData uni;
+								uni.iData = d;
+								u.emplace_back(uni);
+							}
+							SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
+							
+							revlist[tmpdata[0]].first.emplace_back(data);
+							//revlist[tmpdata[0]].first(data);
 						}
 						break;
 					}

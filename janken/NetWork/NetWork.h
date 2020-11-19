@@ -40,7 +40,7 @@ public:
 	int GetMaxByte(void);
 
 	ActiveState ConnectHost(IPDATA hostip);
-	//void AddMesList(int id,MesList&,std::mutex& mtx);
+	void AddMesList(int id,MesList&,std::mutex& mtx);
 private:
 	bool Setting(void);
 
@@ -58,7 +58,6 @@ private:
 	Header header;
 	unsigned long long MaxCnt;
 	//
-	
 	NetWork();
 	~NetWork();
 };

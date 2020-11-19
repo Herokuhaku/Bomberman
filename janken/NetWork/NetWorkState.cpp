@@ -43,5 +43,6 @@ bool NetWorkState::CheckNetWork(void)
 }
 void NetWorkState::SetPlayerList(int id, MesList& list, std::mutex& mtx)
 {
-	revlist_.try_emplace(id,std::pair<MesList&,std::mutex&>(list, mtx) );
+
+	//revlist_.try_emplace(id,std::pair<MesList&,std::mutex&>(list, mtx) );
 }
