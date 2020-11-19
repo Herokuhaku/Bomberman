@@ -3,6 +3,9 @@
 #include "../_debug/_DebugConOut.h"
 #include "../NetWork/NetWork.h"
 #include "../Scene/GameScene.h"
+#include "../AllControl/Control.h"
+#include "../AllControl/KeyBoardCtl.h"
+#include "../AllControl/XboxController.h"
 
 int Player::countid_ = 0;
 int Player::fallCount = 0;
@@ -54,10 +57,7 @@ int Player::GetNo()
 
 void Player::UpdateDef()
 {
-	if (CheckHitKey(KEY_INPUT_D)) { pos_.x+=5; }
-	if (CheckHitKey(KEY_INPUT_S)) { pos_.y+=5; }
-	if (CheckHitKey(KEY_INPUT_A)) { pos_.x-=5; }
-	if (CheckHitKey(KEY_INPUT_W)) { pos_.y-=5; }
+	(*controller_)();
 	Header tmp = { MesType::POS,0,0,1 };
 	lpNetWork.SendMesData(MesType::POS, { id_,pos_.x,pos_.y,static_cast<int>(pldir_) });
 
@@ -110,6 +110,7 @@ void Player::Init(void)
 		if (id_ == 0)	{
 			update_ = std::bind(&Player::UpdateDef, this);
 			type = MOVE_TYPE::Def;
+			controller_ = std::make_unique<KeyBoard>();
 		}
 		else if(id_ % 5 == 0 && id_ % 10 != 0)
 		{
@@ -128,6 +129,7 @@ void Player::Init(void)
 		{
 			update_ = std::bind(&Player::UpdateDef, this);
 			type = MOVE_TYPE::Def;
+			controller_ = std::make_unique<XboxController>();
 		}
 		else if(id_ % 5 == 0 && id_ % 10 == 0)
 		{
@@ -140,21 +142,52 @@ void Player::Init(void)
 			type = MOVE_TYPE::Auto;
 		}
 	}
+
+
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
 	dirupdate_[DIR::LEFT] = [&](Vector2 pos, int width) {DirLeft(pos, width);};
 	dirupdate_[DIR::UP] = [&](Vector2 pos, int width) {DirUp(pos, width);};
 	dirupdate_[DIR::DOWN] = [&](Vector2 pos, int width) {DirDown(pos, width);};
 	dirupdate_[DIR::DEATH] = [&](Vector2 pos, int width) {DirDeath(pos, width);};
 	Mapdata = wall_->GetMapData();
-	//screen = MakeScreen(size_.x,size_.y);
 
 	lpNetWork.AddMesList(id_,meslist_,mtx_);
 	oldpos_ = pos_;
 	countid_ +=5;
 	playerid_++;
 	screen = MakeScreen(size_.x,size_.y,true);
-
+	KeyInit();
 }
+
+void Player::KeyInit()
+{
+	keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+		{
+			pos_.x += 5;
+		}});
+	keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+		{
+			pos_.x -= 5;
+		}});
+	keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+		{
+			pos_.y -= 5;
+		}});
+	keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+		{
+			pos_.y += 5;
+		}});
+	keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data) {
+		if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)])
+		{
+			dynamic_cast<GameScene&>(*scene_).SetBomb();
+		}});
+}
+
 void Player::DirRight(Vector2 pos, int width)
 {
 	pos.x += size_.x;

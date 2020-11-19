@@ -5,6 +5,7 @@
 #include "../Graphic/ImageMng.h"
 #include "../NetWork/NetWork.h"
 #include "../Obj/Player.h"
+#include "../Obj/Bomb.h"
 #include "../_debug/_DebugDispOut.h"
 
 GameScene::GameScene()
@@ -110,4 +111,5 @@ void GameScene::Draw(void)
 
 void GameScene::SetBomb()
 {
+	objlist_.emplace_back(std::make_shared<Bomb>());
 }

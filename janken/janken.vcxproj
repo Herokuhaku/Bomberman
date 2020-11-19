@@ -148,6 +148,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AllControl\KeyBoardCtl.cpp" />
+    <ClCompile Include="AllControl\XboxController.cpp" />
     <ClCompile Include="Obj\Bomb.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
@@ -170,6 +172,10 @@
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AllControl\Control.h" />
+    <ClInclude Include="AllControl\INPUT_ID.h" />
+    <ClInclude Include="AllControl\KeyBoardCtl.h" />
+    <ClInclude Include="AllControl\XboxController.h" />
     <ClInclude Include="Obj\Bomb.h" />
     <ClInclude Include="common\dateil\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
