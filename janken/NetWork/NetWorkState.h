@@ -74,6 +74,8 @@ using SavePacket = std::pair<MesType, MesPacket>;
 //using SavePacket = std::vector<int>;
 using MesList = std::vector<SavePacket>;		// Obj‘S”Ê‚Ìî•ñ
 
+
+
 class NetWorkState
 {
 public:

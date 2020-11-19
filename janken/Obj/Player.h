@@ -23,10 +23,9 @@ enum class DIR
 
 enum class MOVE_TYPE
 {
-	ME,
-	MEYOU,
-	YOUR,
-	YOUYOUR
+	Def,
+	Auto,
+	Net
 };
 
 class Player :
@@ -72,6 +71,7 @@ private:
 
 	const int width = 32;
 	std::unique_ptr<BaseScene> scene_;
+	MOVE_TYPE type;
 public:
 	static int fallCount;
 };

@@ -52,22 +52,17 @@ bool GuestState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
+						MesPacket u;
+						for (auto& d : tmpdata)
+						{
+							unionData uni;
+							uni.iData = d;
+							u.emplace_back(uni);
+						}
+						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-
-							//using SavePacket = std::pair<MesType, MesPacket>;
-							//using MesList = std::vector<SavePacket>;		// ObjëSî ÇÃèÓïÒ
-							MesPacket u;
-							for (auto& d : tmpdata)
-							{
-								unionData uni;
-								uni.iData = d;
-								u.emplace_back(uni);
-							}
-							SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
-							
-							revlist[tmpdata[0]].first.emplace_back(data);
-							//revlist[tmpdata[0]].first(data);
+							revlist[tmpdata[0]/5].first.emplace_back(data);
 						}
 						break;
 					}
@@ -127,18 +122,8 @@ bool GuestState::CheckNetWork(void)
 		active_ = ActiveState::Non;
 		lpNetWork.SetNetWorkMode(NetWorkMode::NON);
 		lpNetWork.SetRevStandby(false);
-//		reAccess_ = true;
 		return false;
 	}
-	//if (reAccess_)
-	//{
-	//	networkHandle_ = ConnectNetWork(hostip_, portNum_);
-	//	if (networkHandle_ != -1)
-	//	{
-	//		TRACE("ê⁄ë±ÇµÇƒÇÈÇÊ\n");
-	//		reAccess_ = false;
-	//	}
-	//}
 	return true;
 }
 
@@ -188,44 +173,6 @@ void GuestState::OutCsv(void)
 			}
 		}
 	}
-	//for (auto& i : revtmx)
-	//{
-	//	int data[2] = { 0,0 };
-	//	unsigned char onedata[8];
-	//	for (int c = 0; c < 8; c++)
-	//	{
-	//		onedata[c] = i.cData[c];
-	//	}
-	//	for (int c = 0; c < 8; c++)
-	//	{
-	//		unsigned char tmp[2];
-	//		for (int f = 0; f < 2; f++)
-	//		{
-	//			if (id <= 357 * 4 - 1)
-	//			{
-	//				if (f == 0)
-	//				{
-	//					tmp[f] = onedata[c] & 0x0f;
-	//				}
-	//				else
-	//				{
-	//					tmp[f] = onedata[c] >> 4;
-	//				}
-	//				if (id % 21 != 0)
-	//				{
-	//					fp << ",";
-	//				}
-	//				if (id % 21 == 0 && id != 0)
-	//				{
-	//					if(id % 357 != 0)fp << ",";
-	//					fp << "\n";
-	//				}
-	//				fp << static_cast<int>(tmp[f]);
-	//			}
-	//			id++;
-	//		}
-	//	}
-	//}
 }
 
 void GuestState::OutData(void)

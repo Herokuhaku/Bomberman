@@ -109,14 +109,17 @@ void Player::Init(void)
 	{
 		if (id_ == 0)	{
 			update_ = std::bind(&Player::UpdateDef, this);
+			type = MOVE_TYPE::Def;
 		}
 		else if(id_ % 5 == 0 && id_ % 10 != 0)
 		{
-			update_ = std::bind(&Player::UpdateAuto, this);
+			update_ = std::bind(&Player::UpdateNet, this);
+			type = MOVE_TYPE::Net;
 		}
 		else
 		{
-			update_ = std::bind(&Player::UpdateNet, this);
+			update_ = std::bind(&Player::UpdateAuto, this);
+			type = MOVE_TYPE::Auto;
 		}
 	}
 	else
@@ -124,14 +127,17 @@ void Player::Init(void)
 		if (id_ == 5)
 		{
 			update_ = std::bind(&Player::UpdateDef, this);
+			type = MOVE_TYPE::Def;
 		}
 		else if(id_ % 5 == 0 && id_ % 10 == 0)
 		{
-			update_ = std::bind(&Player::UpdateAuto, this);
+			update_ = std::bind(&Player::UpdateNet, this);
+			type = MOVE_TYPE::Net;
 		}
 		else
 		{
-			update_ = std::bind(&Player::UpdateNet, this);
+			update_ = std::bind(&Player::UpdateAuto, this);
+			type = MOVE_TYPE::Auto;
 		}
 	}
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
@@ -147,7 +153,6 @@ void Player::Init(void)
 	countid_ +=5;
 	playerid_++;
 	screen = MakeScreen(size_.x,size_.y,true);
-
 
 }
 void Player::DirRight(Vector2 pos, int width)

@@ -6,7 +6,6 @@
 #include <vector>
 #include"../NetWork/NetWork.h"
 #include "../_debug/_DebugConOut.h"
-#include "../AllControl/ButtonMng.h"
 #include "../Graphic/ImageMng.h"
 #include "CrossOverScene.h"
 #include "GameScene.h"
@@ -63,7 +62,6 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	
 	KeyLoad();
 
-	lpButtonMng.Run();
 	Draw();
 	if (updateMode_ == UpdateMode::GamePlay)
 	{
@@ -351,30 +349,6 @@ void LoginScene::inHostIp(void)
 
 void LoginScene::GamePlay(void)
 {
-	if (lpButtonMng.Thumbf(0, XINPUT_THUMBL_X).first == 2)
-	{
-		pos_.x-=5;
-	}
-	if (lpButtonMng.Thumbf(0, XINPUT_THUMBL_X).first == 1)
-	{
-		pos_.x+=5;
-	}
-	if (lpButtonMng.Thumbf(0, XINPUT_THUMBL_Y).first == 2)
-	{
-		pos_.y-=5;
-	}
-	if (lpButtonMng.Thumbf(0, XINPUT_THUMBL_Y).first == 1)
-	{
-		pos_.y+=5;
-	}
-
-	if (lpButtonMng.Buttonf(0,XINPUT_BUTTON_B).first &&
-		!lpButtonMng.Buttonf(0, XINPUT_BUTTON_B).second)
-	{
-		//sendpos_ = !sendpos_;
-
-	}
-
 	int buf = 0;
 	int num = 0;
 	buf = 1234;

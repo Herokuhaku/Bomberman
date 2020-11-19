@@ -148,7 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AllControl\ButtonMng.cpp" />
+    <ClCompile Include="Obj\Bomb.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
     <ClCompile Include="Scene\CrossOverScene.cpp" />
@@ -170,7 +170,7 @@
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AllControl\ButtonMng.h" />
+    <ClInclude Include="Obj\Bomb.h" />
     <ClInclude Include="common\dateil\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Obj\Obj.h" />
