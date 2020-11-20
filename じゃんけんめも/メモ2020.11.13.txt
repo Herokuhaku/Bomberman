@@ -1,0 +1,15 @@
+ID : 0~N
+X座標 : int
+Y座標 : int
+方向  : DIR {下左右上死max}
+
+AnimState
+{
+ Idel,
+ Walk,
+ Max
+}
+
+clock::now
+if)end-start	millseconds
+1秒立っていなければfps++;

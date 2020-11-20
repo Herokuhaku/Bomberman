@@ -1,0 +1,11 @@
+MesHeader + MesPacket 　送信
+
+MesHeader →　データ部有り無し　
+有り→ MesPacketの受信 →　nextあり　→　最初に戻る
+				なし→　受信完了→→→MesListに格納×
+						→→→MesHeader の MesTypeとPacketをstd::pair<>
+
+無し→
+
+
+

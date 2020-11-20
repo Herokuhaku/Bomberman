@@ -1,0 +1,85 @@
+UpdateDefが普通の入力をする
+
+UpdateAuto	
+
+UpdateNet
+
+の3つにする
+
+UpdateDef が　キーボードとかで動くやつ
+
+UpdateAuto	オートパイロット
+
+UpdateNet	ネットワークで動くやつ
+
+ホストなら先頭のID 0をDef// 他はネット 5   10   20 
+5刻み
+ゲストならID 5がDef	// 他はAuto
+
+0~4　を一人が使う
+4個爆弾💣
+
+TMX_SIZE
+POS,
+SET_BOMB
+
+RevPacket = std::pair<Type,std::vec<Uniondata>>
+std::list<RevPacket>
+
+SetBomb
+unionData data[6]  
+
+uni[0].idata = ownerID;	// 親のID,PlayerのIDをいれる, 設置キャラのID
+uni[1].idata = selfID;	// 自分のID,		Bomb自体のID,設置キャラID+1~4
+uni[2]. = pos.x;
+uni[3] = pos.y;
+uni[4] = time
+uni[5] = times.uiData[0]		//chrono::nowで取得した時間
+uni[6] = times.uiData[1]
+
+union unionDataTimeP
+{
+std::chorono::syestem_clock
+unsigned int
+}
+
+
+SetndMes(MesType::SET_BOMB,MesPaceket{data[0],data[1],}
+
+bool SetBomb(ownerID,selfID,Vector2,bool sendNet);
+sendNet がtrueだったらSendMesして爆弾データを送る
+falseだったらobjlistを生成するだけ
+
+Player(BaseScene& )
+
+dynamic_cast<GameScene&>
+scene_.	// これでメンバーが出る
+(GameScene&)scene_	// これでゲームシーンまで潜れる	がしかし、castはdynamic_castをする
+(GameScene*)scene_
+
+Bomb::UpdateDef
+{
+count = 3000ミリ秒立った時に
+if(count>=3000)
+{
+alive = false;
+auto layer = dynamic_cast<GameScene&>(scene_).GetPlayer(ownerID);
+}
+  return false;
+}
+
+UseBom()
+{
+int id = -1;
+if(bombList_.size())
+{ 
+id = *bombList_.begin();
+bomList_.erase(bombList_.begin());
+return id;
+}
+
+1台でやるときは
+HostをPAD
+Guestをキーボード
+
+2台でやるときはお互いPAD
