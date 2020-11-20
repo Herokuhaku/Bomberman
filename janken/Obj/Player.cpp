@@ -61,31 +61,39 @@ void Player::UpdateDef()
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
+		// 既存のlistチェック
 		for (auto& check : keylist_)
 		{
-			if (data.first == check.first)
+			// 同じDIRのものがあれば flag をtrueにしてkeylistに追加できないようにする
+			// 現在のキー情報を更新 kiylistの中身データ check.firstにdataをいれる;
+			if (data.first == check.first.first)
 			{
-				check = data;
+				check.first = data;
 				flag = true;
 			}
 		}
+		// キーをどっちも押してるとき追加
 		if (data.second[0] && data.second[1] && !flag)
 		{
-			keylist_.emplace_front(std::pair<INPUT_ID, TrgBool>(data.first, data.second));
+			// listに追加
+			keylist_.emplace_front(std::pair<INPUT_ID, TrgBool>(data.first, data.second),false);
 		}
 		flag = false;
 	}
+	// listの一番上だけ回す　他はキーボードの入力をみて0だったらkeylist_.secondのbool をtrueにする
 	for (auto& key : keylist_)
 	{
-		if (keymove_[key.first](key.second,flag))
+		if (keymove[key.first.first](key,flag))
 		{
 			flag = true;
 		}
 	}
+	// keylist_.second のboolがtrueだったら消す
+	auto itr = std::remove_if(keylist_.begin(), keylist_.end(), [&](DellistData& list) {return list.second;});
+	keylist_.erase(itr, keylist_.end());
+
 	Header tmp = { MesType::POS,0,0,1 };
 	lpNetWork.SendMesData(MesType::POS, { id_,pos_.x,pos_.y,static_cast<int>(pldir_) });
-
-	//dynamic_cast<GameScene&>(*scene_).SetBomb();
 }
 
 void Player::UpdateAuto()
@@ -100,10 +108,13 @@ void Player::UpdateNet()
 	if (meslist_.size() != 0)
 	{
 		auto tmp = meslist_.front();
+		if (tmp.second.size() >= 4)
+		{
+			pos_.x = tmp.second[1].iData;
+			pos_.y = tmp.second[2].iData;
+			pldir_ = static_cast<DIR>(tmp.second[3].iData);
+		}
 		meslist_.erase(meslist_.begin());
-		pos_.x = tmp.second[1].iData;
-		pos_.y = tmp.second[2].iData;
-		pldir_ = static_cast<DIR>(tmp.second[3].iData);
 	}
 	else
 	{
@@ -117,10 +128,7 @@ void Player::Init(void)
 	id_ = countid_;
 	animation_.resize(20);
 	LoadDivGraph("Tiled/image/bomberman.png", 20, 5, 4, size_.x, size_.y, animation_.data());
-	//if (animation_[0] = LoadGraph("Tiled/image/bomberman.png"),animation_[0] == -1)
-	//{
-	//	return;
-	//}
+	speed_ = 5;
 	pldir_ = DIR::RIGHT;
 	animationdir_[DIR::DOWN] = 0;
 	animationdir_[DIR::LEFT] = 1;
@@ -198,45 +206,105 @@ void Player::Init(void)
 
 void Player::KeyInit()
 {
-	keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data,bool flag) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
+	keymove.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
+		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.x += 2;
+			pos_.x += speed_;
 			return true;
+		}
+		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		{
+			data.second = true;
 		}
 		return false;
 		});
-	keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data,bool flag) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
+	keymove.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
+		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.x -= 2;
+			pos_.x -= speed_;
 			return true;
 		}
-		else if (!data[static_cast<int>(Trg::Now)] || !data[static_cast<int>(Trg::Old)]) {};
+		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		{
+			data.second = true;
+		}
 		return false;
-		});
-	keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data,bool flag) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
+		});	
+	keymove.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
+		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.y -= 2;
+			pos_.y -= speed_;
 			return true;
 		}
-		return false; });
-	keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data, bool flag) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
+		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
 		{
-			pos_.y += 2;
+			data.second = true;
+		}
+		return false;
+		});	
+	keymove.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
+		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
+		{
+			pos_.y += speed_;
 			return true;
 		}
-		return false; });
-	keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data, bool flag) {
-		if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)] && flag)
+		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		{
+			data.second = true;
+		}
+		return false;
+		});	
+	keymove.try_emplace(INPUT_ID::BOMB, [&](DellistData& data, bool flag) {
+		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
 			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
 			return true;
 		}
 		return false;
 		});
+
+
+	keylist_.clear();
+
+	//keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data,bool flag) {
+	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
+	//	{
+	//		pos_.x += 2;
+	//		return true;
+	//	}
+	//	return false;
+	//	});
+	//keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data,bool flag) {
+	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
+	//	{
+	//		pos_.x -= 2;
+	//		return true;
+	//	}
+	//	else if (!data[static_cast<int>(Trg::Now)] || !data[static_cast<int>(Trg::Old)]) {};
+	//	return false;
+	//	});
+	//keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data,bool flag) {
+	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
+	//	{
+	//		pos_.y -= 2;
+	//		return true;
+	//	}
+	//	return false; });
+	//keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data, bool flag) {
+	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
+	//	{
+	//		pos_.y += 2;
+	//		return true;
+	//	}
+	//	return false; });
+	//keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data, bool flag) {
+	//	if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)] && !flag)
+	//	{
+	//		dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
+	//		return true;
+	//	}
+	//	return false;
+	//	});
 }
 
 void Player::DirRight(Vector2 pos, int width)
@@ -244,7 +312,7 @@ void Player::DirRight(Vector2 pos, int width)
 	pos.x += size_.x;
 	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
 	{
-		pos_.x += 5;
+		pos_.x += speed_;
 	}
 	else
 	{
@@ -257,7 +325,7 @@ void Player::DirLeft(Vector2 pos, int width)
 	pos.x -= 5;
 	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
 	{
-		pos_.x -= 5;
+		pos_.x -= speed_;
 	}
 	else
 	{
@@ -271,7 +339,7 @@ void Player::DirUp(Vector2 pos, int width)
 	pos.y -= 5;
 	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
 	{
-		pos_.y -= 5;
+		pos_.y -= speed_;
 	}
 	else
 	{
@@ -285,7 +353,7 @@ void Player::DirDown(Vector2 pos, int width)
 	pos.y += 32;
 	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
 	{
-		pos_.y += 5;
+		pos_.y += speed_;
 	}
 	else
 	{

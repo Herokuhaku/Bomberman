@@ -31,6 +31,8 @@ enum class MOVE_TYPE
 	Net
 };
 
+using DellistData = std::pair<std::pair<INPUT_ID, TrgBool>, bool>;
+
 class Player :
 	public Obj
 {
@@ -77,9 +79,11 @@ private:
 	// ‘€ì
 	std::unique_ptr<Control>controller_;
 	std::map < INPUT_ID,std::function<bool(TrgBool data,bool flag)>> keymove_;
-	std::list<std::pair<INPUT_ID,TrgBool>> keylist_;
-	std::list<INPUT_ID> keydellist_;
+	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove;
+	std::list<DellistData> keylist_;
+	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	const int width = 32;
+	int speed_;
 public:
 	static int fallCount;
 };
