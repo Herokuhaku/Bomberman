@@ -58,10 +58,10 @@ private:
 	void DirDeath(Vector2, int) {};
 
 	// 
-	//std::vector<int> animation_;
-	DIR pldir_;
-	std::map<std::string,std::vector<unsigned char>> Mapdata;
-	std::map<DIR,int> animationdir_;
+	Vector2 centerpos;		// posとは別　判定の中心座標
+	DIR pldir_;				// playerのDIR
+	std::map<std::string,std::vector<unsigned char>> Mapdata;	// Mapdata
+	std::map<DIR,int> animationdir_;							// animationの番号　画像の左から何番目かを保存する
 	int frame_;
 	const int oneanimCnt = 10;
 	std::function<void()> update_;
@@ -78,8 +78,7 @@ private:
 	std::unique_ptr<BaseScene> scene_;
 	// 操作
 	std::unique_ptr<Control>controller_;
-	std::map < INPUT_ID,std::function<bool(TrgBool data,bool flag)>> keymove_;
-	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove;
+	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;
 	std::list<DellistData> keylist_;
 	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	const int width = 32;

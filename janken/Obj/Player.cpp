@@ -38,6 +38,7 @@ void Player::Draw(void)
 	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6,1.0f,0.0f,screen,true);
+	DrawBox(centerpos.x-size_.x/2, centerpos.y - size_.x / 2, centerpos.x + size_.x / 2, centerpos.y + size_.x / 2,0xff00ff,false);
 }
 
 void Player::Update(void)
@@ -58,6 +59,7 @@ int Player::GetNo()
 void Player::UpdateDef()
 {
 	(*controller_)();
+	centerpos = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
@@ -83,7 +85,7 @@ void Player::UpdateDef()
 	// listの一番上だけ回す　他はキーボードの入力をみて0だったらkeylist_.secondのbool をtrueにする
 	for (auto& key : keylist_)
 	{
-		if (keymove[key.first.first](key,flag))
+		if (keymove_[key.first.first](key,flag))
 		{
 			flag = true;
 		}
@@ -206,10 +208,17 @@ void Player::Init(void)
 
 void Player::KeyInit()
 {
-	keymove.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
+	centerpos = { pos_.x + size_.x/2,pos_.y+size_.y-size_.x/2};
+	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.x += speed_;
+			centerpos.x += (size_.x/2+speed_);
+			pldir_ = DIR::RIGHT;
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			{
+				pos_.x += speed_;
+				pos_.y = centerpos.y/32*32;
+			}
 			return true;
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
@@ -218,10 +227,16 @@ void Player::KeyInit()
 		}
 		return false;
 		});
-	keymove.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
+	keymove_.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.x -= speed_;
+			centerpos.x -= (size_.x / 2+speed_);
+			pldir_ = DIR::LEFT;
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			{
+				pos_.x -= speed_;
+				pos_.y = centerpos.y / 32 * 32;
+			}
 			return true;
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
@@ -230,10 +245,16 @@ void Player::KeyInit()
 		}
 		return false;
 		});	
-	keymove.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
+	keymove_.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.y -= speed_;
+			centerpos.y -= (size_.x/2+speed_);
+			pldir_ = DIR::UP;
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			{
+				pos_.y -= speed_;
+				pos_.x = centerpos.x / 32 * 32;
+			}
 			return true;
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
@@ -242,10 +263,16 @@ void Player::KeyInit()
 		}
 		return false;
 		});	
-	keymove.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
+	keymove_.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			pos_.y += speed_;
+			centerpos.y += (size_.x / 2 + speed_);
+			pldir_ = DIR::DOWN;
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			{
+				pos_.y += speed_;
+				pos_.x = centerpos.x / 32 * 32;
+			}
 			return true;
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
@@ -254,7 +281,7 @@ void Player::KeyInit()
 		}
 		return false;
 		});	
-	keymove.try_emplace(INPUT_ID::BOMB, [&](DellistData& data, bool flag) {
+	keymove_.try_emplace(INPUT_ID::BOMB, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
 			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
@@ -265,46 +292,6 @@ void Player::KeyInit()
 
 
 	keylist_.clear();
-
-	//keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data,bool flag) {
-	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
-	//	{
-	//		pos_.x += 2;
-	//		return true;
-	//	}
-	//	return false;
-	//	});
-	//keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data,bool flag) {
-	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
-	//	{
-	//		pos_.x -= 2;
-	//		return true;
-	//	}
-	//	else if (!data[static_cast<int>(Trg::Now)] || !data[static_cast<int>(Trg::Old)]) {};
-	//	return false;
-	//	});
-	//keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data,bool flag) {
-	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
-	//	{
-	//		pos_.y -= 2;
-	//		return true;
-	//	}
-	//	return false; });
-	//keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data, bool flag) {
-	//	if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && !flag)
-	//	{
-	//		pos_.y += 2;
-	//		return true;
-	//	}
-	//	return false; });
-	//keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data, bool flag) {
-	//	if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)] && !flag)
-	//	{
-	//		dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
-	//		return true;
-	//	}
-	//	return false;
-	//	});
 }
 
 void Player::DirRight(Vector2 pos, int width)
