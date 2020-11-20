@@ -30,6 +30,7 @@ union unionData
 {
 	char cData[4];
 	int iData;
+	unsigned int uiData;
 	//long long lData;
 };
 

@@ -8,7 +8,7 @@ ControlType KeyBoard::GetType(void)
 
 bool KeyBoard::SetUp(int no)
 {
-	_keyList.try_emplace(INPUT_ID::UP, KEY_INPUT_W);
+	_keyList.try_emplace(INPUT_ID::UP,KEY_INPUT_W);
 	_keyList.try_emplace(INPUT_ID::DOWN, KEY_INPUT_S);
 	_keyList.try_emplace(INPUT_ID::LEFT, KEY_INPUT_A);
 	_keyList.try_emplace(INPUT_ID::RIGHT, KEY_INPUT_D);

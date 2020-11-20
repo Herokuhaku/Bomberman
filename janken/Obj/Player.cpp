@@ -58,6 +58,30 @@ int Player::GetNo()
 void Player::UpdateDef()
 {
 	(*controller_)();
+	bool flag = false;
+	for (auto& data : controller_->GetCntData())
+	{
+		for (auto& check : keylist_)
+		{
+			if (data.first == check.first)
+			{
+				check = data;
+				flag = true;
+			}
+		}
+		if (data.second[0] && data.second[1] && !flag)
+		{
+			keylist_.emplace_front(std::pair<INPUT_ID, TrgBool>(data.first, data.second));
+		}
+		flag = false;
+	}
+	for (auto& key : keylist_)
+	{
+		if (keymove_[key.first](key.second,flag))
+		{
+			flag = true;
+		}
+	}
 	Header tmp = { MesType::POS,0,0,1 };
 	lpNetWork.SendMesData(MesType::POS, { id_,pos_.x,pos_.y,static_cast<int>(pldir_) });
 
@@ -123,7 +147,7 @@ void Player::Init(void)
 			type = MOVE_TYPE::Auto;
 		}
 	}
-	else
+	else if(lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
 		if (id_ == 5)
 		{
@@ -142,7 +166,19 @@ void Player::Init(void)
 			type = MOVE_TYPE::Auto;
 		}
 	}
-
+	else
+	{
+		if (id_ == 0)
+		{
+			update_ = std::bind(&Player::UpdateDef, this);
+			type = MOVE_TYPE::Def;
+			controller_ = std::make_unique<KeyBoard>();
+		}
+		else
+		{
+			update_ = std::bind(&Player::UpdateAuto, this);
+		}
+	}
 
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
 	dirupdate_[DIR::LEFT] = [&](Vector2 pos, int width) {DirLeft(pos, width);};
@@ -154,38 +190,53 @@ void Player::Init(void)
 	lpNetWork.AddMesList(id_,meslist_,mtx_);
 	oldpos_ = pos_;
 	countid_ +=5;
-	playerid_++;
+	playerid_+=countid_;
 	screen = MakeScreen(size_.x,size_.y,true);
 	KeyInit();
+	if(controller_ != nullptr)controller_->SetUp(0);
 }
 
 void Player::KeyInit()
 {
-	keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+	keymove_.try_emplace(INPUT_ID::RIGHT, [&](TrgBool data,bool flag) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
 		{
-			pos_.x += 5;
-		}});
-	keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+			pos_.x += 2;
+			return true;
+		}
+		return false;
+		});
+	keymove_.try_emplace(INPUT_ID::LEFT, [&](TrgBool data,bool flag) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
 		{
-			pos_.x -= 5;
-		}});
-	keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+			pos_.x -= 2;
+			return true;
+		}
+		else if (!data[static_cast<int>(Trg::Now)] || !data[static_cast<int>(Trg::Old)]) {};
+		return false;
+		});
+	keymove_.try_emplace(INPUT_ID::UP, [&](TrgBool data,bool flag) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
 		{
-			pos_.y -= 5;
-		}});
-	keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data) {
-		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)])
+			pos_.y -= 2;
+			return true;
+		}
+		return false; });
+	keymove_.try_emplace(INPUT_ID::DOWN, [&](TrgBool data, bool flag) {
+		if (data[static_cast<int>(Trg::Now)] && data[static_cast<int>(Trg::Old)] && flag)
 		{
-			pos_.y += 5;
-		}});
-	keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data) {
-		if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)])
+			pos_.y += 2;
+			return true;
+		}
+		return false; });
+	keymove_.try_emplace(INPUT_ID::BOMB, [&](TrgBool data, bool flag) {
+		if (data[static_cast<int>(Trg::Now)] && !data[static_cast<int>(Trg::Old)] && flag)
 		{
-			dynamic_cast<GameScene&>(*scene_).SetBomb();
-		}});
+			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
+			return true;
+		}
+		return false;
+		});
 }
 
 void Player::DirRight(Vector2 pos, int width)

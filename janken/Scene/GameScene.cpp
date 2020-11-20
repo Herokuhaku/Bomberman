@@ -10,6 +10,7 @@
 
 GameScene::GameScene()
 {
+	//time.now = std::chrono::system_clock::now();
 	Init();
 }
 
@@ -109,8 +110,24 @@ void GameScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
-void GameScene::SetBomb()
+void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 {
-	objlist_.emplace_back(std::make_shared<Bomb>());
-
+	if (sendNet)
+	{
+		MesData data;
+		data.reserve(6);
+		data.emplace_back(ownerID);
+		data.emplace_back(selfID);
+		data.emplace_back(pos.x);
+		data.emplace_back(pos.y);
+		//time.now = std::chrono::system_clock::now();
+		//uni[0].iData = ownerID;
+		//uni[1].iData = selfID;
+		//uni[2].iData = pos.x;
+		//uni[3].iData = pos.y;
+		//uni[4].uiData = time.inow[0];
+		//uni[5].uiData = time.inow[1];
+		lpNetWork.SendMesData(MesType::SET_BOMB, data);
+	}
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos));
 }

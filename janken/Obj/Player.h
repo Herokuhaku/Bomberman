@@ -3,6 +3,7 @@
 #include <map>
 #include <functional>
 #include <memory>
+#include <list>
 #include "Obj.h"
 #include "../Wall.h"
 #include "../TiledLoader.h"
@@ -40,11 +41,11 @@ public:
 	void Draw(void)override;
 	void Update(void)override;
 	int GetNo()override;
+	void Init(void)override;
 private:
 	void UpdateDef();
 	void UpdateAuto();
 	void UpdateNet();
-	void Init(void);
 
 	void KeyInit();
 
@@ -55,8 +56,7 @@ private:
 	void DirDeath(Vector2, int) {};
 
 	// 
-	std::vector<int> animation_;
-	int screen;
+	//std::vector<int> animation_;
 	DIR pldir_;
 	std::map<std::string,std::vector<unsigned char>> Mapdata;
 	std::map<DIR,int> animationdir_;
@@ -76,7 +76,9 @@ private:
 	std::unique_ptr<BaseScene> scene_;
 	// ëÄçÏ
 	std::unique_ptr<Control>controller_;
-	std::map < INPUT_ID, std::function<void(TrgBool data)>> keymove_;
+	std::map < INPUT_ID,std::function<bool(TrgBool data,bool flag)>> keymove_;
+	std::list<std::pair<INPUT_ID,TrgBool>> keylist_;
+	std::list<INPUT_ID> keydellist_;
 	const int width = 32;
 public:
 	static int fallCount;

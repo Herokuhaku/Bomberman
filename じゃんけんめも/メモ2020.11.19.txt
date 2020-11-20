@@ -39,8 +39,8 @@ uni[6] = times.uiData[1]
 
 union unionDataTimeP
 {
-std::chorono::syestem_clock
-unsigned int
+std::chorono::syestem_clock;
+unsigned int 
 }
 
 
