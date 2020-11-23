@@ -3,6 +3,7 @@
 #include <map>
 #include <functional>
 #include <chrono>
+#include <array>
 #include "../TiledLoader.h"
 #include "BaseScene.h"
 #include "../common/Vector2.h"
@@ -43,6 +44,8 @@ private:
 	void SendData();
 	void NumPadInput(void);
 	bool Trg(int id);
+
+	void ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& ip,int fsize);
 	std::map<UpdateMode, std::function<void(void)>> titleRun_;
 	int screen_size_x_;
 	int screen_size_y_;

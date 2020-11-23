@@ -36,7 +36,7 @@ public:
 	TmxData ReadTmx(std::string filename);
 	TsxData ReadTsx(std::string filename);
 
-
+	TmxData GetTmx();
 	std::vector<unsigned char> TmxCsv(void);
 private:
 	TmxData tmxdata_;

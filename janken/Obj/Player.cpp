@@ -6,6 +6,7 @@
 #include "../AllControl/Control.h"
 #include "../AllControl/KeyBoardCtl.h"
 #include "../AllControl/XboxController.h"
+#include "../TiledLoader.h"
 
 int Player::countid_ = 0;
 int Player::fallCount = 0;
@@ -63,6 +64,10 @@ void Player::UpdateDef()
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
+		if (data.second[0] || data.second[1])
+		{
+			int i = 0;
+		}
 		// 既存のlistチェック
 		for (auto& check : keylist_)
 		{
@@ -163,7 +168,8 @@ void Player::Init(void)
 		{
 			update_ = std::bind(&Player::UpdateDef, this);
 			type = MOVE_TYPE::Def;
-			controller_ = std::make_unique<XboxController>();
+			controller_ = std::make_unique<KeyBoard>();
+			//controller_ = std::make_unique<XboxController>();
 		}
 		else if(id_ % 5 == 0 && id_ % 10 == 0)
 		{
@@ -203,7 +209,11 @@ void Player::Init(void)
 	playerid_+=countid_;
 	screen = MakeScreen(size_.x,size_.y,true);
 	KeyInit();
-	if(controller_ != nullptr)controller_->SetUp(0);
+	if (controller_ != nullptr)
+	{
+		controller_->SetUp(0);
+	}
+	num = lpTiledLoader.GetTmx().num;
 }
 
 void Player::KeyInit()
@@ -214,7 +224,7 @@ void Player::KeyInit()
 		{
 			centerpos.x += (size_.x/2+speed_);
 			pldir_ = DIR::RIGHT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width)* std::atoi(num["width"].c_str())/*21*/)] == 0)
 			{
 				pos_.x += speed_;
 				pos_.y = centerpos.y/32*32;
@@ -232,7 +242,7 @@ void Player::KeyInit()
 		{
 			centerpos.x -= (size_.x / 2+speed_);
 			pldir_ = DIR::LEFT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 			{
 				pos_.x -= speed_;
 				pos_.y = centerpos.y / 32 * 32;
@@ -250,7 +260,7 @@ void Player::KeyInit()
 		{
 			centerpos.y -= (size_.x/2+speed_);
 			pldir_ = DIR::UP;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 			{
 				pos_.y -= speed_;
 				pos_.x = centerpos.x / 32 * 32;
@@ -268,7 +278,7 @@ void Player::KeyInit()
 		{
 			centerpos.y += (size_.x / 2 + speed_);
 			pldir_ = DIR::DOWN;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * 21)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 			{
 				pos_.y += speed_;
 				pos_.x = centerpos.x / 32 * 32;
@@ -297,7 +307,7 @@ void Player::KeyInit()
 void Player::DirRight(Vector2 pos, int width)
 {
 	pos.x += size_.x;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 	{
 		pos_.x += speed_;
 	}
@@ -310,7 +320,7 @@ void Player::DirRight(Vector2 pos, int width)
 void Player::DirLeft(Vector2 pos, int width)
 {
 	pos.x -= 5;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 	{
 		pos_.x -= speed_;
 	}
@@ -324,7 +334,7 @@ void Player::DirLeft(Vector2 pos, int width)
 void Player::DirUp(Vector2 pos, int width)
 {
 	pos.y -= 5;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 	{
 		pos_.y -= speed_;
 	}
@@ -338,7 +348,7 @@ void Player::DirUp(Vector2 pos, int width)
 void Player::DirDown(Vector2 pos, int width)
 {
 	pos.y += 32;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * 21)] == 0)
+	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
 	{
 		pos_.y += speed_;
 	}

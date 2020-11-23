@@ -43,13 +43,11 @@ void GameScene::Init(void)
 		}
 	}
 	tsxdata_ = lpTiledLoader.ReadTsx("Tiled/mapdata/map");
-	//lpTiledLoader.TmxCsv();
 
 	Image.resize(12);
 	LoadDivGraph(tsxdata_.pass.c_str(),12,
 		4,3,32,32,&Image[0]);
 
-	// pos , size
 	wall_ = std::make_shared<Wall>();
 	wall_->SetMapData(tmxdata_.MapData);
 	while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
@@ -60,11 +58,13 @@ void GameScene::Init(void)
 		}
 	}
 	int i = 0;
+	num = lpTiledLoader.GetTmx().num;
 	for (auto& map : mapdata_["Char"])
 	{
 		if (map != -1)
 		{
-			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%21*32,i/21*32}), Vector2{ 32,51 }, wall_,*this));
+			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%std::atoi(num["width"].c_str())*32,i/ std::atoi(num["width"].c_str()) *32}),
+				Vector2{ 32,51 }, wall_,*this));
 		}
 		i++;
 	}
@@ -74,7 +74,6 @@ void GameScene::Init(void)
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	Draw();
-	//std::sort(objlist_.begin(), objlist_.end(), [](ShareObj obj1, ShareObj obj2) {return obj1->OkNum() > obj2->OkNum();});
 	for (auto& obj : objlist_)
 	{
 		obj->Update();
@@ -103,7 +102,7 @@ void GameScene::Draw(void)
 				DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f,Image[no], true);
 			}
 			x++;
-			if (x >= 21) { y++; x = 0; }
+			if (x >= std::atoi(num["width"].c_str())) { y++; x = 0; }
 		}
 	}
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -120,7 +119,9 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 		data.emplace_back(selfID);
 		data.emplace_back(pos.x);
 		data.emplace_back(pos.y);
-		//time.now = std::chrono::system_clock::now();
+
+		//unionData uni[6];
+		//time.now.now = std::chrono::system_clock::now();
 		//uni[0].iData = ownerID;
 		//uni[1].iData = selfID;
 		//uni[2].iData = pos.x;

@@ -91,6 +91,9 @@ bool GuestState::CheckNetWork(void)
 						//revtmx.reserve(tmpdata[0]);
 						unionData uni;
 						uni.iData = tmpdata[0];
+						num["width"] = uni.cData[0];
+						num["height"] = uni.cData[1];
+						num["layer"] = uni.cData[2];
 						uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
 						uni.iData /= 8;
 						if (uni.iData % 8 != 0) { uni.iData++; }
@@ -148,7 +151,7 @@ void GuestState::OutCsv(void)
 			unsigned char tmp[2];
 			for (int f = 0; f < 2; f++)
 			{
-				if (id < 357 * 4)
+				if (id < 357 * num["layer"])
 				{
 					if (f == 0)
 					{
@@ -158,13 +161,13 @@ void GuestState::OutCsv(void)
 					{
 						tmp[f] = onedata[c] >> 4;
 					}
-					if (id % 21 != 0)
+					if (id % num["width"] != 0)
 					{
 						fp << ",";
 					}
-					if (id % 21 == 0 && id != 0)
+					if (id % num["width"] == 0 && id != 0)
 					{
-						if (id % 357 != 0)fp << ",";
+						if (id % (num["width"]*num["height"]) != 0)fp << ",";
 						fp << "\n";
 					}
 					fp << static_cast<int>(tmp[f]);
@@ -195,7 +198,7 @@ void GuestState::OutData(void)
 				ofp.seekp(rpos);
 				std::string hozon;
 				int count = 0;
-				while (count++ < 17 && getline(csvf, hozon))
+				while (count++ < num["height"] && getline(csvf, hozon))
 				{
 					ofp << hozon;
 					ofp << "\n";

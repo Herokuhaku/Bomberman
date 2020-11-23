@@ -99,24 +99,9 @@ void LoginScene::SetNetWorkMode(void)
 	int fsize = GetFontSize();
 	int nextf = false;
 	auto tmpip = lpNetWork.GetIP();
-	for (auto& ip : tmpip)
-	{
-		if (ip.d1 == 0)
-		{
-			break;
-		}
-		if (ip.d1 != 192)
-		{
-			DrawFormatString(tmpos.x, tmpos.y, 0xffffff, "ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
-			//TRACE("ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
-		}
-		else
-		{
-			DrawFormatString(tmpos.x,tmpos.y, 0xffffff, "グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
-			//TRACE("グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
-		}
-		tmpos.y += fsize;
-	}
+
+	ViewIP(tmpos, tmpip, fsize);
+
 	Vector2 pos = pos_;
 	for (auto& key : inputKey)
 	{
@@ -124,7 +109,6 @@ void LoginScene::SetNetWorkMode(void)
 			nextf = true;
 			inputKey.pop_back();
 		}
-		//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
 		DrawString(pos.x, tmpos.y + 100, key.c_str(), 0xffffff, true);
 		pos.x += GetFontSize() / 2;
 	}
@@ -269,7 +253,16 @@ void LoginScene::inHostIp(void)
 	IPDATA hostip = {};
 	bool state = false;
 	bool nextf = false;
+	Vector2 tmpos = fpos_;
+	int fsize = GetFontSize();
+	tmpos.y += fsize * 3;
+	auto tmpip = lpNetWork.GetIP();
+	Vector2 pos = pos_;
 
+
+	ViewIP(tmpos,tmpip,fsize);			// IP表示
+	DrawString(pos.x, tmpos.y/* + 100*/,"IPを入力してください", 0xffffff, true);
+	tmpos.y += fsize;
 	if (haveip_ == GuestMode::IP)
 	{
 		while (!state && !CheckHitKey(KEY_INPUT_END))
@@ -282,17 +275,12 @@ void LoginScene::inHostIp(void)
 	}
 	else if (haveip_ == GuestMode::NOIP)
 	{
-		//do
-	//	{
 		std::string _ip;
 		std::string save;
 
-		//std::cin >> _ip;
-		Vector2 pos = pos_;
 		for (auto& key : inputKey)
 		{
-			//DrawFormatString(pos.x, pos.y + 100, 0xffffff, "%d", key);
-			DrawString(pos.x, pos.y + 100, key.c_str(), 0xffffff, true);
+			DrawString(pos.x, tmpos.y/* + 100*/, key.c_str(), 0xffffff, true);
 			pos.x += GetFontSize() / 2;
 			if (key == "Enter") {
 				nextf = true;
@@ -324,7 +312,6 @@ void LoginScene::inHostIp(void)
 				TRACE("IPを入力してください\n");
 			}
 		}
-		//		} while (!state);
 		if (state)
 		{
 			remove("ini/Ip.txt");
@@ -340,11 +327,6 @@ void LoginScene::inHostIp(void)
 	if (state == 1) {
 		updateMode_ = UpdateMode::StartInit;
 	}
-	//else
-	//{
-	//	TRACE("接続をキャンセルしてモード選択に戻ります\n");
-	//	updateMode_ = UpdateMode::SetNetWorkMode;
-	//}
 }
 
 void LoginScene::GamePlay(void)
@@ -472,4 +454,24 @@ void LoginScene::NumPadInput(void)
 bool LoginScene::Trg(int id)
 {
 	return !oldbuf[id] && nowbuf[id];
+}
+
+void LoginScene::ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& tmpip,int fsize)
+{
+	for (auto& ip : tmpip)
+	{
+		if (ip.d1 == 0)
+		{
+			break;
+		}
+		if (ip.d1 != 192)
+		{
+			DrawFormatString(tmpos.x, tmpos.y, 0xffffff, "ローカル  :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+		}
+		else
+		{
+			DrawFormatString(tmpos.x, tmpos.y, 0xffffff, "グローバル :IPアドレス : %d.%d.%d.%d\n", ip.d1, ip.d2, ip.d3, ip.d4);
+		}
+		tmpos.y += fsize;
+	}
 }

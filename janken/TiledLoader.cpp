@@ -161,6 +161,11 @@ TsxData TiledLoader::ReadTsx(std::string filename)
 	return tsxdata_;
 }
 
+TmxData TiledLoader::GetTmx(void)
+{
+	return tmxdata_;
+}
+
 std::vector<unsigned char> TiledLoader::TmxCsv(void)
 {
 	std::vector<unsigned char> csvdata_;
@@ -180,7 +185,6 @@ std::vector<unsigned char> TiledLoader::TmxCsv(void)
 			int pos;
 			if (pos = save.find("/data") != std::string::basic_string::npos)
 			{
-				//csvdata_pos;
 				break;
 			}
 			csvdata_.emplace_back(atoi(save.c_str()));

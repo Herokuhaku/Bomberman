@@ -76,6 +76,8 @@ private:
 	MOVE_TYPE type;						// movetypeŠm”F—p
 	
 	std::unique_ptr<BaseScene> scene_;
+	
+	std::map<std::string, std::string> num;
 	// ‘€ì
 	std::unique_ptr<Control>controller_;
 	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;
