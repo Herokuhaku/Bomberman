@@ -27,6 +27,7 @@ public:
 	void Init(void)override;
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
+	void Draw(float ex, float rad)override;
 	void SetBomb(int ownerID, int selfID, Vector2 pos, bool sendNet);
 private:
 	std::vector<int> Image;

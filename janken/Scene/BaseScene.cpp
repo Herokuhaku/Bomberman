@@ -23,3 +23,9 @@ void BaseScene::DrawOwnScreen(void)
 {
 
 }
+
+void BaseScene::Draw(float ex, float rad)
+{
+	SetDrawScreen(DX_SCREEN_BACK);
+	DrawGraph(0, 0, screenID, true);
+}

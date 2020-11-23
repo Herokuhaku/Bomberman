@@ -153,6 +153,7 @@
     <ClCompile Include="Obj\Bomb.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
+    <ClCompile Include="Scene\RotationScene.cpp" />
     <ClCompile Include="Scene\CrossOverScene.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Graphic\ImageMng.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Obj\Obj.h" />
     <ClInclude Include="Obj\Player.h" />
+    <ClInclude Include="Scene\RotationScene.h" />
     <ClInclude Include="Scene\CrossOverScene.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Graphic\ImageMng.h" />

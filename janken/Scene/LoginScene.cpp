@@ -8,7 +8,9 @@
 #include "../_debug/_DebugConOut.h"
 #include "../Graphic/ImageMng.h"
 #include "CrossOverScene.h"
+#include "RotationScene.h"
 #include "GameScene.h"
+#include "SceneMng.h"
 LoginScene::LoginScene()
 {
 	Init();
@@ -50,6 +52,7 @@ void LoginScene::Init(void)
 	lpTiledLoader.TmxCsv();
 
 	lpNetWork.Update();
+	screenID = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y);
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
@@ -65,9 +68,9 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	Draw();
 	if (updateMode_ == UpdateMode::GamePlay)
 	{
+		//return std::make_unique<RotationScene>(std::move(own), std::make_unique<GameScene>());
 		return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
 	}
-	//lpNetWork.newUpdate();
 	return own;
 }
 
@@ -75,6 +78,17 @@ void LoginScene::Draw(void)
 {
 	//DrawGraph(0, 0, plimage_, true);
 	//lpImageMng.AddDraw({ lpImageMng.GetID("image/“ä‚Ì‚É‚±‚¿‚á‚ñ.png")[0],pos_.x,pos_.y,1.0f,0.0f,LAYER::BG,100 });
+}
+
+void LoginScene::Draw(float ex, float rad)
+{
+	SetDrawScreen(screenID);
+	ClsDrawScreen();
+
+	DrawBox(0,0,lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y,0xffffff,true);
+
+	SetDrawScreen(DX_SCREEN_BACK);
+	DrawRotaGraph(lpSceneMng.GetScreenSize().x / 2, lpSceneMng.GetScreenSize().y / 2, ex, rad, screenID, true);
 }
 
 void LoginScene::OnlyDraw(void)

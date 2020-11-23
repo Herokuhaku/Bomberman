@@ -4,6 +4,7 @@
 enum class TransMode
 {
 	CrossOver,
+	RotationScene,
 	FadeIn,
 	FadeOut
 };

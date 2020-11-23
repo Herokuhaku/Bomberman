@@ -109,6 +109,25 @@ void GameScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
+void GameScene::Draw(float ex, float rad)
+{
+	SetDrawScreen(screenID);
+	ClsDrawScreen();
+	for (auto& data : mapdata_) {
+		int x = 0, y = 0;
+		for (auto& no : data.second)
+		{
+			if (0 <= no && 12 > no) {
+				DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f, Image[no], true);
+			}
+			x++;
+			if (x >= std::atoi(num["width"].c_str())) { y++; x = 0; }
+		}
+	}
+	SetDrawScreen(DX_SCREEN_BACK);
+	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad, screenID, true);
+}
+
 void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 {
 	if (sendNet)

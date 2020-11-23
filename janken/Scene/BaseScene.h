@@ -14,6 +14,7 @@ public:
 	virtual void Draw(void);
 	virtual void OnlyDraw(void);
 	virtual void DrawOwnScreen(void);
+	virtual void Draw(float ex, float rad);
 protected:
 	int screenID;
 
