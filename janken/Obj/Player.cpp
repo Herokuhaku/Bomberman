@@ -39,7 +39,7 @@ void Player::Draw(void)
 	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6,1.0f,0.0f,screen,true);
-	DrawBox(centerpos.x-size_.x/2, centerpos.y - size_.x / 2, centerpos.x + size_.x / 2, centerpos.y + size_.x / 2,0xff00ff,false);
+	DrawBox(centerpos_.x-size_.x/2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2,0xff00ff,false);
 }
 
 void Player::Update(void)
@@ -55,7 +55,7 @@ int Player::GetNo()
 void Player::UpdateDef()
 {
 	(*controller_)();
-	centerpos = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
+	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
@@ -213,16 +213,16 @@ void Player::Init(void)
 
 void Player::KeyInit()
 {
-	centerpos = { pos_.x + size_.x/2,pos_.y+size_.y-size_.x/2};
+	centerpos_ = { pos_.x + size_.x/2,pos_.y+size_.y-size_.x/2};
 	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos.x += (size_.x/2+speed_);
+			centerpos_.x += (size_.x/2+speed_);
 			pldir_ = DIR::RIGHT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width)* stagewidth_)/*21*/] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width)* stagewidth_)/*21*/] == 0)
 			{
 				pos_.x += speed_;
-				pos_.y = centerpos.y/32*32;
+				pos_.y = centerpos_.y/32*32;
 			}
 			return true;
 		}
@@ -233,18 +233,18 @@ void Player::KeyInit()
 		return false;
 		});
 	keymove_.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
-		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
+		if (data.first.second[static_cast<int>(Trg::Now)]&& !flag)
 		{
-			centerpos.x -= (size_.x / 2+speed_);
+			centerpos_.x -= (size_.x / 2+speed_);
 			pldir_ = DIR::LEFT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
 			{
 				pos_.x -= speed_;
-				pos_.y = centerpos.y / 32 * 32;
+				pos_.y = centerpos_.y / 32 * 32;
 			}
 			return true;
 		}
-		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
 			data.second = true;
 		}
@@ -253,34 +253,34 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos.y -= (size_.x/2+speed_);
+			centerpos_.y -= (size_.x/2+speed_);
 			pldir_ = DIR::UP;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
 			{
 				pos_.y -= speed_;
-				pos_.x = centerpos.x / 32 * 32;
+				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
 		}
-		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
 			data.second = true;
 		}
 		return false;
 		});	
 	keymove_.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
-		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
+		if (data.first.second[static_cast<int>(Trg::Now)]&&!flag)
 		{
-			centerpos.y += (size_.x / 2 + speed_);
+			centerpos_.y += (size_.x / 2 + speed_);
 			pldir_ = DIR::DOWN;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
 			{
 				pos_.y += speed_;
-				pos_.x = centerpos.x / 32 * 32;
+				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
 		}
-		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
+		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
 			data.second = true;
 		}
@@ -289,7 +289,7 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::BOMB, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
-			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_,playerid_++,pos_,true);
+			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_, playerid_++, { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x}, true);
 			return true;
 		}
 		return false;

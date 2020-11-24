@@ -9,9 +9,8 @@
 #include "../Obj/Fire.h"
 #include "../_debug/_DebugDispOut.h"
 
-GameScene::GameScene()
+GameScene::GameScene():time{std::chrono::system_clock::now()}
 {
-	//time.now = std::chrono::system_clock::now();
 	Init();
 }
 
@@ -142,23 +141,26 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 {
 	if (sendNet)
 	{
-		//MesData data;
-		//data.reserve(6);
-		//data.emplace_back(ownerID);
-		//data.emplace_back(selfID);
-		//data.emplace_back(pos.x);
-		//data.emplace_back(pos.y);
+		MesData data;
+		data.reserve(6);
+		data.emplace_back(ownerID);
+		data.emplace_back(selfID);
+		data.emplace_back(pos.x);
+		data.emplace_back(pos.y);
+		time.now = std::chrono::system_clock::now();
+		data.emplace_back(time.inow[0]);
+		data.emplace_back(time.inow[1]);
 
-		unionData uni[6];
-		time.now.to_time_t(std::chrono::system_clock::now());
-		uni[0].iData = ownerID;
-		uni[1].iData = selfID;
-		uni[2].iData = pos.x;
-		uni[3].iData = pos.y;
-		uni[4].uiData = time.inow[0];
-		uni[5].uiData = time.inow[1];
-		lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
-		//lpNetWork.SendMesData(MesType::SET_BOMB, data);
+		//unionData uni[6];
+
+		//uni[0].iData = ownerID;
+		//uni[1].iData = selfID;
+		//uni[2].iData = pos.x;
+		//uni[3].iData = pos.y;
+		//uni[4].uiData = time.inow[0];
+		//uni[5].uiData = time.inow[1];
+		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
+		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
 	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,std::chrono::system_clock::now(),wall_));
 }

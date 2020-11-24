@@ -14,7 +14,7 @@ using ListObj = std::list<ShareObj>;
 
 union chronoi
 {
-	std::chrono::system_clock now;
+	std::chrono::system_clock::time_point now;
 	unsigned int inow[2];
 };
 class GameScene :

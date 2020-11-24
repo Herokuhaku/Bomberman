@@ -21,4 +21,5 @@ private:
 	std::chrono::system_clock::time_point end_;
 
 	int length_;
+	float lengthtime_;
 };

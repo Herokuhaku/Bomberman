@@ -65,7 +65,7 @@ union Header
 
 struct MesSizeData
 {
-	unsigned int times;
+	unsigned int now;
 	unsigned int oneByte;
 	unsigned int AllByte;
 };

@@ -57,7 +57,7 @@ private:
 	void DirDeath(Vector2, int) {};
 
 	// 
-	Vector2 centerpos;		// posとは別　判定の中心座標
+	Vector2 centerpos_;		// posとは別　判定の中心座標
 	DIR pldir_;				// playerのDIR
 	std::map<std::string,std::vector<unsigned char>> Mapdata;	// Mapdata
 	std::map<DIR,int> animationdir_;							// animationの番号　画像の左から何番目かを保存する
