@@ -15,7 +15,6 @@ HostState::~HostState()
 
 bool HostState::CheckNetWork(void)
 {
-	//if (active_ == ActiveState::Standby)
 	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;

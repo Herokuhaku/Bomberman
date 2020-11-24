@@ -6,6 +6,7 @@
 #include "../NetWork/NetWork.h"
 #include "../Obj/Player.h"
 #include "../Obj/Bomb.h"
+#include "../Obj/Fire.h"
 #include "../_debug/_DebugDispOut.h"
 
 GameScene::GameScene()
@@ -68,6 +69,14 @@ void GameScene::Init(void)
 		}
 		i++;
 	}
+
+	std::vector<unsigned char> fire;
+	for (int i = 0; i < std::atoi(num["width"].c_str()) * std::atoi(num["height"].c_str()); i++)
+	{
+		fire.emplace_back(-1);
+	}
+	wall_->AddMapData("Fire",fire);
+	fire_ = std::make_shared<Fire>(Vector2(32,32),wall_);
 	begin = std::chrono::system_clock::now();
 }
 
@@ -79,6 +88,7 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		obj->Update();
 		obj->Draw();
 	}
+	fire_->Update();
 	end = std::chrono::system_clock::now();
 	if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 1)
 	{
@@ -132,22 +142,23 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 {
 	if (sendNet)
 	{
-		MesData data;
-		data.reserve(6);
-		data.emplace_back(ownerID);
-		data.emplace_back(selfID);
-		data.emplace_back(pos.x);
-		data.emplace_back(pos.y);
+		//MesData data;
+		//data.reserve(6);
+		//data.emplace_back(ownerID);
+		//data.emplace_back(selfID);
+		//data.emplace_back(pos.x);
+		//data.emplace_back(pos.y);
 
-		//unionData uni[6];
-		//time.now.now = std::chrono::system_clock::now();
-		//uni[0].iData = ownerID;
-		//uni[1].iData = selfID;
-		//uni[2].iData = pos.x;
-		//uni[3].iData = pos.y;
-		//uni[4].uiData = time.inow[0];
-		//uni[5].uiData = time.inow[1];
-		lpNetWork.SendMesData(MesType::SET_BOMB, data);
+		unionData uni[6];
+		time.now.to_time_t(std::chrono::system_clock::now());
+		uni[0].iData = ownerID;
+		uni[1].iData = selfID;
+		uni[2].iData = pos.x;
+		uni[3].iData = pos.y;
+		uni[4].uiData = time.inow[0];
+		uni[5].uiData = time.inow[1];
+		lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
+		//lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
-	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos));
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,std::chrono::system_clock::now(),wall_));
 }

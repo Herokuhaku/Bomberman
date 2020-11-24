@@ -32,7 +32,8 @@ public:
 private:
 	std::vector<int> Image;
 	ListObj objlist_;
-	std::shared_ptr<Wall> wall_;
+	ShareObj fire_;
+	std::shared_ptr<Wall> wall_;		// mapdata‚É‚ÍFire‚Í“ü‚ê‚È‚¢Bwall‚ª‚Â
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;
 	int fpsCnt_;

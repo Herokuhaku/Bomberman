@@ -10,7 +10,6 @@
 #include "../NetWork/NetWork.h"
 #include "../AllControl/Control.h"
 #include "../AllControl/INPUT_ID.h"
-//#include "../Scene/BaseScene.h"
 class BaseScene;
 
 #define UNIT_ID_BASE 5
@@ -38,7 +37,7 @@ class Player :
 {
 public:
 	Player();
-	Player(Vector2 pos,Vector2 size,std::shared_ptr<Wall> wall,BaseScene& scene);
+	Player(Vector2 pos,Vector2 size,std::shared_ptr<Wall>& wall,BaseScene& scene);
 	~Player();
 	void Draw(void)override;
 	void Update(void)override;
@@ -66,7 +65,6 @@ private:
 	const int oneanimCnt = 10;
 	std::function<void()> update_;
 	std::map<DIR,std::function<void(Vector2,int)>> dirupdate_;
-	std::shared_ptr<Wall> wall_;
 	static int countid_;
 	int playerid_;
 	Vector2 oldpos_;
@@ -84,6 +82,7 @@ private:
 	std::list<DellistData> keylist_;
 	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	const int width = 32;
+	int stagewidth_;
 	int speed_;
 public:
 	static int fallCount;

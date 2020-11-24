@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <memory>
+#include "../Wall.h"
 #include "../common/Vector2.h"
 class Obj
 {
@@ -16,8 +18,9 @@ protected:
 	Vector2 size_;
 	int id_;
 	int screen;
-
+	bool alive_;
 	std::vector<int> animation_;
+	std::shared_ptr<Wall> wall_;
 private:
 };
 

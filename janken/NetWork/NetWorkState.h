@@ -42,7 +42,8 @@ enum class MesType :unsigned char
 	TMX_SIZE,		// TMXサイズ　総サイズ
 	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
 	POS,			// ゲーム中に送る
-	SET_BOMB,		
+	SET_BOMB,		// ボムの配置
+	DEATH,			// 死亡		どのキャラかわかるようにIDだけ付与する
 	MAX
 };
 

@@ -18,7 +18,7 @@ Player::Player()
 	Init();
 }
 
-Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall> wall,BaseScene& scene) :scene_(std::move(&scene))
+Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall>& wall,BaseScene& scene) :scene_(std::move(&scene))
 {
 	pos_ = pos;
 	size_ = size;
@@ -52,11 +52,6 @@ int Player::GetNo()
 	return countid_;
 }
 
-//int Player::OkNum()
-//{
-//	return lpNetWork.TakeOutRevData(id_).size();
-//}
-
 void Player::UpdateDef()
 {
 	(*controller_)();
@@ -64,10 +59,6 @@ void Player::UpdateDef()
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
-		if (data.second[0] || data.second[1])
-		{
-			int i = 0;
-		}
 		// 既存のlistチェック
 		for (auto& check : keylist_)
 		{
@@ -115,13 +106,16 @@ void Player::UpdateNet()
 	if (meslist_.size() != 0)
 	{
 		auto tmp = meslist_.front();
-		if (tmp.second.size() >= 4)
+		if (tmp.first == MesType::POS)
 		{
-			pos_.x = tmp.second[1].iData;
-			pos_.y = tmp.second[2].iData;
-			pldir_ = static_cast<DIR>(tmp.second[3].iData);
+			if (tmp.second.size() >= 4)
+			{
+				pos_.x = tmp.second[1].iData;
+				pos_.y = tmp.second[2].iData;
+				pldir_ = static_cast<DIR>(tmp.second[3].iData);
+			}
+			meslist_.erase(meslist_.begin());
 		}
-		meslist_.erase(meslist_.begin());
 	}
 	else
 	{
@@ -214,6 +208,7 @@ void Player::Init(void)
 		controller_->SetUp(0);
 	}
 	num = lpTiledLoader.GetTmx().num;
+	stagewidth_ = std::atoi(num["width"].c_str());
 }
 
 void Player::KeyInit()
@@ -224,7 +219,7 @@ void Player::KeyInit()
 		{
 			centerpos.x += (size_.x/2+speed_);
 			pldir_ = DIR::RIGHT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width)* std::atoi(num["width"].c_str())/*21*/)] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width)* stagewidth_)/*21*/] == 0)
 			{
 				pos_.x += speed_;
 				pos_.y = centerpos.y/32*32;
@@ -242,7 +237,7 @@ void Player::KeyInit()
 		{
 			centerpos.x -= (size_.x / 2+speed_);
 			pldir_ = DIR::LEFT;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
 			{
 				pos_.x -= speed_;
 				pos_.y = centerpos.y / 32 * 32;
@@ -260,7 +255,7 @@ void Player::KeyInit()
 		{
 			centerpos.y -= (size_.x/2+speed_);
 			pldir_ = DIR::UP;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
 			{
 				pos_.y -= speed_;
 				pos_.x = centerpos.x / 32 * 32;
@@ -278,7 +273,7 @@ void Player::KeyInit()
 		{
 			centerpos.y += (size_.x / 2 + speed_);
 			pldir_ = DIR::DOWN;
-			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+			if (wall_->GetMapData()["Obj"][(centerpos.x / width) + ((centerpos.y / width) * stagewidth_)] == 0)
 			{
 				pos_.y += speed_;
 				pos_.x = centerpos.x / 32 * 32;
