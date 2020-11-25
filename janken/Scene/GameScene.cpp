@@ -72,7 +72,7 @@ void GameScene::Init(void)
 	std::vector<unsigned char> fire;
 	for (int i = 0; i < std::atoi(num["width"].c_str()) * std::atoi(num["height"].c_str()); i++)
 	{
-		fire.emplace_back(-1);
+		fire.emplace_back(255);
 	}
 	wall_->AddMapData("Fire",fire);
 	fire_ = std::make_shared<Fire>(Vector2(32,32),wall_);

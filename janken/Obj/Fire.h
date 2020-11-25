@@ -13,6 +13,5 @@ public:
     int GetNo();
     void Init(void);
 private:
-    int width;
 };
 

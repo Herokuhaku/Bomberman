@@ -23,6 +23,9 @@ protected:
 	std::vector<int> animation_;
 	std::shared_ptr<Wall> wall_;
 	bool deleteflag_;
+
+	int width;
+	int stagewidth_;
 private:
 };
 

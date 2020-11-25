@@ -67,7 +67,7 @@ private:
 	std::map<DIR,std::function<void(Vector2,int)>> dirupdate_;
 	static int countid_;
 	int playerid_;
-	Vector2 oldpos_;
+	//Vector2 oldpos_;
 	MesList meslist_;
 	std::mutex mtx_;
 	
@@ -75,14 +75,13 @@ private:
 	
 	std::unique_ptr<BaseScene> scene_;
 	
+	Vector2 bombpos_;
 	std::map<std::string, std::string> num;
 	// ‘€ì
 	std::unique_ptr<Control>controller_;
 	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;
 	std::list<DellistData> keylist_;
 	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
-	const int width = 32;
-	int stagewidth_;
 	int speed_;
 public:
 	static int fallCount;

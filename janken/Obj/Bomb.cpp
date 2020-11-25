@@ -36,6 +36,7 @@ void Bomb::Update(void)
 	{
 		alive_ = false;
 		now_ = end_;
+		wall_->ChangeMapData("Obj",pos_,0);
 	}
 	if (!alive_)
 	{
@@ -46,12 +47,16 @@ void Bomb::Update(void)
 			tmp += plus;
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count() >= lengthtime_ * num)
 			{
-				wall_->ChangeMapData("Fire", tmp, 1);
-
-				if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
-				if (num < length_ - 1)
+				if (wall_->GetMapData()["Obj"][(tmp.x / width) + ((tmp.y / width) * stagewidth_)] == 0 &&
+					wall_->GetMapData()["Fire"][(tmp.x / width) + ((tmp.y / width) * stagewidth_)] != 0)
 				{
-					longfire(tmp, plus, num + 1);
+					wall_->ChangeMapData("Fire", tmp, 1);
+
+					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
+					if (num < length_ - 1)
+					{
+						longfire(tmp, plus, num + 1);
+					}
 				}
 			}
 			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
@@ -79,8 +84,7 @@ void Bomb::Update(void)
 			{
 				wall_->ChangeMapData("Fire", tmp, -1);
 			}
-		}; 
-		
+		};
 		crossfire(tmpos, no, end_);
 	}
 }
@@ -100,6 +104,9 @@ void Bomb::Init(void)
 	length_ = 3;
 	wastime_.resize(length_);
 	lengthtime_ = 1000.0 / 6.0;
+	width = size_.x;
+	stagewidth_ = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
+
 	//lengthtime_ = 1000;
 }
 

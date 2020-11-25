@@ -56,6 +56,7 @@ void Player::UpdateDef()
 {
 	(*controller_)();
 	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
+	bombpos_ = centerpos_;
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
 	{
@@ -198,7 +199,7 @@ void Player::Init(void)
 	Mapdata = wall_->GetMapData();
 
 	lpNetWork.AddMesList(id_,meslist_,mtx_);
-	oldpos_ = pos_;
+	bombpos_ = pos_;
 	countid_ +=5;
 	playerid_+=countid_;
 	screen = MakeScreen(size_.x,size_.y,true);
@@ -209,20 +210,30 @@ void Player::Init(void)
 	}
 	num = lpTiledLoader.GetTmx().num;
 	stagewidth_ = std::atoi(num["width"].c_str());
+	width = 32;
 }
 
 void Player::KeyInit()
 {
 	centerpos_ = { pos_.x + size_.x/2,pos_.y+size_.y-size_.x/2};
+	bombpos_ = centerpos_;
 	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
 			centerpos_.x += (size_.x/2+speed_);
 			pldir_ = DIR::RIGHT;
-			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width)* stagewidth_)/*21*/] == 0)
+			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
+			int next = ((centerpos_.x + (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_);
+			if (check == 0)
 			{
 				pos_.x += speed_;
 				pos_.y = centerpos_.y/32*32;	// 32‚Ì”{”‚É‚È‚é‚æ‚¤‚ÉØ‚èŽÌ‚Ä
+			}
+			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
+				wall_->GetMapData()["Obj"][((centerpos_.x+ (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			{
+				pos_.x += speed_;
+				pos_.y = centerpos_.y / 32 * 32;	// 32‚Ì”{”‚É‚È‚é‚æ‚¤‚ÉØ‚èŽÌ‚Ä
 			}
 			return true;
 		}
@@ -237,7 +248,14 @@ void Player::KeyInit()
 		{
 			centerpos_.x -= (size_.x / 2+speed_);
 			pldir_ = DIR::LEFT;
-			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
+			if (check == 0)
+			{
+				pos_.x -= speed_;
+				pos_.y = centerpos_.y / 32 * 32;
+			}
+			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
+				wall_->GetMapData()["Obj"][((centerpos_.x - (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
 			{
 				pos_.x -= speed_;
 				pos_.y = centerpos_.y / 32 * 32;
@@ -255,7 +273,14 @@ void Player::KeyInit()
 		{
 			centerpos_.y -= (size_.x/2+speed_);
 			pldir_ = DIR::UP;
-			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
+			if (check == 0)
+			{
+				pos_.y -= speed_;
+				pos_.x = centerpos_.x / 32 * 32;
+			}
+			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
+				wall_->GetMapData()["Obj"][(centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + speed_)) / width) * stagewidth_)] == 0)
 			{
 				pos_.y -= speed_;
 				pos_.x = centerpos_.x / 32 * 32;
@@ -273,7 +298,14 @@ void Player::KeyInit()
 		{
 			centerpos_.y += (size_.x / 2 + speed_);
 			pldir_ = DIR::DOWN;
-			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
+			if (check == 0)
+			{
+				pos_.y += speed_;
+				pos_.x = centerpos_.x / 32 * 32;
+			}
+			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
+				wall_->GetMapData()["Obj"][(centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + speed_)) / width) * stagewidth_)] == 0)
 			{
 				pos_.y += speed_;
 				pos_.x = centerpos_.x / 32 * 32;
@@ -291,6 +323,7 @@ void Player::KeyInit()
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
 			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_, playerid_++,tmpos, true);
+			wall_->ChangeMapData("Obj",tmpos,-1);
 			return true;
 		}
 		return false;
