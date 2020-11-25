@@ -15,6 +15,7 @@
 	 _dbgSetDrawPosFps(FPS_SIDE::LEFT, FPS_VER::TOP);
 	 while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	 {
+		 now = std::chrono::system_clock::now();
 		 _dbgStartDraw();
 		 SetDrawScreen(DX_SCREEN_BACK);
 		 ClsDrawScreen();
@@ -30,6 +31,11 @@
 Vector2 SceneMng::GetScreenSize(void)
 {
 	return _screenSize;
+}
+
+std::chrono::system_clock::time_point SceneMng::GetNowTime()
+{
+	return now;
 }
 
 bool SceneMng::SysInit(void)

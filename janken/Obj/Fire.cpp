@@ -17,7 +17,6 @@ void Fire::Draw(void)
 {
 	SetDrawScreen(screen);
 	ClsDrawScreen();
-
 	int x = 0, y = 0;
 	auto tmpwall = wall_->GetMapData()["Fire"];
 	for (auto& wall : tmpwall)
@@ -29,6 +28,7 @@ void Fire::Draw(void)
 		x++;
 		if (x >= width) { y++; x = 0;}
 	}
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawGraph(0,0,screen,true);
 }

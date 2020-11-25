@@ -1,6 +1,7 @@
 #include <Dxlib.h>
 #include <functional>
 #include "Bomb.h"
+#include "../Scene/SceneMng.h"
 
 Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now,std::shared_ptr<Wall>& wall)
 {
@@ -19,18 +20,19 @@ Bomb::~Bomb()
 
 void Bomb::Draw(void)
 {
-	SetDrawScreen(screen);
-	ClsDrawScreen();
-	DrawGraph(0, 0, animation_[1], true);
-	//if (frame_ > oneanimCnt * 4 - 1)frame_ = oneanimCnt * 2;
-	SetDrawScreen(DX_SCREEN_BACK);
-	DrawRotaGraph(pos_.x, pos_.y, 1.0f, 0.0f, screen, true);
+	if (alive_) {
+		SetDrawScreen(screen);
+		ClsDrawScreen();
+		DrawGraph(0, 0, animation_[1], true);
+		SetDrawScreen(DX_SCREEN_BACK);
+		DrawRotaGraph(pos_.x, pos_.y, 1.0f, 0.0f, screen, true);
+	}
 }
 
 void Bomb::Update(void)
 {
-	end_ = std::chrono::system_clock::now();
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count() >= 3000 && alive_)
+	end_ = lpSceneMng.GetNowTime();
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count() >= bombtime_ && alive_)
 	{
 		alive_ = false;
 		now_ = end_;
@@ -38,15 +40,25 @@ void Bomb::Update(void)
 	if (!alive_)
 	{
 		float no = 0;
+
 		Vector2 tmpos = pos_;
 		std::function<void(Vector2, Vector2, int)> longfire = [&](Vector2 tmp, Vector2 plus, int num) {
 			tmp += plus;
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count() >= lengthtime_ * num)
 			{
 				wall_->ChangeMapData("Fire", tmp, 1);
+
+				if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
 				if (num < length_ - 1)
 				{
 					longfire(tmp, plus, num + 1);
+				}
+			}
+			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
+			{
+				wall_->ChangeMapData("Fire", tmp, -1);
+				if(num >= length_-1){ 
+					deleteflag_ = true; 
 				}
 			}
 		};
@@ -56,12 +68,19 @@ void Bomb::Update(void)
 			wall_->ChangeMapData("Fire", tmp, num);
 			if (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count() >= lengthtime_ * num)
 			{
+				if(!wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
 				longfire({ tmp.x,tmp.y }, { size_.x,0 }, num + 1);
 				longfire({ tmp.x,tmp.y }, { -size_.x,0 }, num + 1);
 				longfire({ tmp.x,tmp.y }, { 0, size_.y }, num + 1);
 				longfire({ tmp.x,tmp.y }, { 0,-size_.y }, num + 1);
 			}
-		};
+			auto clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count();
+			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
+			{
+				wall_->ChangeMapData("Fire", tmp, -1);
+			}
+		}; 
+		
 		crossfire(tmpos, no, end_);
 	}
 }
@@ -77,8 +96,10 @@ void Bomb::Init(void)
 	// 検索用 size bomb 爆弾のサイズ 
 	animation_.resize(14);
 	LoadDivGraph("Tiled/image/bomb.png", 14,2,7, size_.x, size_.y, animation_.data());
+	bombtime_ = 3000;
 	length_ = 3;
-	//lengthtime_ = 166.667;
-	lengthtime_ = 2000;
+	wastime_.resize(length_);
+	lengthtime_ = 1000.0 / 6.0;
+	//lengthtime_ = 1000;
 }
 

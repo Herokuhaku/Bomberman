@@ -9,7 +9,7 @@
 #include "../Obj/Fire.h"
 #include "../_debug/_DebugDispOut.h"
 
-GameScene::GameScene():time{std::chrono::system_clock::now()}
+GameScene::GameScene():time{lpSceneMng.GetNowTime()}
 {
 	Init();
 }
@@ -76,7 +76,7 @@ void GameScene::Init(void)
 	}
 	wall_->AddMapData("Fire",fire);
 	fire_ = std::make_shared<Fire>(Vector2(32,32),wall_);
-	begin = std::chrono::system_clock::now();
+	begin = lpSceneMng.GetNowTime();
 }
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
@@ -88,13 +88,15 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		obj->Draw();
 	}
 	fire_->Update();
-	end = std::chrono::system_clock::now();
+	end = lpSceneMng.GetNowTime();
 	if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 1)
 	{
 		begin = end;
 		fpsCnt_++;
 	}
 	_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
+
+	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {return obj->GetDeleteFlag(); });
 
 	return own;
 }
@@ -147,7 +149,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 		data.emplace_back(selfID);
 		data.emplace_back(pos.x);
 		data.emplace_back(pos.y);
-		time.now = std::chrono::system_clock::now();
+		time.now = lpSceneMng.GetNowTime();
 		data.emplace_back(time.inow[0]);
 		data.emplace_back(time.inow[1]);
 
@@ -162,5 +164,5 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
 		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
-	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,std::chrono::system_clock::now(),wall_));
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos, lpSceneMng.GetNowTime(),wall_));
 }

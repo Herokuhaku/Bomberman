@@ -222,7 +222,7 @@ void Player::KeyInit()
 			if (wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width)* stagewidth_)/*21*/] == 0)
 			{
 				pos_.x += speed_;
-				pos_.y = centerpos_.y/32*32;
+				pos_.y = centerpos_.y/32*32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
 			}
 			return true;
 		}
@@ -289,7 +289,8 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::BOMB, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
-			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_, playerid_++, { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x}, true);
+			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
+			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_, playerid_++,tmpos, true);
 			return true;
 		}
 		return false;

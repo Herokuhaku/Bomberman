@@ -33,10 +33,13 @@ public:
 
 	void Run(void);
 	Vector2 GetScreenSize(void);
+	std::chrono::system_clock::time_point GetNowTime();
 private:
 	bool SysInit(void);
 	const Vector2 _screenSize;
 	std::unique_ptr<BaseScene> sceneNow_;
+
+	std::chrono::system_clock::time_point now;
 
 	SceneMng();
 	~SceneMng();

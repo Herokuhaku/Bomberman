@@ -3,6 +3,7 @@
 #include <DxLib.h>
 #include "_DebugDispOut.h"
 #include "_DebugConOut.h"
+#include "../Scene/SceneMng.h"
 
 std::unique_ptr<_DebugDispOut, _DebugDispOut::_DebugDispOutDeleter> _DebugDispOut::s_Instance(new _DebugDispOut);
 _DebugDispOut::_DebugDispOut()
@@ -79,7 +80,7 @@ void _DebugDispOut::WaitMode(void)
 
 	if (waitTime_)
 	{
-		startTime_ = std::chrono::system_clock::now();
+		startTime_ = lpSceneMng.GetNowTime();
 		do {
 			pouseKey_[1] = pouseKey_[0];
 			pouseKey_[0] = CheckHitKey(KEY_INPUT_PAUSE);
@@ -93,7 +94,7 @@ void _DebugDispOut::WaitMode(void)
 				TRACE("ÉXÉçÅ[/àÍéûí‚é~Å@âèú\n");
 				pouseKey_[1] = pouseKey_[0];
 			}
-			endTime_ = std::chrono::system_clock::now();
+			endTime_ = lpSceneMng.GetNowTime();
 		} while (std::chrono::duration_cast<std::chrono::milliseconds>(endTime_ - startTime_).count() < waitTime_ || waitTime_ < 0.0);
 	}
 	if (pouseKey_[0] && !pouseKey_[1])
@@ -184,7 +185,7 @@ int _DebugDispOut::DrawPixel(int x, int y, unsigned int Color)
 #define FPS_BOX_SIZE_Y 24
 void _DebugDispOut::DrawFPS(void)
 {
-	fpsEndTime_ = std::chrono::system_clock::now();
+	fpsEndTime_ = lpSceneMng.GetNowTime()/*std::chrono::system_clock::now()*/;
 	if (std::chrono::duration_cast<std::chrono::milliseconds>(fpsEndTime_ - fpsStartTime_).count() >= 1000)
 	{
 		fpsView_ = fpsCount_;

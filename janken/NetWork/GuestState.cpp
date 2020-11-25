@@ -3,6 +3,7 @@
 #include <string>
 #include "GuestState.h"
 #include "NetWork.h"
+#include "../Scene/SceneMng.h"
 GuestState::GuestState()
 {
 	reAccess_ = false;
@@ -100,7 +101,7 @@ bool GuestState::CheckNetWork(void)
 						//revtmx.resize(uni.iData);
 						revtmx.resize(uni.iData);
 						//TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
-						begin = std::chrono::system_clock::now();
+						begin = lpSceneMng.GetNowTime();
 						break;
 					}
 
@@ -109,7 +110,7 @@ bool GuestState::CheckNetWork(void)
 				{
 					OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
 					OutData();		// csvと元々あるデータを参考にtmxデータを作成する
-					end = std::chrono::system_clock::now();
+					end = lpSceneMng.GetNowTime();
 					std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 					TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
 					lpNetWork.SetRevStandby(true);

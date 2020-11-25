@@ -13,6 +13,7 @@ public:
 	virtual void Update(void) = 0;
 	virtual int GetNo() = 0;
 	virtual void Init(void) = 0;
+	virtual bool GetDeleteFlag(void);
 protected:
 	Vector2 pos_;
 	Vector2 size_;
@@ -21,6 +22,7 @@ protected:
 	bool alive_;
 	std::vector<int> animation_;
 	std::shared_ptr<Wall> wall_;
+	bool deleteflag_;
 private:
 };
 
