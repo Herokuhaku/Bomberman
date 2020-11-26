@@ -55,22 +55,15 @@ bool GuestState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						MesPacket u;
-						for (auto& d : tmpdata)
-						{
-							unionData uni;
-							uni = d;
-							u.emplace_back(uni);
-						}
-						MesList tmplist;
+						MesList bomblist;
 						for (auto& rev : revlist[tmpdata[0].iData / 5].first)
 						{
-							if (rev.first == MesType::SET_BOMB);tmplist.emplace_back(rev);
+							if (rev.first == MesType::SET_BOMB);bomblist.emplace_back(rev);
 						}
 						revlist[tmpdata[0].iData / 5].first.clear();
-						revlist[tmpdata[0].iData / 5].first = tmplist;
+						revlist[tmpdata[0].iData / 5].first = bomblist;
 						
-						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
+						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,tmpdata);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(),data);

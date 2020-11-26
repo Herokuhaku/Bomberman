@@ -30,14 +30,7 @@ bool HostState::CheckNetWork(void)
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
 					{
-						MesPacket u;
-						for (auto& d : tmpdata)
-						{
-							unionData uni;
-							uni = d;
-							u.emplace_back(uni);
-						}
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
+						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							revlist[tmpdata[0].iData / 5].first.emplace_back(data);

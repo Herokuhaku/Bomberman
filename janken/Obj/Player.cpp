@@ -35,7 +35,8 @@ void Player::Draw(void)
 	SetDrawScreen(screen);
 	ClsDrawScreen();
 	//DrawRotaGraph(pos_.x + size_.x /2, pos_.y + size_.y / 6,1.0f,0.0f,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]],true);
-	DrawGraph(0,0,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]], true);
+	int coma = frame_++ / oneanimCnt * 5 + animationdir_[pldir_];
+	DrawGraph(0,0,animation_[coma], true);
 	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6,1.0f,0.0f,screen,true);
@@ -249,15 +250,18 @@ void Player::KeyInit()
 		{
 			centerpos_.x += (size_.x/2+speed_);
 			pldir_ = DIR::RIGHT;
-			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
+			// •’Ê‚ÌŽž‚ÌˆÚ“®Šm”F—p“Y‚¦Žš
+			int check = (centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_);
+			// ”š’e‚Ìã‚É‚¢‚éŽž—p“Y‚¦Žš
+			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_);
 			int next = ((centerpos_.x + (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_);
-			if (check == 0)
+			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
 				pos_.x += speed_;
 				pos_.y = centerpos_.y/32*32;	// 32‚Ì”{”‚É‚È‚é‚æ‚¤‚ÉØ‚èŽÌ‚Ä
 			}
-			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
-				wall_->GetMapData()["Obj"][((centerpos_.x+ (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
+				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.x += speed_;
 				pos_.y = centerpos_.y / 32 * 32;	// 32‚Ì”{”‚É‚È‚é‚æ‚¤‚ÉØ‚èŽÌ‚Ä
@@ -275,14 +279,16 @@ void Player::KeyInit()
 		{
 			centerpos_.x -= (size_.x / 2+speed_);
 			pldir_ = DIR::LEFT;
-			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
-			if (check == 0)
+			int check = (centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_);
+			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_);
+			int next = ((centerpos_.x - (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_);
+			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
 				pos_.x -= speed_;
 				pos_.y = centerpos_.y / 32 * 32;
 			}
-			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
-				wall_->GetMapData()["Obj"][((centerpos_.x - (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * stagewidth_)] == 0)
+			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
+				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.x -= speed_;
 				pos_.y = centerpos_.y / 32 * 32;
@@ -300,14 +306,16 @@ void Player::KeyInit()
 		{
 			centerpos_.y -= (size_.x/2+speed_);
 			pldir_ = DIR::UP;
-			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
-			if (check == 0)
+			int check = (centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_);
+			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_);
+			int next = (centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + speed_)) / width) * stagewidth_);
+			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
 				pos_.y -= speed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
-			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
-				wall_->GetMapData()["Obj"][(centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + speed_)) / width) * stagewidth_)] == 0)
+			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
+				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.y -= speed_;
 				pos_.x = centerpos_.x / 32 * 32;
@@ -325,14 +333,16 @@ void Player::KeyInit()
 		{
 			centerpos_.y += (size_.x / 2 + speed_);
 			pldir_ = DIR::DOWN;
-			int check = wall_->GetMapData()["Obj"][(centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_)];
-			if (check == 0)
+			int check = (centerpos_.x / width) + ((centerpos_.y / width) * stagewidth_);
+			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_);
+			int next = (centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + speed_)) / width) * stagewidth_);
+			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
 				pos_.y += speed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
-			else if (wall_->GetMapData()["Obj"][(bombpos_.x / width) + ((bombpos_.y / width) * stagewidth_)] == 255 &&
-				wall_->GetMapData()["Obj"][(centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + speed_)) / width) * stagewidth_)] == 0)
+			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
+				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.y += speed_;
 				pos_.x = centerpos_.x / 32 * 32;
@@ -349,7 +359,8 @@ void Player::KeyInit()
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
-			if (wall_->GetMapData()["Obj"][(tmpos.x / width) + ((tmpos.y / width) * stagewidth_)] == 0)
+			int check = (tmpos.x / width) + ((tmpos.y / width) * stagewidth_);
+			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
 				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,true,lpSceneMng.GetNowTime());
 				wall_->ChangeMapData("Obj", tmpos, -1);
