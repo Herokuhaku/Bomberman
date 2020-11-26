@@ -74,6 +74,7 @@ private:
 	std::list<DellistData> keylist_;
 	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	int speed_;
+	int layerchip_;
 public:
 	static int fallCount;
 };

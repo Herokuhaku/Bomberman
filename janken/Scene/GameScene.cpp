@@ -38,7 +38,7 @@ void GameScene::Init(void)
 		for (auto d : data.second)
 		{
 			if (d == '\r' || d == '\n') { continue; }
-			mapdata_[data.first].emplace_back(d - 1);
+			mapdata_[data.first].emplace_back(d);
 		}
 	}
 	tsxdata_ = lpTiledLoader.ReadTsx("Tiled/mapdata/map");
@@ -60,7 +60,7 @@ void GameScene::Init(void)
 	num = lpTiledLoader.GetTmx().num;
 	for (auto& map : mapdata_["Char"])
 	{
-		if (map != -1)
+		if (map != 0)
 		{
 			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%std::atoi(num["width"].c_str())*32,i/ std::atoi(num["width"].c_str()) *32}),
 				Vector2{ 32,51 }, wall_,*this));
@@ -104,10 +104,13 @@ void GameScene::Draw(void)
 {
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
+	auto map = wall_->GetMapData();
+	mapdata_ = map;
 	for (auto& data : mapdata_) {
 		int x = 0, y = 0;
 		for (auto& no : data.second)
 		{
+			no--;
 			if (0 <= no && 12 > no) {
 				DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f,Image[no], true);
 			}
@@ -123,10 +126,12 @@ void GameScene::Draw(float ex, float rad)
 {
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
-	for (auto& data : mapdata_) {
+	for (auto& data : wall_->GetMapData())
+	{
 		int x = 0, y = 0;
 		for (auto& no : data.second)
 		{
+			no--;
 			if (0 <= no && 12 > no) {
 				DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f, Image[no], true);
 			}
@@ -143,15 +148,15 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP 
 	if (sendNet)
 	{
 		MesData data;
-		data.resize(6);
+		data.resize(7);
 		data[0].iData = ownerID;
 		data[1].iData = selfID;
 		data[2].iData = pos.x;
 		data[3].iData = pos.y;
 		data[4].iData = 3;
 		time.now = lpSceneMng.GetNowTime();
-		data[5].iData = time.inow[0];
-		data[6].iData = time.inow[1];
+		data[5].uiData = time.inow[0];
+		data[6].uiData = time.inow[1];
 
 		//unionData uni[6];
 

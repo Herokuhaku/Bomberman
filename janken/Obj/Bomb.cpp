@@ -43,34 +43,40 @@ void Bomb::Update(void)
 	if (!alive_)
 	{
 		float no = 0;
-
 		Vector2 tmpos = pos_;
 		auto clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
-		std::function<void(Vector2, Vector2, int,DIR)> longfire = [&](Vector2 tmp, Vector2 plus, int num,DIR dir) {
+		std::function<void(Vector2, Vector2, int,DIR,int)> longfire = [&](Vector2 tmp, Vector2 plus, int num,DIR dir,int blockf) {
 			tmp += plus;
 			if (clock >= lengthtime_ * num)
 			{
-				if (wall_->GetMapData()["Obj"][(tmp.x / width) + ((tmp.y / width) * stagewidth_)] == 0 &&
-					wall_->GetFireData()[(tmp.x / width) + ((tmp.y / width) * stagewidth_)].first != 0)
+				int nowblock = (tmp.x / width) + ((tmp.y / width) * stagewidth_);
+				if ((wall_->GetMapData()["Obj"][nowblock] == 0 || wall_->GetMapData()["Obj"][nowblock] == 8) &&
+					wall_->GetFireData()[nowblock].first != 0 && !blockflag_[blockf])
 				{
+					maxblock = max(maxblock, num);
+					if (wall_->GetMapData()["Obj"][nowblock] == 8)
+					{
+						blockflag_[blockf] = true;
+					}
 					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
 					double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
 					int anim = abs(abs(3-frame_)-3);
 					anim *= 3;
 					if (num >= length_ - 1)anim++;
 					wall_->ChangeFire(tmp,1+anim, dir);
+					wall_->ChangeMapData("Obj",tmp,0);
 
 					if (num < length_ - 1)
 					{
-						longfire(tmp, plus, num + 1,dir);
+						longfire(tmp, plus, num + 1,dir,blockf);
 					}
 				}
 			}
 			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
 			{
 				wall_->ChangeFire(tmp, -1,DIR::NON);
-				if(num >= length_-1){ 
-					deleteflag_ = true; 
+				if(maxblock == num){ 
+					deleteflag_ = true;
 				}
 			}
 		};
@@ -85,10 +91,10 @@ void Bomb::Update(void)
 			if (clock >= lengthtime_ * num)
 			{
 				if(!wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
-				longfire({ tmp.x,tmp.y }, { size_.x,0 }, num + 1,DIR::RIGHT);
-				longfire({ tmp.x,tmp.y }, { -size_.x,0 }, num + 1,DIR::LEFT);
-				longfire({ tmp.x,tmp.y }, { 0, size_.y }, num + 1,DIR::DOWN);
-				longfire({ tmp.x,tmp.y }, { 0,-size_.y }, num + 1,DIR::UP);
+				longfire({ tmp.x,tmp.y }, { size_.x,0 }, num + 1,DIR::RIGHT,0);
+				longfire({ tmp.x,tmp.y }, { -size_.x,0 }, num + 1,DIR::LEFT,1);
+				longfire({ tmp.x,tmp.y }, { 0, size_.y }, num + 1,DIR::DOWN,2);
+				longfire({ tmp.x,tmp.y }, { 0,-size_.y }, num + 1,DIR::UP,3);
 			}
 			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
 			{
@@ -123,6 +129,8 @@ void Bomb::Init(void)
 	}
 	bombcount_ = 500;
 	now_ = lpSceneMng.GetNowTime();
+	blockflag_.fill(false);
+	maxblock = 0;
 	//lengthtime_ = 1000;
 }
 

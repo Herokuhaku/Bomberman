@@ -19,7 +19,7 @@ protected:
 	int screenID;
 
 	std::map<std::string, LAYER> layer_;
-	std::map<std::string, std::vector<int>> mapdata_;
+	std::map<std::string, std::vector<unsigned char>> mapdata_;
 	TmxData tmxdata_;
 	TsxData tsxdata_;
 };

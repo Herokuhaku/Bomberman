@@ -30,4 +30,6 @@ private:
 	float lengthtime_;
 	float bombtime_;
 	int bombcount_;			// 爆弾アニメーション millseconds
+	std::array<bool, 4> blockflag_;
+	int maxblock;	// length何まで爆風が伸びたか
 };

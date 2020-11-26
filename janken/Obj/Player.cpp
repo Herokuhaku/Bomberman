@@ -239,6 +239,7 @@ void Player::Init(void)
 	num = lpTiledLoader.GetTmx().num;
 	stagewidth_ = std::atoi(num["width"].c_str());
 	width = 32;
+	layerchip_ = std::atoi(num["width"].c_str()) * std::atoi(num["height"].c_str());
 }
 
 void Player::KeyInit()
@@ -377,7 +378,8 @@ void Player::KeyInit()
 void Player::DirRight(Vector2 pos, int width)
 {
 	pos.x += size_.x;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+	int check = (pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()));
+	if ((check >= 0 && check < layerchip_)&& wall_->GetMapData()["Obj"][check] == 0)
 	{
 		pos_.x += speed_;
 	}
@@ -389,8 +391,9 @@ void Player::DirRight(Vector2 pos, int width)
 }
 void Player::DirLeft(Vector2 pos, int width)
 {
-	pos.x -= 5;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+	pos.x -= speed_;
+	int check = (pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()));
+	if ((check >= 0 && check < layerchip_) && wall_->GetMapData()["Obj"][check] == 0)
 	{
 		pos_.x -= speed_;
 	}
@@ -403,8 +406,9 @@ void Player::DirLeft(Vector2 pos, int width)
 
 void Player::DirUp(Vector2 pos, int width)
 {
-	pos.y -= 5;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+	pos.y -= speed_;
+	int check = (pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()));
+	if ((check >= 0 && check < layerchip_) && wall_->GetMapData()["Obj"][check] == 0)
 	{
 		pos_.y -= speed_;
 	}
@@ -417,8 +421,9 @@ void Player::DirUp(Vector2 pos, int width)
 
 void Player::DirDown(Vector2 pos, int width)
 {
-	pos.y += 32;
-	if (wall_->GetMapData()["Obj"][(pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()))] == 0)
+	pos.y += size_.x;
+	int check = (pos.x / width) + ((pos.y / width) * std::atoi(num["width"].c_str()));
+	if ((check >= 0 && check < layerchip_) && wall_->GetMapData()["Obj"][check] == 0)
 	{
 		pos_.y += speed_;
 	}
