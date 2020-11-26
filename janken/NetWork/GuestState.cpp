@@ -62,10 +62,18 @@ bool GuestState::CheckNetWork(void)
 							uni.iData = d;
 							u.emplace_back(uni);
 						}
+						MesList tmplist;
+						for (auto& rev : revlist[tmpdata[0] / 5].first)
+						{
+							if (rev.first == MesType::SET_BOMB)tmplist.emplace_back(rev);
+						}
+						revlist[tmpdata[0] / 5].first.clear();
+						revlist[tmpdata[0] / 5].first = tmplist;
+						
 						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0]/5].first.emplace_back(data);
+							revlist[tmpdata[0] / 5].first.insert(revlist[tmpdata[0] / 5].first.begin(),data);
 						}
 						break;
 					}

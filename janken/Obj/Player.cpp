@@ -104,7 +104,7 @@ void Player::UpdateAuto()
 
 void Player::UpdateNet()
 {
-	if (meslist_.size() != 0)
+	while(meslist_.size() != 0)
 	{
 		auto tmp = meslist_.front();
 		if (tmp.first == MesType::POS)
@@ -116,13 +116,14 @@ void Player::UpdateNet()
 				pldir_ = static_cast<DIR>(tmp.second[3].iData);
 			}
 			meslist_.erase(meslist_.begin());
+			break;
 		}
 		else if (tmp.first == MesType::SET_BOMB)
 		{
 			if (tmp.second.size() != 0)
 			{
 				Vector2 tmpos = { tmp.second[2].iData ,tmp.second[3].iData };
-				chronoi tmptime{};
+				chronoi tmptime{std::chrono::system_clock::time_point()};
 				tmptime.inow[0] = tmp.second[5].iData;
 				tmptime.inow[1] = tmp.second[6].iData;
 				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },false,tmptime.now);
@@ -130,11 +131,11 @@ void Player::UpdateNet()
 			}
 			meslist_.erase(meslist_.begin());
 		}
-	}
-	else
-	{
-		TRACE("NotData  Å°Å°%dÅ°Å° \n",id_);
-		fallCount++;
+		if (meslist_.size() == 0)
+		{
+			TRACE("NotData  Å°Å°%dÅ°Å° \n", id_);
+			fallCount++;
+		}
 	}
 }
 
