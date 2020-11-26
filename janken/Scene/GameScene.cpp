@@ -1,7 +1,6 @@
 #include <DxLib.h>
 #include <algorithm>
 #include "GameScene.h"
-#include "SceneMng.h"
 #include "../Graphic/ImageMng.h"
 #include "../NetWork/NetWork.h"
 #include "../Obj/Player.h"
@@ -69,12 +68,12 @@ void GameScene::Init(void)
 		i++;
 	}
 
-	std::vector<unsigned char> fire;
+	FireData fire;
 	for (int i = 0; i < std::atoi(num["width"].c_str()) * std::atoi(num["height"].c_str()); i++)
 	{
-		fire.emplace_back(255);
+		fire.emplace_back(255,DIR::RIGHT);
 	}
-	wall_->AddMapData("Fire",fire);
+	wall_->UpdateFire(fire);
 	fire_ = std::make_shared<Fire>(Vector2(32,32),wall_);
 	begin = lpSceneMng.GetNowTime();
 }
@@ -139,7 +138,7 @@ void GameScene::Draw(float ex, float rad)
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad, screenID, true);
 }
 
-void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
+void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP now)
 {
 	if (sendNet)
 	{
@@ -149,6 +148,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 		data.emplace_back(selfID);
 		data.emplace_back(pos.x);
 		data.emplace_back(pos.y);
+		data.emplace_back(3);
 		time.now = lpSceneMng.GetNowTime();
 		data.emplace_back(time.inow[0]);
 		data.emplace_back(time.inow[1]);
@@ -164,5 +164,5 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet)
 		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
 		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
-	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos, lpSceneMng.GetNowTime(),wall_));
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,wall_));
 }

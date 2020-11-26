@@ -29,4 +29,5 @@ private:
 	int length_;			// 何段階伸びるか。
 	float lengthtime_;
 	float bombtime_;
+	int bombcount_;			// 爆弾アニメーション millseconds
 };

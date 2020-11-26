@@ -4,6 +4,8 @@
 #include "GuestState.h"
 #include "NetWork.h"
 #include "../Scene/SceneMng.h"
+#include "../TiledLoader.h"
+
 GuestState::GuestState()
 {
 	reAccess_ = false;
@@ -67,6 +69,22 @@ bool GuestState::CheckNetWork(void)
 						}
 						break;
 					}
+					if (tmp.type == MesType::SET_BOMB)
+					{
+						MesPacket u;
+						for (auto& d : tmpdata)
+						{
+							unionData uni;
+							uni.iData = d;
+							u.emplace_back(uni);
+						}
+						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							revlist[tmpdata[0] / 5].first.emplace_back(data);
+						}
+						break;
+					}
 					if (tmp.type == MesType::TMX_DATA)
 					{
 						{
@@ -92,6 +110,7 @@ bool GuestState::CheckNetWork(void)
 						//revtmx.reserve(tmpdata[0]);
 						unionData uni;
 						uni.iData = tmpdata[0];
+						lpTiledLoader.SetTmxSize(uni);
 						num["width"] = uni.cData[0];
 						num["height"] = uni.cData[1];
 						num["layer"] = uni.cData[2];

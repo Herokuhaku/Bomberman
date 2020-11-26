@@ -14,15 +14,6 @@ class BaseScene;
 
 #define UNIT_ID_BASE 5
 
-enum class DIR
-{
-	DOWN,
-	LEFT,
-	RIGHT,
-	UP,
-	DEATH
-};
-
 enum class MOVE_TYPE
 {
 	Def,

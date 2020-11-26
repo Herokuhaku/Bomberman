@@ -194,6 +194,13 @@ std::vector<unsigned char> TiledLoader::TmxCsv(void)
 	return csvdata_;
 }
 
+void TiledLoader::SetTmxSize(unionData data)
+{
+	tmxdata_.num["width"] = std::to_string(data.cData[0]);
+	tmxdata_.num["height"] = std::to_string(data.cData[1]);
+	tmxdata_.num["layer"] = std::to_string(data.cData[2]);
+}
+
 TiledLoader::TiledLoader()
 {
 }

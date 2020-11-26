@@ -109,11 +109,24 @@ void Player::UpdateNet()
 		auto tmp = meslist_.front();
 		if (tmp.first == MesType::POS)
 		{
-			if (tmp.second.size() >= 4)
+			if (tmp.second.size() != 0)
 			{
 				pos_.x = tmp.second[1].iData;
 				pos_.y = tmp.second[2].iData;
 				pldir_ = static_cast<DIR>(tmp.second[3].iData);
+			}
+			meslist_.erase(meslist_.begin());
+		}
+		else if (tmp.first == MesType::SET_BOMB)
+		{
+			if (tmp.second.size() != 0)
+			{
+				Vector2 tmpos = { tmp.second[2].iData ,tmp.second[3].iData };
+				chronoi tmptime{};
+				tmptime.inow[0] = tmp.second[5].iData;
+				tmptime.inow[1] = tmp.second[6].iData;
+				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },false,tmptime.now);
+				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
 		}
@@ -201,7 +214,7 @@ void Player::Init(void)
 	lpNetWork.AddMesList(id_,meslist_,mtx_);
 	bombpos_ = pos_;
 	countid_ +=5;
-	playerid_+=countid_;
+	playerid_= id_;
 	screen = MakeScreen(size_.x,size_.y,true);
 	KeyInit();
 	if (controller_ != nullptr)
@@ -322,9 +335,12 @@ void Player::KeyInit()
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
-			dynamic_cast<GameScene&>(*scene_).SetBomb(countid_, playerid_++,tmpos, true);
-			wall_->ChangeMapData("Obj",tmpos,-1);
-			return true;
+			if (wall_->GetMapData()["Obj"][(tmpos.x / width) + ((tmpos.y / width) * stagewidth_)] == 0)
+			{
+				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,true,lpSceneMng.GetNowTime());
+				wall_->ChangeMapData("Obj", tmpos, -1);
+				return true;
+			}
 		}
 		return false;
 		});

@@ -40,7 +40,23 @@ bool HostState::CheckNetWork(void)
 						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0]/5].first.emplace_back(data);
+							revlist[tmpdata[0] / 5].first.emplace_back(data);
+						}
+						break;
+					}
+					else if (tmp.type == MesType::SET_BOMB)
+					{
+						MesPacket u;
+						for (auto& d : tmpdata)
+						{
+							unionData uni;
+							uni.iData = d;
+							u.emplace_back(uni);
+						}
+						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
+						{
+							std::lock_guard<std::mutex> mut(mtx_);
+							revlist[tmpdata[0] / 5].first.emplace_back(data);
 						}
 						break;
 					}

@@ -3,6 +3,7 @@
 #include <chrono>
 #include <list>
 #include "BaseScene.h"
+#include "SceneMng.h"
 #include "../Obj/Obj.h"
 #include "../Wall.h"
 
@@ -12,6 +13,7 @@ using ShareObj = std::shared_ptr<Obj>;
 using VecObj = std::vector<ShareObj>;
 using ListObj = std::list<ShareObj>;
 
+using TimeP = std::chrono::system_clock::time_point;
 union chronoi
 {
 	std::chrono::system_clock::time_point now;
@@ -28,7 +30,7 @@ public:
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
 	void Draw(float ex, float rad)override;
-	void SetBomb(int ownerID, int selfID, Vector2 pos, bool sendNet);
+	void SetBomb(int ownerID, int selfID, Vector2 pos, bool sendNet, TimeP now);
 private:
 	std::vector<int> Image;
 	ListObj objlist_;

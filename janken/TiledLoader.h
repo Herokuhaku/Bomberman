@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "NetWork/NetWork.h"
 #define lpTiledLoader TiledLoader::GetInstance()
 
 struct TmxData
@@ -38,6 +39,7 @@ public:
 
 	TmxData GetTmx();
 	std::vector<unsigned char> TmxCsv(void);
+	void SetTmxSize(unionData data);
 private:
 	TmxData tmxdata_;
 	TsxData tsxdata_;

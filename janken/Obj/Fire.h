@@ -2,6 +2,10 @@
 #include <memory>
 #include "Obj.h"
 #include "../Wall.h"
+
+#define ƒÎ 3.14159265
+#define RAD(X) X*(ƒÎ/180.00)
+
 class Fire :
     public Obj
 {
@@ -13,5 +17,6 @@ public:
     int GetNo();
     void Init(void);
 private:
+    std::map<DIR, float> dirRad_;
 };
 

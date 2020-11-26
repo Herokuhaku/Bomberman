@@ -18,12 +18,12 @@ void Fire::Draw(void)
 	SetDrawScreen(screen);
 	ClsDrawScreen();
 	int x = 0, y = 0;
-	auto tmpwall = wall_->GetMapData()["Fire"];
+	auto tmpwall = wall_->GetFireData();
 	for (auto& wall : tmpwall)
 	{
-		if (0 <= wall && wall < 12)
+		if (0 <= wall.first && wall.first < 12)
 		{
-			DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f, 0.0f, animation_[wall],true);
+			DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f,dirRad_[wall.second], animation_[wall.first],true);
 		}
 		x++;
 		if (x >= stagewidth_) { y++; x = 0;}
@@ -50,4 +50,11 @@ void Fire::Init(void)
 	animation_.resize(12);
 	LoadDivGraph("Tiled/image/fire.png", 12, 3, 4, size_.x, size_.y, animation_.data(), true);
 	stagewidth_ = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
+
+	dirRad_[DIR::NON] = 0.0f;
+	dirRad_[DIR::DEATH] = 0.0f;
+	dirRad_[DIR::RIGHT] = RAD(360);
+	dirRad_[DIR::DOWN] = RAD(90);
+	dirRad_[DIR::LEFT] = RAD(180);
+	dirRad_[DIR::UP] = RAD(270);
 }

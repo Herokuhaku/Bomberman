@@ -1,0 +1,4 @@
+	Def	Max
+Bomb    1        4
+Length  3        6
+speed   2        4,8
