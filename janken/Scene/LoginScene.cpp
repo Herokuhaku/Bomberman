@@ -370,7 +370,7 @@ void LoginScene::GamePlay(void)
 
 void LoginScene::SendData()
 {
-	int j[2] = {0,0};
+	unionData j[2] = {0,0};
 	unsigned char* c = reinterpret_cast<unsigned char*>(&j);
 	unsigned short id = 0;
 	int i = 0;

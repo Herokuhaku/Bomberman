@@ -61,6 +61,7 @@ union Header
 	MesHeader header;
 	unsigned int iheader[2];
 	int uheader[2];
+	unionData uniheader[2];
 };
 
 struct MesSizeData
@@ -70,17 +71,11 @@ struct MesSizeData
 	unsigned int AllByte;
 };
 
-using MesData = std::vector<int>;
+using MesData = std::vector<unionData>;
 using MesPacket = std::vector<unionData>;
 using SavePacket = std::pair<MesType, MesPacket>;
 //using SavePacket = std::vector<int>;
 using MesList = std::vector<SavePacket>;		// Obj‘S”Ê‚Ìî•ñ
-
-union MixVec
-{
-	MesData idata;
-	MesPacket udata;
-};
 
 class NetWorkState
 {

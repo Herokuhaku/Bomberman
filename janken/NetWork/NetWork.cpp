@@ -49,13 +49,13 @@ void NetWork::SetRevStandby(bool rev)
 {
 	revStandby_ = rev;
 }
- std::vector<int> NetWork::SendMesHeader(MesHeader data)
+MesData NetWork::SendMesHeader(MesHeader data)
 {
 	 MesData mesdata;
 	 Header head;
 	 head.header = data;
-	 mesdata.emplace_back(head.iheader[0]);
-	 mesdata.emplace_back(head.iheader[1]);
+	 mesdata.emplace_back(head.uniheader[0]);
+	 mesdata.emplace_back(head.uniheader[1]);
 		
 	 return mesdata;
 }
@@ -82,8 +82,8 @@ bool NetWork::SendMesData(MesType type, MesData data)
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-		tmpmesdata_[0] = header.iheader[0];
-		tmpmesdata_[1] = header.iheader[1];
+		tmpmesdata_[0].iData = header.iheader[0];
+		tmpmesdata_[1].iData = header.iheader[1];
 		header.header.sendid++;
 		
 		NetWorkSend(lpNetWork.GetNetWorkHandle(), tmpmesdata_.data(), tmpmesdata_.size() * sizeof(int));
@@ -142,7 +142,7 @@ void NetWork::SendTmxSize(void)
 	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
 	uni.cData[3] = 0;											// リザーブ
 	
-	SendMesData(MesType::TMX_SIZE,{uni.iData});
+	SendMesData(MesType::TMX_SIZE,{uni});
 	return;
 }
 

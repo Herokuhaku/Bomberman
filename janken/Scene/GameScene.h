@@ -18,6 +18,7 @@ union chronoi
 {
 	std::chrono::system_clock::time_point now;
 	unsigned int inow[2];
+	unionData uninow[2];
 };
 class GameScene :
 	public BaseScene

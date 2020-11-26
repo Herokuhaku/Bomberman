@@ -92,14 +92,27 @@ void Player::UpdateDef()
 	keylist_.erase(itr, keylist_.end());
 
 	Header tmp = { MesType::POS,0,0,1 };
-	lpNetWork.SendMesData(MesType::POS, { id_,pos_.x,pos_.y,static_cast<int>(pldir_) });
+	MesPacket tmpmes;
+	tmpmes.resize(4);
+	tmpmes[0].iData = id_;
+	tmpmes[1].iData = pos_.x;
+	tmpmes[2].iData = pos_.y;
+	tmpmes[3].iData = static_cast<int>(pldir_);
+	lpNetWork.SendMesData(MesType::POS,tmpmes);
 }
 
 void Player::UpdateAuto()
 {
 	dirupdate_[pldir_](pos_,width);
 	Header tmp = { MesType::POS,0,0,1 };
-	lpNetWork.SendMesData(MesType::POS, {id_,pos_.x,pos_.y,static_cast<int>(pldir_)});
+	MesPacket tmpmes;
+	tmpmes.resize(4);
+	tmpmes[0].iData = id_;
+	tmpmes[1].iData = pos_.x;
+	tmpmes[2].iData = pos_.y;
+	tmpmes[3].iData = static_cast<int>(pldir_);
+
+	lpNetWork.SendMesData(MesType::POS, tmpmes);
 }
 
 void Player::UpdateNet()

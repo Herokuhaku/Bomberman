@@ -143,15 +143,15 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP 
 	if (sendNet)
 	{
 		MesData data;
-		data.reserve(6);
-		data.emplace_back(ownerID);
-		data.emplace_back(selfID);
-		data.emplace_back(pos.x);
-		data.emplace_back(pos.y);
-		data.emplace_back(3);
+		data.resize(6);
+		data[0].iData = ownerID;
+		data[1].iData = selfID;
+		data[2].iData = pos.x;
+		data[3].iData = pos.y;
+		data[4].iData = 3;
 		time.now = lpSceneMng.GetNowTime();
-		data.emplace_back(time.inow[0]);
-		data.emplace_back(time.inow[1]);
+		data[5].iData = time.inow[0];
+		data[6].iData = time.inow[1];
 
 		//unionData uni[6];
 

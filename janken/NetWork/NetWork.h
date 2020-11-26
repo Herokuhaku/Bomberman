@@ -24,7 +24,7 @@ public:
 	bool SetNetWorkMode(NetWorkMode data);
 	void SetRevStandby(bool rev);
 
-	std::vector<int> SendMesHeader(MesHeader data);
+	MesData SendMesHeader(MesHeader data);
 	bool SendMesData(MesType type, MesData data);
 	bool SendMesData(MesType type);
 	void SendStandby(void);

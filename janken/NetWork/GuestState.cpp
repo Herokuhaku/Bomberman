@@ -59,21 +59,21 @@ bool GuestState::CheckNetWork(void)
 						for (auto& d : tmpdata)
 						{
 							unionData uni;
-							uni.iData = d;
+							uni = d;
 							u.emplace_back(uni);
 						}
 						MesList tmplist;
-						for (auto& rev : revlist[tmpdata[0] / 5].first)
+						for (auto& rev : revlist[tmpdata[0].iData / 5].first)
 						{
-							if (rev.first == MesType::SET_BOMB)tmplist.emplace_back(rev);
+							if (rev.first == MesType::SET_BOMB);tmplist.emplace_back(rev);
 						}
-						revlist[tmpdata[0] / 5].first.clear();
-						revlist[tmpdata[0] / 5].first = tmplist;
+						revlist[tmpdata[0].iData / 5].first.clear();
+						revlist[tmpdata[0].iData / 5].first = tmplist;
 						
 						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,u);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0] / 5].first.insert(revlist[tmpdata[0] / 5].first.begin(),data);
+							revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(),data);
 						}
 						break;
 					}
@@ -83,13 +83,13 @@ bool GuestState::CheckNetWork(void)
 						for (auto& d : tmpdata)
 						{
 							unionData uni;
-							uni.iData = d;
+							uni = d;
 							u.emplace_back(uni);
 						}
 						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0] / 5].first.emplace_back(data);
+							revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 						}
 						break;
 					}
@@ -103,7 +103,7 @@ bool GuestState::CheckNetWork(void)
 								{
 									break;
 								}
-								revtmx[revcount_].iData = d;
+								revtmx[revcount_] = d;
 								revcount_++;
 							}
 						}
@@ -117,7 +117,7 @@ bool GuestState::CheckNetWork(void)
 					{
 						//revtmx.reserve(tmpdata[0]);
 						unionData uni;
-						uni.iData = tmpdata[0];
+						uni = tmpdata[0];
 						lpTiledLoader.SetTmxSize(uni);
 						num["width"] = uni.cData[0];
 						num["height"] = uni.cData[1];
