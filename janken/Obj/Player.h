@@ -41,6 +41,8 @@ private:
 
 	void KeyInit();
 
+	void CheckDeath(void);
+
 	void DirRight(Vector2,int);
 	void DirLeft(Vector2,int);
 	void DirUp(Vector2,int);
@@ -67,7 +69,8 @@ private:
 	std::unique_ptr<BaseScene> scene_;
 	
 	Vector2 bombpos_;
-	std::map<std::string, std::string> num;
+	std::map<std::string, std::string> numstr;
+
 	// ëÄçÏ
 	std::unique_ptr<Control>controller_;
 	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;

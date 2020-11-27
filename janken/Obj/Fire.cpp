@@ -26,7 +26,7 @@ void Fire::Draw(void)
 			DrawRotaGraph(x * 32 + 16, y * 32 + 16, 1.0f,dirRad_[wall.second], animation_[wall.first],true);
 		}
 		x++;
-		if (x >= stagewidth_) { y++; x = 0;}
+		if (x >= numint["width"]) { y++; x = 0;}
 	}
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -49,7 +49,7 @@ void Fire::Init(void)
 
 	animation_.resize(12);
 	LoadDivGraph("Tiled/image/fire.png", 12, 3, 4, size_.x, size_.y, animation_.data(), true);
-	stagewidth_ = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
+	numint["width"] = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
 
 	dirRad_[DIR::NON] = 0.0f;
 	dirRad_[DIR::DEATH] = 0.0f;

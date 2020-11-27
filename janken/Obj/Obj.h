@@ -25,7 +25,8 @@ protected:
 	bool deleteflag_;
 
 	int width;
-	int stagewidth_;
+	std::map<std::string, int> numint;
+	//int stagewidth_;
 private:
 };
 

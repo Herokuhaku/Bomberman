@@ -31,5 +31,6 @@ private:
 	float bombtime_;
 	int bombcount_;			// 爆弾アニメーション millseconds
 	std::array<bool, 4> blockflag_;
-	int maxblock;	// length何まで爆風が伸びたか
+	int maxcount_;			// 最大値
+	Map wasMapData_;
 };

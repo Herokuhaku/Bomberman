@@ -49,33 +49,45 @@ void Bomb::Update(void)
 			tmp += plus;
 			if (clock >= lengthtime_ * num)
 			{
-				int nowblock = (tmp.x / width) + ((tmp.y / width) * stagewidth_);
-				if ((wall_->GetMapData()["Obj"][nowblock] == 0 || wall_->GetMapData()["Obj"][nowblock] == 8) &&
-					wall_->GetFireData()[nowblock].first != 0 && !blockflag_[blockf])
+				int nowblock = (tmp.x / width) + ((tmp.y / width) * numint["width"]);
+				blockflag_.fill(false);
+				if ((wasMapData_["Obj"][nowblock] == 0 || wasMapData_["Obj"][nowblock] == 8 || wasMapData_["Obj"][nowblock] == 255))
 				{
-					maxblock = max(maxblock, num);
-					if (wall_->GetMapData()["Obj"][nowblock] == 8)
+					double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
+					int anim = static_cast<int>(abs(abs(4 - frame_) - 4))*3;
+					// 最大カウント数(4方向合わせて最大どこまで伸びたか)
+					maxcount_ = max(num, maxcount_);
+					// ブロックがあればブロックを消してフラグを立てる
+					if (wasMapData_["Obj"][nowblock] == 8)
 					{
 						blockflag_[blockf] = true;
+						wall_->ChangeMapData("Obj", tmp, 0);
 					}
+					// 最初に炎を作った時間を記録
 					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
-					double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
-					int anim = abs(abs(3-frame_)-3);
-					anim *= 3;
-					if (num >= length_ - 1)anim++;
-					wall_->ChangeFire(tmp,1+anim, dir);
-					wall_->ChangeMapData("Obj",tmp,0);
-
-					if (num < length_ - 1)
+					// 角を丸める
+					int next = ((tmp.x + plus.x) / width) + (((tmp.y + plus.y) / width) * numint["width"]);
+					if (num >= length_ - 1 || blockflag_[blockf] || 
+						wasMapData_["Obj"][next] == 6 || wasMapData_["Obj"][next] == 7)
 					{
-						longfire(tmp, plus, num + 1,dir,blockf);
+						anim++;
+					}
+					// 炎のアニメーション指定
+					wall_->ChangeFire(tmp,1+anim, dir);
+					// 次の炎を出していいか判定
+					if (num < length_ - 1 && !blockflag_[blockf])
+					{
+						longfire(tmp, plus, num + 1, dir, blockf);
 					}
 				}
 			}
+			// 既定のコマ数(7)*時間分立ったら炎を消す
 			if (wastime_[num].first && std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() >= lengthtime_ * 7)
 			{
-				wall_->ChangeFire(tmp, -1,DIR::NON);
-				if(maxblock == num){ 
+				wall_->ChangeFire(tmp, -1, DIR::NON);
+				// 消しているのが中心から一番遠い炎だったらフラグを立てておく
+				if (num == maxcount_)
+				{
 					deleteflag_ = true;
 				}
 			}
@@ -83,9 +95,8 @@ void Bomb::Update(void)
 
 		std::function<void(Vector2, int, std::chrono::system_clock::time_point)>crossfire =
 			[&](Vector2 tmp, int num, std::chrono::system_clock::time_point time) {
-			//wall_->ChangeMapData("Fire", tmp, num);
 			double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
-			int anim = abs(abs(3 - frame_) - 3);
+			int anim = abs(abs(4 - frame_) - 4);
 			anim *= 3;
 			wall_->ChangeFire(tmp,num + anim, DIR::RIGHT);
 			if (clock >= lengthtime_ * num)
@@ -121,7 +132,7 @@ void Bomb::Init(void)
 	wastime_.resize(length_);
 	lengthtime_ = 1000.0 / 6.0;
 	width = size_.x;
-	stagewidth_ = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
+	numint["width"] = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());
 
 	for (int i = 0;i < length_;i++)
 	{
@@ -129,8 +140,8 @@ void Bomb::Init(void)
 	}
 	bombcount_ = 500;
 	now_ = lpSceneMng.GetNowTime();
+	wasMapData_ = wall_->GetMapData();
 	blockflag_.fill(false);
-	maxblock = 0;
 	//lengthtime_ = 1000;
 }
 
