@@ -23,6 +23,7 @@ class Wall
 public:
 	Wall();
 	~Wall();
+	void Init(void);
 	void SetMapData(Map map);
 	Map GetMapData(void);
 	void AddMapData(std::string name,std::vector<unsigned char> data);
@@ -35,5 +36,6 @@ private:
 	int width;
 	int height;
 	FireData firemap_;
+	std::map<DIR,int> crossflag_;
 };
 

@@ -31,7 +31,7 @@ public:
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
 	void Draw(float ex, float rad)override;
-	void SetBomb(int ownerID, int selfID, Vector2 pos, bool sendNet, TimeP now);
+	void SetBomb(int ownerID, int selfID, Vector2 pos,TimeP nowbool,float bombtime,bool sendNet);
 private:
 	std::vector<int> Image;
 	ListObj objlist_;

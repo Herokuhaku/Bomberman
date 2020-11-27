@@ -10,7 +10,7 @@ class Bomb :
 	public Obj
 {
 public:
-	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,std::shared_ptr<Wall>& wall);
+	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,float bombtime,std::shared_ptr<Wall>& wall);
 	~Bomb();
 	void Draw(void)override;
 	void Update(void)override;
@@ -33,4 +33,6 @@ private:
 	std::array<bool, 4> blockflag_;
 	int maxcount_;			// ç≈ëÂíl
 	Map wasMapData_;
+
+	std::chrono::system_clock::time_point end;
 };

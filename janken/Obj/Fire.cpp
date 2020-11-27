@@ -18,7 +18,10 @@ void Fire::Draw(void)
 	SetDrawScreen(screen);
 	ClsDrawScreen();
 	int x = 0, y = 0;
+
 	auto tmpwall = wall_->GetFireData();
+
+	SetDrawBlendMode(DX_BLENDMODE_ADD, 255);
 	for (auto& wall : tmpwall)
 	{
 		if (0 <= wall.first && wall.first < 12)
@@ -28,9 +31,8 @@ void Fire::Draw(void)
 		x++;
 		if (x >= numint["width"]) { y++; x = 0;}
 	}
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 	SetDrawScreen(DX_SCREEN_BACK);
-	DrawGraph(0,0,screen,true);
+	DrawGraph(0,0,screen,false);
 }
 
 void Fire::Update(void)

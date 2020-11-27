@@ -3,7 +3,7 @@
 #include "Bomb.h"
 #include "../Scene/SceneMng.h"
 
-Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now,std::shared_ptr<Wall>& wall)
+Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now, float bombtime, std::shared_ptr<Wall>& wall)
 {
 	ownerID_ = ownerID;
 	selfID_ = selfID;
@@ -11,6 +11,7 @@ Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time
 	size_ = {32,32};
 	wall_ = wall;
 	now_ = now;
+	bombtime_ = bombtime;
 	Init();
 }
 
@@ -44,7 +45,7 @@ void Bomb::Update(void)
 	{
 		float no = 0;
 		Vector2 tmpos = pos_;
-		auto clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
+		float clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
 		std::function<void(Vector2, Vector2, int,DIR,int)> longfire = [&](Vector2 tmp, Vector2 plus, int num,DIR dir,int blockf) {
 			tmp += plus;
 			if (clock >= lengthtime_ * num)
@@ -53,8 +54,11 @@ void Bomb::Update(void)
 				blockflag_.fill(false);
 				if ((wasMapData_["Obj"][nowblock] == 0 || wasMapData_["Obj"][nowblock] == 8 || wasMapData_["Obj"][nowblock] == 255))
 				{
-					double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
-					int anim = static_cast<int>(abs(abs(4 - frame_) - 4))*3;
+					// 最初に炎を作った時間を記録
+					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
+					float frame = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count();
+					int frame_ = frame / lengthtime_;
+					int anim = static_cast<int>(abs(abs(3 - frame_) - 3))*3;
 					// 最大カウント数(4方向合わせて最大どこまで伸びたか)
 					maxcount_ = max(num, maxcount_);
 					// ブロックがあればブロックを消してフラグを立てる
@@ -63,8 +67,6 @@ void Bomb::Update(void)
 						blockflag_[blockf] = true;
 						wall_->ChangeMapData("Obj", tmp, 0);
 					}
-					// 最初に炎を作った時間を記録
-					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
 					// 角を丸める
 					int next = ((tmp.x + plus.x) / width) + (((tmp.y + plus.y) / width) * numint["width"]);
 					if (num >= length_ - 1 || blockflag_[blockf] || 
@@ -114,6 +116,15 @@ void Bomb::Update(void)
 		};
 		crossfire(tmpos, no, end_);
 	}
+	else
+	{
+		if (wall_->GetFireData()[(pos_.x / width) + ((pos_.y / width) * numint["width"])].first != 255)
+		{
+			alive_ = false;
+			now_ = end_;
+			wall_->ChangeMapData("Obj", pos_, 0);
+		}
+	}
 }
 
 int Bomb::GetNo()
@@ -127,7 +138,6 @@ void Bomb::Init(void)
 	// 検索用 size bomb 爆弾のサイズ 
 	animation_.resize(14);
 	LoadDivGraph("Tiled/image/bomb.png", 14,2,7, size_.x, size_.y, animation_.data());
-	bombtime_ = 3000;
 	length_ = 3;
 	wastime_.resize(length_);
 	lengthtime_ = 1000.0 / 6.0;

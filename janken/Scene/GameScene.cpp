@@ -143,7 +143,7 @@ void GameScene::Draw(float ex, float rad)
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad, screenID, true);
 }
 
-void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP now)
+void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bombtime, bool sendNet)
 {
 	if (sendNet)
 	{
@@ -153,7 +153,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP 
 		data[1].iData = selfID;
 		data[2].iData = pos.x;
 		data[3].iData = pos.y;
-		data[4].iData = 3;
+		data[4].iData = bombtime / 1000.0;
 		time.now = lpSceneMng.GetNowTime();
 		data[5].uiData = time.inow[0];
 		data[6].uiData = time.inow[1];
@@ -169,5 +169,5 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,bool sendNet,TimeP 
 		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
 		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
-	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,wall_));
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,wall_));
 }

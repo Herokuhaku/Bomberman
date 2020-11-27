@@ -141,7 +141,7 @@ void Player::UpdateNet()
 				chronoi tmptime{std::chrono::system_clock::time_point()};
 				tmptime.inow[0] = tmp.second[5].iData;
 				tmptime.inow[1] = tmp.second[6].iData;
-				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },false,tmptime.now);
+				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,false);
 				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
@@ -364,7 +364,7 @@ void Player::KeyInit()
 			int check = (tmpos.x / width) + ((tmpos.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,true,lpSceneMng.GetNowTime());
+				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000,true);
 				wall_->ChangeMapData("Obj", tmpos, -1);
 				return true;
 			}
