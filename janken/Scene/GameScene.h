@@ -20,6 +20,8 @@ union chronoi
 	unsigned int inow[2];
 	unionData uninow[2];
 };
+
+
 class GameScene :
 	public BaseScene
 {
@@ -31,7 +33,8 @@ public:
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
 	void Draw(float ex, float rad)override;
-	void SetBomb(int ownerID, int selfID, Vector2 pos,TimeP nowbool,float bombtime,bool sendNet);
+	void SetBomb(int ownerID, int selfID, Vector2 pos,TimeP nowbool,float bombtime,int length,bool sendNet);
+	int BombCount(int ownerID);
 private:
 	std::vector<int> Image;
 	ListObj objlist_;

@@ -10,12 +10,13 @@ class Bomb :
 	public Obj
 {
 public:
-	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,float bombtime,std::shared_ptr<Wall>& wall);
+	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,float bombtime,int length,std::shared_ptr<Wall>& wall);
 	~Bomb();
 	void Draw(void)override;
 	void Update(void)override;
 	int GetNo()override;
 	void Init(void)override;
+	std::pair<ObjType, int> GetOwnerID(void)override;
 private:
 	int ownerID_;
 	int selfID_;

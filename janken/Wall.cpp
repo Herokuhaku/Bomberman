@@ -35,18 +35,20 @@ void Wall::ChangeFire(Vector2 pos, int num, DIR dir)
 	auto tmp = (pos.x / 32) + ((pos.y / 32) * width);
 	if (0 <= tmp && tmp < (height * width))
 	{
-		if (firemap_[tmp].second != dir &&firemap_[tmp].first != 255 &&
-			crossflag_[firemap_[tmp].second] == crossflag_[dir] &&
-			num % 3 == 2)
-		{
-			firemap_[tmp] = { num-1,dir };
-			return;
-		}
-		else if (firemap_[tmp].second != dir && firemap_[tmp].first != 255 &&
-			crossflag_[firemap_[tmp].second] == crossflag_[dir])
-		{
-			firemap_[tmp] = { num / 3 ,dir };
-			return;
+		if (dir != DIR::NON) {
+			if (firemap_[tmp].second != dir && firemap_[tmp].first != 255 &&
+				crossflag_[firemap_[tmp].second] == crossflag_[dir] &&
+				(num % 3 == 2 || num % 3 == 1))
+			{
+				firemap_[tmp] = { num / 3 * 3 + 1,dir };
+				return;
+			}
+			else if (firemap_[tmp].second != dir && firemap_[tmp].first != 255 &&
+				crossflag_[firemap_[tmp].second] != crossflag_[dir])
+			{
+				firemap_[tmp] = { num / 3 * 3,dir };
+				return;
+			}
 		}
 		firemap_[tmp] = {num,dir};
 	}

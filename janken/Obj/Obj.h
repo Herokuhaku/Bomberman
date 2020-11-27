@@ -3,6 +3,15 @@
 #include <memory>
 #include "../Wall.h"
 #include "../common/Vector2.h"
+
+enum class ObjType
+{
+	Obj,
+	Player,
+	Bomb,
+	Fire
+};
+
 class Obj
 {
 public:
@@ -13,6 +22,7 @@ public:
 	virtual void Update(void) = 0;
 	virtual int GetNo() = 0;
 	virtual void Init(void) = 0;
+	virtual std::pair<ObjType,int> GetOwnerID(void);
 	virtual bool GetDeleteFlag(void);
 protected:
 	Vector2 pos_;
@@ -26,6 +36,7 @@ protected:
 
 	int width;
 	std::map<std::string, int> numint;
+	ObjType objtype_;
 	//int stagewidth_;
 private:
 };

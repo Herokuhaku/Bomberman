@@ -6,6 +6,7 @@ Obj::Obj()
 	size_ = { 0,0 };
 	alive_ = true;
 	deleteflag_ = false;
+	objtype_ = ObjType::Obj;
 }
 
 Obj::Obj(Vector2 pos, Vector2 size)
@@ -16,6 +17,11 @@ Obj::Obj(Vector2 pos, Vector2 size)
 
 Obj::~Obj()
 {
+}
+
+std::pair<ObjType,int> Obj::GetOwnerID(void)
+{
+	return {objtype_,0};
 }
 
 bool Obj::GetDeleteFlag(void)

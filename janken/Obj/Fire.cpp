@@ -48,7 +48,7 @@ int Fire::GetNo()
 void Fire::Init(void)
 {
 	screen = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y,true);
-
+	objtype_ = ObjType::Fire;
 	animation_.resize(12);
 	LoadDivGraph("Tiled/image/fire.png", 12, 3, 4, size_.x, size_.y, animation_.data(), true);
 	numint["width"] = std::atoi(lpTiledLoader.GetTmx().num["width"].c_str());

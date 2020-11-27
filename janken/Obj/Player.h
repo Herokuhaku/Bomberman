@@ -21,6 +21,13 @@ enum class MOVE_TYPE
 	Net
 };
 
+struct HaveState
+{
+	int havebomb_;
+	int havelength_;
+	int havespeed_;
+};
+
 using DellistData = std::pair<std::pair<INPUT_ID, TrgBool>, bool>;
 
 class Player :
@@ -42,6 +49,7 @@ private:
 	void KeyInit();
 
 	void CheckDeath(void);
+	void CheckItem(void);
 
 	void DirRight(Vector2,int);
 	void DirLeft(Vector2,int);
@@ -78,6 +86,10 @@ private:
 	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	int speed_;
 	int layerchip_;
+	int bomblist;
+
+	HaveState pl;
+
 public:
 	static int fallCount;
 };

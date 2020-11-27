@@ -47,6 +47,7 @@ void Player::Update(void)
 {
 	update_();
 	CheckDeath();
+	CheckItem();
 }
 
 int Player::GetNo()
@@ -141,7 +142,7 @@ void Player::UpdateNet()
 				chronoi tmptime{std::chrono::system_clock::time_point()};
 				tmptime.inow[0] = tmp.second[5].iData;
 				tmptime.inow[1] = tmp.second[6].iData;
-				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,false);
+				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,2,false);
 				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
@@ -156,10 +157,11 @@ void Player::UpdateNet()
 
 void Player::Init(void)
 {
+	objtype_ = ObjType::Player;
 	id_ = countid_;
 	animation_.resize(20);
 	LoadDivGraph("Tiled/image/bomberman.png", 20, 5, 4, size_.x, size_.y, animation_.data());
-	speed_ = 5;
+	speed_ = 2;
 	pldir_ = DIR::RIGHT;
 	animationdir_[DIR::DOWN] = 0;
 	animationdir_[DIR::LEFT] = 1;
@@ -241,6 +243,9 @@ void Player::Init(void)
 	width = 32;
 	layerchip_ = std::atoi(numstr["width"].c_str()) * std::atoi(numstr["height"].c_str());
 	numint["width"] = std::atoi(numstr["width"].c_str());
+	pl.havebomb_ = 3;
+	pl.havelength_ = 3;
+	pl.havespeed_ = 2;
 }
 
 void Player::KeyInit()
@@ -250,22 +255,22 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos_.x += (size_.x/2+speed_);
+			centerpos_.x += (size_.x/2+pl.havespeed_);
 			pldir_ = DIR::RIGHT;
 			// ïÅí ÇÃéûÇÃà⁄ìÆämîFópìYÇ¶éö
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			// îöíeÇÃè„Ç…Ç¢ÇÈéûópìYÇ¶éö
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = ((centerpos_.x + (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * numint["width"]);
+			int next = ((centerpos_.x + (size_.x / 2 + pl.havespeed_)) / width) + ((centerpos_.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.x += speed_;
+				pos_.x += pl.havespeed_;
 				pos_.y = centerpos_.y/32*32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.x += speed_;
+				pos_.x += pl.havespeed_;
 				pos_.y = centerpos_.y / 32 * 32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
 			}
 			return true;
@@ -279,20 +284,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)]&& !flag)
 		{
-			centerpos_.x -= (size_.x / 2+speed_);
+			centerpos_.x -= (size_.x / 2+ pl.havespeed_);
 			pldir_ = DIR::LEFT;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = ((centerpos_.x - (size_.x / 2 + speed_)) / width) + ((centerpos_.y / width) * numint["width"]);
+			int next = ((centerpos_.x - (size_.x / 2 + pl.havespeed_)) / width) + ((centerpos_.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.x -= speed_;
+				pos_.x -= pl.havespeed_;
 				pos_.y = centerpos_.y / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.x -= speed_;
+				pos_.x -= pl.havespeed_;
 				pos_.y = centerpos_.y / 32 * 32;
 			}
 			return true;
@@ -306,20 +311,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos_.y -= (size_.x/2+speed_);
+			centerpos_.y -= (size_.x/2+ pl.havespeed_);
 			pldir_ = DIR::UP;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = (centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + speed_)) / width) * numint["width"]);
+			int next = (centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + pl.havespeed_)) / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.y -= speed_;
+				pos_.y -= pl.havespeed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.y -= speed_;
+				pos_.y -= pl.havespeed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
@@ -333,20 +338,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)]&&!flag)
 		{
-			centerpos_.y += (size_.x / 2 + speed_);
+			centerpos_.y += (size_.x / 2 + pl.havespeed_);
 			pldir_ = DIR::DOWN;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = (centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + speed_)) / width) * numint["width"]);
+			int next = (centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + pl.havespeed_)) / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.y += speed_;
+				pos_.y += pl.havespeed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.y += speed_;
+				pos_.y += pl.havespeed_;
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
@@ -362,9 +367,10 @@ void Player::KeyInit()
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
 			int check = (tmpos.x / width) + ((tmpos.y / width) * numint["width"]);
-			if (wall_->GetMapData()["Obj"][check] == 0)
+			if (wall_->GetMapData()["Obj"][check] == 0 && bomblist < pl.havebomb_)
 			{
-				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000,true);
+				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000,pl.havelength_,true);
+				bomblist++;
 				wall_->ChangeMapData("Obj", tmpos, -1);
 				return true;
 			}
@@ -382,6 +388,37 @@ void Player::CheckDeath(void)
 	{
 		pldir_ = DIR::DEATH;
 	}
+}
+
+void Player::CheckItem(void)
+{
+	bomblist = dynamic_cast<GameScene&>(*scene_).BombCount(id_);
+	// âŒóÕ
+	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 9)
+	{
+		if (pl.havelength_ < 6)
+		{
+			pl.havelength_++;
+		}
+		wall_->ChangeMapData("Item",centerpos_,-1);
+	}
+	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 10)
+	{
+		if (pl.havebomb_ < 4)
+		{
+			pl.havebomb_++;
+		}
+		wall_->ChangeMapData("Item", centerpos_, -1);
+	}
+	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 12)
+	{
+		if (pl.havespeed_ < 8)
+		{
+			pl.havespeed_*=2;
+		}
+		wall_->ChangeMapData("Item", centerpos_, -1);
+	}
+
 }
 
 void Player::DirRight(Vector2 pos, int width)

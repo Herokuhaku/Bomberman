@@ -71,7 +71,7 @@ void GameScene::Init(void)
 	FireData fire;
 	for (int i = 0; i < std::atoi(num["width"].c_str()) * std::atoi(num["height"].c_str()); i++)
 	{
-		fire.emplace_back(255,DIR::RIGHT);
+		fire.emplace_back(255,DIR::NON);
 	}
 	wall_->UpdateFire(fire);
 	fire_ = std::make_shared<Fire>(Vector2(32,32),wall_);
@@ -143,7 +143,7 @@ void GameScene::Draw(float ex, float rad)
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad, screenID, true);
 }
 
-void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bombtime, bool sendNet)
+void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bombtime,int length,bool sendNet)
 {
 	if (sendNet)
 	{
@@ -169,5 +169,18 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bo
 		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
 		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
-	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,wall_));
+	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,length,wall_));
+}
+
+int GameScene::BombCount(int ownerID)
+{
+	int count = 0;
+	for (auto& obj : objlist_)
+	{
+		if (obj->GetOwnerID().first == ObjType::Bomb && obj->GetOwnerID().second == ownerID)
+		{
+			count++;
+		}
+	}
+	return count;
 }

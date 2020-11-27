@@ -3,7 +3,7 @@
 #include "Bomb.h"
 #include "../Scene/SceneMng.h"
 
-Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now, float bombtime, std::shared_ptr<Wall>& wall)
+Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now, float bombtime,int length, std::shared_ptr<Wall>& wall)
 {
 	ownerID_ = ownerID;
 	selfID_ = selfID;
@@ -12,6 +12,7 @@ Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time
 	wall_ = wall;
 	now_ = now;
 	bombtime_ = bombtime;
+	length_ = length;
 	Init();
 }
 
@@ -134,11 +135,11 @@ int Bomb::GetNo()
 
 void Bomb::Init(void)
 {
+	objtype_ = ObjType::Bomb;
 	screen = MakeScreen(size_.x, size_.y,true);
 	// 検索用 size bomb 爆弾のサイズ 
 	animation_.resize(14);
 	LoadDivGraph("Tiled/image/bomb.png", 14,2,7, size_.x, size_.y, animation_.data());
-	length_ = 3;
 	wastime_.resize(length_);
 	lengthtime_ = 1000.0 / 6.0;
 	width = size_.x;
@@ -153,5 +154,10 @@ void Bomb::Init(void)
 	wasMapData_ = wall_->GetMapData();
 	blockflag_.fill(false);
 	//lengthtime_ = 1000;
+}
+
+std::pair<ObjType, int> Bomb::GetOwnerID(void)
+{
+	return std::pair<ObjType, int>(objtype_,ownerID_);
 }
 
