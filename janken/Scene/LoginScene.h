@@ -9,6 +9,8 @@
 #include "../common/Vector2.h"
 #include "../Graphic/LAYER.h"
 
+#define COUNT_LIMIT 3000
+
 enum class GuestMode
 {
 	NOIP,
@@ -20,6 +22,7 @@ enum class UpdateMode
 	SetNetWorkMode,
 	inHostIp,
 	StartInit,
+	Matching,
 	GamePlay,
 	MAX
 };
@@ -41,6 +44,7 @@ private:
 	void StartInit(void);
 	void inHostIp(void);
 	void GamePlay(void);
+	void Matching(void);
 
 	void SendData();
 	void NumPadInput(void);
@@ -64,6 +68,8 @@ private:
 	char oldbuf[256];
 	char nowbuf[256];
 
+	chronoi starttime_;
+	std::chrono::system_clock::time_point end;
 	/*std::map<std::string,LAYER> layer_;
 	std::map<std::string,std::vector<int>> mapdata_;*/
 };

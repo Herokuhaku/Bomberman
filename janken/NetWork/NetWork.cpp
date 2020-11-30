@@ -49,9 +49,9 @@ void NetWork::SetRevStandby(bool rev)
 {
 	revStandby_ = rev;
 }
-MesData NetWork::SendMesHeader(MesHeader data)
+MesPacket NetWork::SendMesHeader(MesHeader data)
 {
-	 MesData mesdata;
+	 MesPacket mesdata;
 	 Header head;
 	 head.header = data;
 	 mesdata.emplace_back(head.uniheader[0]);
@@ -60,7 +60,7 @@ MesData NetWork::SendMesHeader(MesHeader data)
 	 return mesdata;
 }
 
-bool NetWork::SendMesData(MesType type, MesData data)
+bool NetWork::SendMesData(MesType type, MesPacket data)
 {
 	if (network_state_ == nullptr)
 	{
@@ -97,7 +97,7 @@ bool NetWork::SendMesData(MesType type, MesData data)
 
 bool NetWork::SendMesData(MesType type)
 {
-	MesData data;
+	MesPacket data;
 	SendMesData(type, std::move(data));
 	return true;
 }
@@ -123,12 +123,11 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	if (network_state_->GetActive() == ActiveState::Init)
+	if (network_state_->GetActive() == ActiveState::Matching)
 	{
 		network_state_->SetActive(ActiveState::Play);
 		SendMesData(MesType::GAME_START);
-		//MesHeader data = { MesType::GAME_START,0,0,0};
-		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
+
 		TRACE("スタンバイok　開始していいよってホストに送るよ\n");
 	}
 }
@@ -205,6 +204,25 @@ void NetWork::AddMesList(int id, MesList& list, std::mutex& mtx)
 		return;
 	}
 	network_state_->SetPlayerList(id,list,mtx);
+}
+
+chronoi NetWork::TimeStart(void)
+{
+	if (network_state_ == nullptr)
+	{
+		chronoi tmp{ std::chrono::system_clock::now() };
+		return tmp;
+	}
+	return network_state_->TimeStart();
+}
+
+std::pair<int, int> NetWork::PlayerID(void)
+{
+	if (network_state_ == nullptr)
+	{
+		return {-1,-1};
+	}
+	return network_state_->PlayerID();
 }
 
 bool NetWork::Setting(void)

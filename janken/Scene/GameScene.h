@@ -14,12 +14,7 @@ using VecObj = std::vector<ShareObj>;
 using ListObj = std::list<ShareObj>;
 
 using TimeP = std::chrono::system_clock::time_point;
-union chronoi
-{
-	std::chrono::system_clock::time_point now;
-	unsigned int inow[2];
-	unionData uninow[2];
-};
+
 
 
 class GameScene :
@@ -45,4 +40,5 @@ private:
 	int fpsCnt_;
 	chronoi time;
 	std::map<std::string, std::string> num;
+	std::pair<int, int> playerID;
 };

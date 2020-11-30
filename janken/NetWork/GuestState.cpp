@@ -48,7 +48,7 @@ bool GuestState::CheckNetWork(void)
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-				MesData tmpdata;
+				MesPacket tmpdata;
 				tmpdata.resize(tmp.length);
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= tmp.length*4)
 				{
@@ -58,7 +58,7 @@ bool GuestState::CheckNetWork(void)
 						MesList bomblist;
 						for (auto& rev : revlist[tmpdata[0].iData / 5].first)
 						{
-							if (rev.first == MesType::SET_BOMB);bomblist.emplace_back(rev);
+							if (rev.first == MesType::SET_BOMB)bomblist.emplace_back(rev);
 						}
 						revlist[tmpdata[0].iData / 5].first.clear();
 						revlist[tmpdata[0].iData / 5].first = bomblist;
@@ -70,23 +70,16 @@ bool GuestState::CheckNetWork(void)
 						}
 						break;
 					}
-					if (tmp.type == MesType::SET_BOMB)
+					else if (tmp.type == MesType::SET_BOMB)
 					{
-						MesPacket u;
-						for (auto& d : tmpdata)
-						{
-							unionData uni;
-							uni = d;
-							u.emplace_back(uni);
-						}
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
+						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 						}
 						break;
 					}
-					if (tmp.type == MesType::TMX_DATA)
+					else if (tmp.type == MesType::TMX_DATA)
 					{
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
@@ -106,7 +99,7 @@ bool GuestState::CheckNetWork(void)
 						}
 						break;
 					}
-					if (tmp.type == MesType::TMX_SIZE)
+					else if (tmp.type == MesType::TMX_SIZE)
 					{
 						unionData uni;
 						uni = tmpdata[0];
@@ -121,7 +114,7 @@ bool GuestState::CheckNetWork(void)
 						begin = lpSceneMng.GetNowTime();
 						break;
 					}
-					if (tmp.type == MesType::STANBY)
+					else if (tmp.type == MesType::STANBY)
 					{
 						OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
 						OutData();		// csvと元々あるデータを参考にtmxデータを作成する
@@ -131,10 +124,20 @@ bool GuestState::CheckNetWork(void)
 						lpNetWork.SetRevStandby(true);
 						break;
 					}
-					if (tmp.type == MesType::COUNT_DOWN)
+					else if (tmp.type == MesType::COUNT_DOWN)
 					{
-						timec.uninow[0] = tmpdata[0];
-						timec.uninow[1] = tmpdata[1];
+						timestart_.uninow[0] = tmpdata[0];
+						timestart_.uninow[1] = tmpdata[1];
+						active_ = ActiveState::Matching;
+						break;
+					}
+					else if (tmp.type == MesType::ID)
+					{
+						if (tmpdata.size() >= 2)
+						{
+							player.first = tmpdata[0].iData;
+							player.second = tmpdata[1].iData;
+						}
 						break;
 					}
 				}

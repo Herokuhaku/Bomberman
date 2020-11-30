@@ -24,8 +24,8 @@ public:
 	bool SetNetWorkMode(NetWorkMode data);
 	void SetRevStandby(bool rev);
 
-	MesData SendMesHeader(MesHeader data);
-	bool SendMesData(MesType type, MesData data);
+	MesPacket SendMesHeader(MesHeader data);
+	bool SendMesData(MesType type, MesPacket data);
 	bool SendMesData(MesType type);
 	void SendStandby(void);
 	void SendStart(void);
@@ -41,6 +41,8 @@ public:
 
 	ActiveState ConnectHost(IPDATA hostip);
 	void AddMesList(int id,MesList&,std::mutex& mtx);
+	chronoi TimeStart(void);
+	std::pair<int, int> PlayerID(void);
 private:
 	bool Setting(void);
 
@@ -53,7 +55,7 @@ private:
 
 
 	// SendMesで送るデータの宣言　毎回作るよりは早そう 
-	MesData tmpmesdata_;
+	MesPacket tmpmesdata_;
 	int size_;
 	Header header;
 	unsigned long long MaxCnt;

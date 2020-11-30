@@ -53,17 +53,23 @@ void GameScene::Init(void)
 	{
 		if (lpNetWork.GetActive() == ActiveState::Play)
 		{
+			playerID = lpNetWork.PlayerID();
 			break;
 		}
 	}
 	int i = 0;
 	num = lpTiledLoader.GetTmx().num;
+	int id = 0;
 	for (auto& map : mapdata_["Char"])
 	{
 		if (map != 0)
 		{
-			objlist_.emplace_back(std::make_shared<Player>(Vector2({i%std::atoi(num["width"].c_str())*32,i/ std::atoi(num["width"].c_str()) *32}),
-				Vector2{ 32,51 }, wall_,*this));
+			if (playerID.second * 5 > id)
+			{
+				objlist_.emplace_back(std::make_shared<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
+					Vector2{ 32,51 }, wall_, *this));
+				id += 5;
+			}
 		}
 		i++;
 	}
@@ -80,19 +86,26 @@ void GameScene::Init(void)
 
 std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
+	end = lpSceneMng.GetNowTime();
 	Draw();
-	for (auto& obj : objlist_)
+	int seconds = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
+	if (seconds >= 5)
 	{
-		obj->Update();
-		obj->Draw();
+		DrawFormatString(0,0,0xffffff,"開始まで　%d　秒",5 - seconds);
+	}
+	else {
+		for (auto& obj : objlist_)
+		{
+			obj->Update();
+			obj->Draw();
+		}
 	}
 	fire_->Update();
-	end = lpSceneMng.GetNowTime();
-	if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 1)
-	{
-		begin = end;
-		fpsCnt_++;
-	}
+	//if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 5)
+	//{
+	//	begin = end;
+	//	fpsCnt_++;
+	//}
 	_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
 
 	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {return obj->GetDeleteFlag(); });
@@ -147,7 +160,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bo
 {
 	if (sendNet)
 	{
-		MesData data;
+		MesPacket data;
 		data.resize(7);
 		data[0].iData = ownerID;
 		data[1].iData = selfID;
@@ -158,15 +171,6 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bo
 		data[5].uiData = time.inow[0];
 		data[6].uiData = time.inow[1];
 
-		//unionData uni[6];
-
-		//uni[0].iData = ownerID;
-		//uni[1].iData = selfID;
-		//uni[2].iData = pos.x;
-		//uni[3].iData = pos.y;
-		//uni[4].uiData = time.inow[0];
-		//uni[5].uiData = time.inow[1];
-		//lpNetWork.SendMesData(MesType::SET_BOMB, {uni[0].iData,uni[1].iData ,uni[2].iData ,uni[3].iData ,uni[4].iData,uni[5].iData });
 		lpNetWork.SendMesData(MesType::SET_BOMB, data);
 	}
 	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,length,wall_));

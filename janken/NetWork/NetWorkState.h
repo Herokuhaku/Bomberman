@@ -22,6 +22,7 @@ enum class ActiveState
 	Wait,		// 接続待機中(ホスト用)
 	Init,		// 初期化中(ゲーム開始準備中)(ホスト/ゲスト)
 	Standby,	// 初期化情報送信済みの開始待ち(ホスト用)
+	Matching,
 	Play,		// ゲーム中(ホスト/ゲスト)
 	//Instance,	// インスタンス中
 	OFFLINE,
@@ -84,7 +85,6 @@ struct MesSizeData
 	unsigned int AllByte;
 };
 
-using MesData = std::vector<unionData>;
 using MesPacket = std::vector<unionData>;
 using SavePacket = std::pair<MesType, MesPacket>;
 //using SavePacket = std::vector<int>;
@@ -103,6 +103,8 @@ public:
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
 	virtual void SetPlayerList(int id, MesList& list, std::mutex& mtx);
+	virtual chronoi TimeStart(void);
+	virtual std::pair<int, int> PlayerID(void);
 protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
@@ -113,5 +115,7 @@ protected:
 	//MesSizeData sizedata_;		// サイズデータ
 	std::vector<std::pair<MesList&,std::mutex&>> revlist;	// 受け取り用box Player用
 	MesList reset;
-	chronoi timec;		// 時間変換用
+
+	chronoi timestart_;		// 時間変換用
+	std::pair<int, int> player;	// IDとMax
 };

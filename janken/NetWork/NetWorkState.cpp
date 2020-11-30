@@ -1,7 +1,7 @@
 #include "NetWorkState.h"
 
 
-NetWorkState::NetWorkState() :timec{std::chrono::system_clock::now()}
+NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 {
 	active_ = ActiveState::Non;
 }
@@ -43,4 +43,14 @@ bool NetWorkState::CheckNetWork(void)
 void NetWorkState::SetPlayerList(int id, MesList& list, std::mutex& mtx)
 {
 	revlist.emplace_back(std::pair<MesList&,std::mutex&>(list,mtx));
+}
+
+chronoi NetWorkState::TimeStart(void)
+{
+	return timestart_;
+}
+
+std::pair<int, int> NetWorkState::PlayerID(void)
+{
+	return player;
 }

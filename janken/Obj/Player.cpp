@@ -34,7 +34,6 @@ void Player::Draw(void)
 {
 	SetDrawScreen(screen);
 	ClsDrawScreen();
-	//DrawRotaGraph(pos_.x + size_.x /2, pos_.y + size_.y / 6,1.0f,0.0f,animation_[frame_++ / oneanimCnt * 5 + animationdir_[pldir_]],true);
 	int coma = frame_++ / oneanimCnt * 5 + animationdir_[pldir_];
 	DrawGraph(0,0,animation_[coma], true);
 	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
@@ -132,7 +131,6 @@ void Player::UpdateNet()
 				pldir_ = static_cast<DIR>(tmp.second[3].iData);
 			}
 			meslist_.erase(meslist_.begin());
-			break;
 		}
 		else if (tmp.first == MesType::SET_BOMB)
 		{
@@ -146,11 +144,6 @@ void Player::UpdateNet()
 				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
-		}
-		if (meslist_.size() == 0)
-		{
-			TRACE("NotData  Å°Å°%dÅ°Å° \n", id_);
-			fallCount++;
 		}
 	}
 }
@@ -190,22 +183,16 @@ void Player::Init(void)
 	}
 	else if(lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
-		if (id_ == 5)
+		if (id_ == lpNetWork.PlayerID().first)
 		{
 			update_ = std::bind(&Player::UpdateDef, this);
 			type = MOVE_TYPE::Def;
 			controller_ = std::make_unique<KeyBoard>();
-			//controller_ = std::make_unique<XboxController>();
-		}
-		else if(id_ % 5 == 0 && id_ % 10 == 0)
-		{
-			update_ = std::bind(&Player::UpdateNet, this);
-			type = MOVE_TYPE::Net;
 		}
 		else
 		{
-			update_ = std::bind(&Player::UpdateAuto, this);
-			type = MOVE_TYPE::Auto;
+			update_ = std::bind(&Player::UpdateNet, this);
+			type = MOVE_TYPE::Net;
 		}
 	}
 	else

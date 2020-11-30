@@ -23,7 +23,7 @@ bool HostState::CheckNetWork(void)
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-				MesData tmpdata;
+				MesPacket tmpdata;
 				tmpdata.resize(tmp.length);
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{

@@ -11,13 +11,14 @@
 #include "RotationScene.h"
 #include "GameScene.h"
 #include "SceneMng.h"
-LoginScene::LoginScene()
+LoginScene::LoginScene() :starttime_{std::chrono::system_clock::now()}
 {
 	Init();
 	titleRun_[UpdateMode::SetNetWorkMode] = std::bind(&LoginScene::SetNetWorkMode, this);
 	titleRun_[UpdateMode::StartInit] = std::bind(&LoginScene::StartInit, this);
 	titleRun_[UpdateMode::inHostIp] = std::bind(&LoginScene::inHostIp, this);
 	titleRun_[UpdateMode::GamePlay] = std::bind(&LoginScene::GamePlay, this);
+	titleRun_[UpdateMode::Matching] = std::bind(&LoginScene::Matching, this);
 }
 
 LoginScene::~LoginScene()
@@ -68,7 +69,6 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	Draw();
 	if (updateMode_ == UpdateMode::GamePlay)
 	{
-		//return std::make_unique<RotationScene>(std::move(own), std::make_unique<GameScene>());
 		return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
 	}
 	return own;
@@ -233,7 +233,7 @@ void LoginScene::StartInit(void)
 {
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init){
 	pos_ = { 250,250 };
-	MesData tmp;
+	MesPacket tmp;
 	lpNetWork.SendTmxSize();
 	SendData();
 	lpNetWork.SendStandby();
@@ -241,13 +241,6 @@ void LoginScene::StartInit(void)
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
 	{
 		updateMode_ = UpdateMode::GamePlay;
-	}
-	if (lpNetWork.GetRevStandby())
-	{
-		TRACE("ëóÇÁÇÍÇƒÇ´ÇΩèâä˙èÓïÒÇ≈èâä˙âªÇµÇΩÇÊ\n\n\n");
-		tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
-		lpNetWork.SendStart();
-		pos_ = { 250,250 };
 	}
 	if (lpNetWork.GetActive() == ActiveState::Play)
 	{
@@ -333,7 +326,28 @@ void LoginScene::inHostIp(void)
 		}
 	}
 	if (state == 1) {
-		updateMode_ = UpdateMode::StartInit;
+		updateMode_ = UpdateMode::Matching;
+	}
+}
+
+void LoginScene::Matching(void)
+{
+	end = lpSceneMng.GetNowTime();
+	if (lpNetWork.GetActive() == ActiveState::Matching)
+	{
+		starttime_ = lpNetWork.TimeStart();
+		int countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
+		DrawFormatString(pos_.x,fpos_.y,0xffffff,"äJénÇ‹Ç≈Ç†Ç∆Å@%d ms",COUNT_LIMIT - countdown);
+		if (countdown >= COUNT_LIMIT)
+		{
+			if (lpNetWork.GetRevStandby())
+			{
+				TRACE("ëóÇÁÇÍÇƒÇ´ÇΩèâä˙èÓïÒÇ≈èâä˙âªÇµÇΩÇÊ\n\n\n");
+				tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
+				lpNetWork.SendStart();
+				updateMode_ = UpdateMode::GamePlay;
+			}
+		}
 	}
 }
 
@@ -343,23 +357,6 @@ void LoginScene::GamePlay(void)
 	int num = 0;
 	buf = 1234;
 
-	//if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesData))
-	//{
-	//	MesData tmp = {MesType::NON,0,0};
-	//	NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesData));
-	//	if (tmp.type == MesType::POS)
-	//	{
-	//		TRACE("X : %d   Y : %d  Ç™ëóÇÁÇÍÇƒÇ´ÇΩÇÊ\n", tmp.data[0],tmp.data[1]);
-	//	}
-	//}
-
-	//if (sendpos_)
-	//{
-	//	MesData tmp;
-	//	tmp = { MesType::POS,pos_.x,pos_.y };
-	//	lpNetWork.SendMes(tmp);
-	//	TRACE("X : %d   Y : %d  ÇëóÇ¡ÇΩÇÊ\n", pos_.x, pos_.y);
-	//}
 }
 
 void LoginScene::SendData()
@@ -389,30 +386,8 @@ void LoginScene::SendData()
 	}
 
 	int count = 0;
-	MesData senddata;
-	//for(auto& chip : _data)
-	//{
-	//	tmp |= chip << co % 2 * 4;
-	//	if (++co % 2 == 0 && co != 0) {
-	//		c[i++] = tmp;
-	//		tmp = 0;
-	//	}
-	//	if (co == 16) {
-	//		senddata.emplace_back(j[0]);
-	//		senddata.emplace_back(j[1]);
-	//		i = 0;
-	//		co = 0;
-	//	}
-	//}
-	//if (co != 0)
-	//{
-	//	while (i < 8) {
-	//		tmp |= 0 << (co++ % 2) * 4;
-	//		c[i++] = tmp;
-	//	}
-	//	senddata.emplace_back(j[0]);
-	//	senddata.emplace_back(j[1]);
-	//}
+	MesPacket senddata;
+
 	for (auto& chip : _data)
 	{
 		tmp |= chip << co % 2 * 4;
