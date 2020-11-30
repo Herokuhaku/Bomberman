@@ -4,6 +4,7 @@
 #include <mutex>
 #include <map>
 #include <utility>
+#include <list>
 #include "../_debug/_DebugConOut.h"
 
 enum class NetWorkMode
@@ -34,16 +35,28 @@ union unionData
 	//long long lData;
 };
 
+union chronoi
+{
+	std::chrono::system_clock::time_point now;
+	unsigned int inow[2];
+	unionData uninow[2];
+};
+
+using ListInt = std::list<std::pair<int, unsigned int>>;	// playeridとネットワークハンドル
 enum class MesType :unsigned char
 {
 	NON = 100,
+	COUNT_DOWN,		// 接続受付カウントダウン
+	ID,				// 自分のIDとプレイヤー総数
 	STANBY,			// 初期化情報送信完了(ホスト用)
 	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
+	START_TIME,		// 全員の初期化完了後のゲーム開始時間
 	TMX_SIZE,		// TMXサイズ　総サイズ
 	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
 	POS,			// ゲーム中に送る
 	SET_BOMB,		// ボムの配置
 	DEATH,			// 死亡		どのキャラかわかるようにIDだけ付与する
+	LOST,			// 接続時に生成(ホストは自分のネットワークキャラにもセットする)
 	MAX
 };
 
@@ -96,14 +109,9 @@ protected:
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
 
 	std::mutex mtx_;
-	MesPacket revtmx;
-//	MesType nowtype_;
-	MesSizeData sizedata_;
-
-	//std::vector<unionData> revdata_;
-
-	//std::pair<MesType, std::vector<unionData>> revtmx_;
-	//std::map<int,std::pair<MesList, std::mutex>> revlist_;
-	std::vector<std::pair<MesList&,std::mutex&>> revlist;
+	MesPacket revtmx;			// 受け取り用box(tmx)
+	//MesSizeData sizedata_;		// サイズデータ
+	std::vector<std::pair<MesList&,std::mutex&>> revlist;	// 受け取り用box Player用
 	MesList reset;
+	chronoi timec;		// 時間変換用
 };

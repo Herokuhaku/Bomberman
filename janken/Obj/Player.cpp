@@ -387,6 +387,9 @@ void Player::CheckDeath(void)
 	if (wall_->GetFireData()[(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])].first != 255)
 	{
 		pldir_ = DIR::DEATH;
+		unionData uni;
+		uni.iData = id_;
+		lpNetWork.SendMesData(MesType::DEATH, { uni });
 	}
 }
 

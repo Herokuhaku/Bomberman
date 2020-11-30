@@ -34,7 +34,7 @@ public:
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
 	void Draw(float ex, float rad)override;
-	void OnlyDraw(void)override;
+
 private:
 	void KeyLoad(void);
 	void SetNetWorkMode(void);

@@ -50,7 +50,7 @@ bool GuestState::CheckNetWork(void)
 				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
 				MesData tmpdata;
 				tmpdata.resize(tmp.length);
-				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
+				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= tmp.length*4)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
 					if (tmp.type == MesType::POS)
@@ -108,7 +108,6 @@ bool GuestState::CheckNetWork(void)
 					}
 					if (tmp.type == MesType::TMX_SIZE)
 					{
-						//revtmx.reserve(tmpdata[0]);
 						unionData uni;
 						uni = tmpdata[0];
 						lpTiledLoader.SetTmxSize(uni);
@@ -118,23 +117,26 @@ bool GuestState::CheckNetWork(void)
 						uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
 						uni.iData /= 8;
 						if (uni.iData % 8 != 0) { uni.iData++; }
-						//revtmx.resize(uni.iData);
 						revtmx.resize(uni.iData);
-						//TRACE("tmp.lengthが%d\n　revtmxをリサイズ : %d\n", tmp.length, tmpdata[0]);
 						begin = lpSceneMng.GetNowTime();
 						break;
 					}
-
-				}
-				if (tmp.type == MesType::STANBY)
-				{
-					OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
-					OutData();		// csvと元々あるデータを参考にtmxデータを作成する
-					end = lpSceneMng.GetNowTime();
-					std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
-					TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
-					lpNetWork.SetRevStandby(true);
-					break;
+					if (tmp.type == MesType::STANBY)
+					{
+						OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
+						OutData();		// csvと元々あるデータを参考にtmxデータを作成する
+						end = lpSceneMng.GetNowTime();
+						std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+						TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
+						lpNetWork.SetRevStandby(true);
+						break;
+					}
+					if (tmp.type == MesType::COUNT_DOWN)
+					{
+						timec.uninow[0] = tmpdata[0];
+						timec.uninow[1] = tmpdata[1];
+						break;
+					}
 				}
 			}
 		}

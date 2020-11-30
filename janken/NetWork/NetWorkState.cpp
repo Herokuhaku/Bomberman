@@ -1,10 +1,9 @@
 #include "NetWorkState.h"
 
 
-NetWorkState::NetWorkState()
+NetWorkState::NetWorkState() :timec{std::chrono::system_clock::now()}
 {
 	active_ = ActiveState::Non;
-	sizedata_ = {0,0,0};
 }
 
 NetWorkState::~NetWorkState()

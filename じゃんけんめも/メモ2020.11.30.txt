@@ -1,0 +1,65 @@
+ゲストだけを考えた場合
+
+NetWorkクラス
+
+ID 受け取ったとき
+PlayerID_ = revPacket[0];
+PlayerMax_ = revPacket[1];
+Get関数も作る
+
+LoginScene
+
+GameSceneに引数をつける(playerID_,playerMax_)
+(中で直接見てもよい)
+
+defaultがplType = PlayerType::Net;
+
+instanceが自分の番だったら
+PlayerType::Self;
+
+OFFLINE
+PlayerTYpe::Auto;
+
+
+if(id < playerMax*UNIT_ID_BASE || PlayerType::Auto)
+の場合インスタンス
+
+
+ホスト用
+
+playerからposをもらったらそのプレイヤー以外に
+posを送る
+
+プレイヤーの接続があったら
+一人目の時間を記録する
+
+接続があったプレイヤーのみに送る(一人目の記録した時間を送る)
+送るタイプはMesType::CountDown;
+
+now() - startTime > StartLimitTime;
+
+NetWorkState::SetStartTime(std::chrono::system_clock);
+
+Initになるまで待つ
+InitになったらSendPlayerID
+tmxObj_.SendNetWorkData("tmx/map.tmx")	// マップを送る
+
+SendPlayerID
+{
+playerID_ = 0;
+playerMax_ = handle数+1
+
+playerID = 5;
+
+
+SendMes(Type,Packet,追加でhandleを追加)
+
+
+lost = GetLostNetWork();
+
+Lost || DEATHが届いたら
+alive_ = false;
+
+}
+
+listはアクセスするときにlockgurdをする

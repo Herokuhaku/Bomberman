@@ -39,14 +39,7 @@ bool HostState::CheckNetWork(void)
 					}
 					else if (tmp.type == MesType::SET_BOMB)
 					{
-						MesPacket u;
-						for (auto& d : tmpdata)
-						{
-							unionData uni;
-							uni= d;
-							u.emplace_back(uni);
-						}
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, u);
+						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
 						{
 							std::lock_guard<std::mutex> mut(mtx_);
 							revlist[tmpdata[0].iData / 5].first.emplace_back(data);

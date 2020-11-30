@@ -91,11 +91,6 @@ void LoginScene::Draw(float ex, float rad)
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x / 2, lpSceneMng.GetScreenSize().y / 2, ex, rad, screenID, true);
 }
 
-void LoginScene::OnlyDraw(void)
-{
-	DrawGraph(0, 0, plimage_, true);
-}
-
 void LoginScene::KeyLoad(void)
 {
 	int i = 0;
@@ -177,7 +172,6 @@ void LoginScene::SetNetWorkMode(void)
 			tmp += key;
 		}
 		num = atoi(tmp.c_str());
-		//scanf_s("%d", &num);
 		if (num == 0)
 		{
 			lpNetWork.SetNetWorkMode(NetWorkMode::HOST);

@@ -28,6 +28,13 @@ struct HaveState
 	int havespeed_;
 };
 
+enum class Have
+{
+	Bomb,
+	Length,
+	Speed
+};
+
 using DellistData = std::pair<std::pair<INPUT_ID, TrgBool>, bool>;
 
 class Player :
@@ -89,7 +96,7 @@ private:
 	int bomblist;
 
 	HaveState pl;
-
+	
 public:
 	static int fallCount;
 };
