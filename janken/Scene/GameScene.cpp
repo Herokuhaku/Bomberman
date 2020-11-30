@@ -89,9 +89,9 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	end = lpSceneMng.GetNowTime();
 	Draw();
 	int seconds = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
-	if (seconds >= 5)
+	if (seconds <= 5)
 	{
-		DrawFormatString(0,0,0xffffff,"開始まで　%d　秒",5 - seconds);
+		DrawFormatString(0,0,0x0,"開始まで　%d　秒",5 - seconds);
 	}
 	else {
 		for (auto& obj : objlist_)
@@ -106,7 +106,7 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	//	begin = end;
 	//	fpsCnt_++;
 	//}
-	_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
+	//_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
 
 	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {return obj->GetDeleteFlag(); });
 
