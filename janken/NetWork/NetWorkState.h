@@ -44,7 +44,6 @@ union chronoi
 	unionData uninow[2];
 };
 
-using ListInt = std::list<std::pair<int, unsigned int>>;	// playeridとネットワークハンドル
 enum class MesType :unsigned char
 {
 	NON = 100,
@@ -90,6 +89,7 @@ using MesPacket = std::vector<unionData>;
 using SavePacket = std::pair<MesType, MesPacket>;
 //using SavePacket = std::vector<int>;
 using MesList = std::vector<SavePacket>;		// Obj全般の情報
+using ListInt = std::list<std::pair<int, unsigned int>>;	// ネットワークハンドル playerID
 
 class NetWorkState
 {
@@ -114,6 +114,7 @@ protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
+	ListInt handle_;
 
 	std::mutex mtx_;
 	MesPacket revtmx;			// 受け取り用box(tmx)

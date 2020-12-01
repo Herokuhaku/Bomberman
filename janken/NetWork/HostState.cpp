@@ -1,12 +1,14 @@
 #include <DxLib.h>
 #include "HostState.h"
 #include "NetWork.h"
+#include "../Scene/SceneMng.h"
 HostState::HostState()
 {
 	if (PreparationListenNetWork(portNum_) == 0)
 	{
 		active_ = ActiveState::Wait;
 	}
+	handleFlag_ = false;
 }
 
 HostState::~HostState()
@@ -36,42 +38,25 @@ bool HostState::CheckNetWork(void)
 						continue;
 					}
 				}
-				//	if (tmp.type == MesType::POS)
-				//	{
-				//		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-				//		{
-				//			std::lock_guard<std::mutex> mut(mtx_);
-				//			revlist[tmpdata[0].iData / 5].first.emplace_back(data);
-				//		}
-				//		break;
-				//	}
-				//	else if (tmp.type == MesType::SET_BOMB)
-				//	{
-				//		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-				//		{
-				//			std::lock_guard<std::mutex> mut(mtx_);
-				//			revlist[tmpdata[0].iData / 5].first.emplace_back(data);
-				//		}
-				//		break;
-				//	}
-				//}
-				//if (tmp.type == MesType::GAME_START)
-				//{
-				//	TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
-				//	active_ = ActiveState::Play;
-				//	break;
-				//}
 			}
 		}
 	}
 	int handle = GetNewAcceptNetWork();
 	if (handle != -1)
 	{
-		networkHandle_ = handle;
+		handle_.push_back({handle,0});
+		handleFlag_ = true;
+		//networkHandle_ = handle;
 		TRACE("接続されたよ\n");
+		active_ = ActiveState::Matching;
 		StopListenNetWork();
-		active_ = ActiveState::Init;
+		//active_ = ActiveState::Init;
 	}
+	if (handleFlag_)
+	{
+		begin = std::chrono::system_clock::now();
+	}
+	end = lpSceneMng.GetNowTime();
 	if (GetLostNetWork() != -1)
 	{
 		TRACE("接続が切れたよ\n");

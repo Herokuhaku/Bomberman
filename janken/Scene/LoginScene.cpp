@@ -203,7 +203,7 @@ void LoginScene::SetNetWorkMode(void)
 		{
 		case NetWorkMode::HOST:
 			TRACE("ホストになりました\n");
-			updateMode_ = UpdateMode::StartInit;
+			updateMode_ = UpdateMode::Matching;
 			break;
 		case NetWorkMode::GUEST:
 			if (haveip_ == GuestMode::NOIP)
@@ -232,8 +232,6 @@ void LoginScene::SetNetWorkMode(void)
 void LoginScene::StartInit(void)
 {
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init){
-	pos_ = { 250,250 };
-	MesPacket tmp;
 	lpNetWork.SendTmxSize();
 	SendData();
 	lpNetWork.SendStandby();
@@ -340,12 +338,16 @@ void LoginScene::Matching(void)
 		DrawFormatString(pos_.x,fpos_.y,0xffffff,"開始まであと　%d ms",COUNT_LIMIT - countdown);
 		if (countdown >= COUNT_LIMIT)
 		{
-			if (lpNetWork.GetRevStandby())
+			if (lpNetWork.GetRevStandby() && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 			{
 				TRACE("送られてきた初期情報で初期化したよ\n\n\n");
 				tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
 				lpNetWork.SendStart();
 				updateMode_ = UpdateMode::GamePlay;
+			}
+			if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
+			{
+
 			}
 		}
 	}

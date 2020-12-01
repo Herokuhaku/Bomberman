@@ -10,5 +10,8 @@ public:
 
 	bool CheckNetWork(void);
 private:
+
+	bool handleFlag_;
+
 };
 
