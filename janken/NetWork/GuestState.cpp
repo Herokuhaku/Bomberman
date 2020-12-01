@@ -38,25 +38,28 @@ bool GuestState::CheckNetWork(void)
 	if (active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;
-		auto data = lpNetWork.GetNetWorkHandle();
+		//auto data = lpNetWork.GetNetWorkHandle();
 		int revcount_ = 0;
-		while (ProcessMessage() == 0 && GetLostNetWork() == -1)
+		for (auto& hl : lpNetWork.GetListID())
 		{
-			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
+			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 			{
-				NetWorkRecv(lpNetWork.GetNetWorkHandle(), &tmp, sizeof(MesHeader));
-				MesPacket tmpdata;
-				tmpdata.resize(tmp.length);
-				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= tmp.length*4)
+				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 				{
-					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
-					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+					NetWorkRecv(hl.first, &tmp, sizeof(MesHeader));
+					MesPacket tmpdata;
+					tmpdata.resize(tmp.length);
+					if (GetNetWorkDataLength(hl.first) >= tmp.length * 4)
 					{
-						break;
-					}
-					else
-					{
-						continue;
+						NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
+						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+						{
+							break;
+						}
+						else
+						{
+							continue;
+						}
 					}
 				}
 			}

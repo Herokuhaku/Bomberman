@@ -86,7 +86,7 @@ bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 		tmpmesdata_[1].iData = header.iheader[1];
 		header.header.sendid++;
 		
-		NetWorkSend(lpNetWork.GetNetWorkHandle(), tmpmesdata_.data(), tmpmesdata_.size() * sizeof(int));
+		NetWorkSend(handle, tmpmesdata_.data(), tmpmesdata_.size() * sizeof(int));
 		
 		tmpmesdata_.erase(tmpmesdata_.begin() + 2, tmpmesdata_.end());
 		size_ = 0;
@@ -228,8 +228,7 @@ void NetWork::SetListID(void)
 {
 	int playermax_ = handlist_.size() + 1;
 
-	std::vector<unionData> data;
-	data.resize(2);
+	unionData data[2];
 	data[0].iData = 0;
 	data[1].iData = playermax_;
 
@@ -242,7 +241,7 @@ void NetWork::SetListID(void)
 	for (auto hand : handlist_)
 	{
 		data[0].iData = hand.second;
-		SendMesData(MesType::ID, data, hand.first);
+		SendMesData(MesType::ID,{ data[0],data[1]}, hand.first);
 	}
 }
 
