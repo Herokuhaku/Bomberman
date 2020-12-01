@@ -80,7 +80,7 @@ void LoginScene::Draw(void)
 	//lpImageMng.AddDraw({ lpImageMng.GetID("image/“ä‚Ì‚É‚±‚¿‚á‚ñ.png")[0],pos_.x,pos_.y,1.0f,0.0f,LAYER::BG,100 });
 }
 
-void LoginScene::Draw(float ex, float rad)
+void LoginScene::Draw(double ex, double rad)
 {
 	SetDrawScreen(screenID);
 	ClsDrawScreen();

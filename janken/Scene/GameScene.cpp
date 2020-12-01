@@ -64,7 +64,7 @@ void GameScene::Init(void)
 	{
 		if (map != 0)
 		{
-			if (playerID.second * 5 > id)
+			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
 			{
 				objlist_.emplace_back(std::make_shared<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
 					Vector2{ 32,51 }, wall_, *this));
@@ -88,10 +88,10 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	end = lpSceneMng.GetNowTime();
 	Draw();
-	int seconds = std::chrono::duration_cast<std::chrono::seconds>(end - begin).count();
-	if (seconds <= 5)
+	int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
+	if (seconds <= START_LIMIT)
 	{
-		DrawFormatString(0,0,0x0,"開始まで　%d　秒",5 - seconds);
+		DrawFormatString(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,0x00ffff,"開始まで　%d　秒",(START_LIMIT - seconds)/1000);
 	}
 	else {
 		for (auto& obj : objlist_)
@@ -135,7 +135,7 @@ void GameScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
-void GameScene::Draw(float ex, float rad)
+void GameScene::Draw(double ex, double rad)
 {
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
@@ -156,7 +156,7 @@ void GameScene::Draw(float ex, float rad)
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad, screenID, true);
 }
 
-void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, float bombtime,int length,bool sendNet)
+void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double bombtime,int length,bool sendNet)
 {
 	if (sendNet)
 	{

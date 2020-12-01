@@ -4,6 +4,9 @@
 #include "../Graphic/LAYER.h"
 #include "../TiledLoader.h"
 
+#define COUNT_LIMIT 15000
+#define START_LIMIT 10000
+
 class BaseScene
 {
 public:
@@ -13,7 +16,7 @@ public:
 	virtual std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) = 0;
 	virtual void Draw(void);
 	virtual void DrawOwnScreen(void);
-	virtual void Draw(float ex, float rad);
+	virtual void Draw(double ex, double rad);
 protected:
 	int screenID;
 

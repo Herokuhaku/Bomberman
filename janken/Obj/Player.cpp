@@ -230,9 +230,10 @@ void Player::Init(void)
 	width = 32;
 	layerchip_ = std::atoi(numstr["width"].c_str()) * std::atoi(numstr["height"].c_str());
 	numint["width"] = std::atoi(numstr["width"].c_str());
-	pl.havebomb_ = 3;
-	pl.havelength_ = 3;
-	pl.havespeed_ = 2;
+
+	plm.try_emplace(Have::Bomb,1,4,10);
+	plm.try_emplace(Have::Length,2,6,9);
+	plm.try_emplace(Have::Speed,2,8,12);
 }
 
 void Player::KeyInit()
@@ -242,22 +243,22 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos_.x += (size_.x/2+pl.havespeed_);
+			centerpos_.x += (size_.x/2+ std::get<0>(plm[Have::Speed]));
 			pldir_ = DIR::RIGHT;
 			// ïÅí ÇÃéûÇÃà⁄ìÆämîFópìYÇ¶éö
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			// îöíeÇÃè„Ç…Ç¢ÇÈéûópìYÇ¶éö
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = ((centerpos_.x + (size_.x / 2 + pl.havespeed_)) / width) + ((centerpos_.y / width) * numint["width"]);
+			int next = ((centerpos_.x + (size_.x / 2 + std::get<0>(plm[Have::Speed]))) / width) + ((centerpos_.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.x += pl.havespeed_;
+				pos_.x += std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y/32*32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.x += pl.havespeed_;
+				pos_.x += std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
 			}
 			return true;
@@ -271,20 +272,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::LEFT, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)]&& !flag)
 		{
-			centerpos_.x -= (size_.x / 2+ pl.havespeed_);
+			centerpos_.x -= (size_.x / 2+ std::get<0>(plm[Have::Speed]));
 			pldir_ = DIR::LEFT;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = ((centerpos_.x - (size_.x / 2 + pl.havespeed_)) / width) + ((centerpos_.y / width) * numint["width"]);
+			int next = ((centerpos_.x - (size_.x / 2 + std::get<0>(plm[Have::Speed]))) / width) + ((centerpos_.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.x -= pl.havespeed_;
+				pos_.x -= std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.x -= pl.havespeed_;
+				pos_.x -= std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;
 			}
 			return true;
@@ -298,20 +299,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::UP, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
 		{
-			centerpos_.y -= (size_.x/2+ pl.havespeed_);
+			centerpos_.y -= (size_.x/2+ std::get<0>(plm[Have::Speed]));
 			pldir_ = DIR::UP;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = (centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + pl.havespeed_)) / width) * numint["width"]);
+			int next = (centerpos_.x / width) + (((centerpos_.y - (size_.x / 2 + std::get<0>(plm[Have::Speed]))) / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.y -= pl.havespeed_;
+				pos_.y -= std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.y -= pl.havespeed_;
+				pos_.y -= std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
@@ -325,20 +326,20 @@ void Player::KeyInit()
 	keymove_.try_emplace(INPUT_ID::DOWN, [&](DellistData& data, bool flag) {
 		if (data.first.second[static_cast<int>(Trg::Now)]&&!flag)
 		{
-			centerpos_.y += (size_.x / 2 + pl.havespeed_);
+			centerpos_.y += (size_.x / 2 + std::get<0>(plm[Have::Speed]));
 			pldir_ = DIR::DOWN;
 			int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
 			int bombcheck = (bombpos_.x / width) + ((bombpos_.y / width) * numint["width"]);
-			int next = (centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + pl.havespeed_)) / width) * numint["width"]);
+			int next = (centerpos_.x / width) + (((centerpos_.y + (size_.x / 2 + std::get<0>(plm[Have::Speed]))) / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0)
 			{
-				pos_.y += pl.havespeed_;
+				pos_.y += std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
-				pos_.y += pl.havespeed_;
+				pos_.y += std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
 			}
 			return true;
@@ -354,9 +355,9 @@ void Player::KeyInit()
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
 			int check = (tmpos.x / width) + ((tmpos.y / width) * numint["width"]);
-			if (wall_->GetMapData()["Obj"][check] == 0 && bomblist < pl.havebomb_)
+			if (wall_->GetMapData()["Obj"][check] == 0 && bomblist < std::get<0>(plm[Have::Bomb]))
 			{
-				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000,pl.havelength_,true);
+				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000, std::get<0>(plm[Have::Length]),true);
 				bomblist++;
 				wall_->ChangeMapData("Obj", tmpos, -1);
 				return true;
@@ -376,39 +377,42 @@ void Player::CheckDeath(void)
 		pldir_ = DIR::DEATH;
 		unionData uni;
 		uni.iData = id_;
-		lpNetWork.SendMesData(MesType::DEATH, { uni });
+		lpNetWork.SendMesData(MesType::DEATH, {uni});
 	}
 }
 
 void Player::CheckItem(void)
 {
 	bomblist = dynamic_cast<GameScene&>(*scene_).BombCount(id_);
-	// âŒóÕ
-	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 9)
+	int checknum = wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])];
+	// îöíeêî
+	if (checknum == std::get<2>(plm[Have::Bomb]))
 	{
-		if (pl.havelength_ < 6)
+		if (std::get<0>(plm[Have::Bomb]) < std::get<1>(plm[Have::Bomb]))
 		{
-			pl.havelength_++;
-		}
-		wall_->ChangeMapData("Item",centerpos_,-1);
-	}
-	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 10)
-	{
-		if (pl.havebomb_ < 4)
-		{
-			pl.havebomb_++;
+			plm[Have::Bomb] = { std::get<0>(plm[Have::Bomb]) + 1, std::get<1>(plm[Have::Bomb]), std::get<2>(plm[Have::Bomb]) };
 		}
 		wall_->ChangeMapData("Item", centerpos_, -1);
 	}
-	if (wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])] == 12)
+	// îöíeÇÃà–óÕ
+	if (checknum == std::get<2>(plm[Have::Length]))
 	{
-		if (pl.havespeed_ < 8)
+		if (std::get<0>(plm[Have::Length]) < std::get<1>(plm[Have::Length]))
 		{
-			pl.havespeed_*=2;
+			std::get<0>(plm[Have::Length]) = std::get<0>(plm[Have::Length]) + 1;
+		//	plm[Have::Length] = { std::get<0>(plm[Have::Length]) + 1, std::get<1>(plm[Have::Length]), std::get<2>(plm[Have::Length])};
 		}
 		wall_->ChangeMapData("Item", centerpos_, -1);
 	}
-
+	// ë´ÇÃë¨Ç≥
+	if (checknum == std::get<2>(plm[Have::Speed]))
+	{
+		if (std::get<0>(plm[Have::Speed]) < std::get<1>(plm[Have::Speed]))
+		{
+			std::get<0>(plm[Have::Speed]) = std::get<0>(plm[Have::Speed])*2;
+		}
+		wall_->ChangeMapData("Item", centerpos_, -1);
+	}
 }
 
 void Player::DirRight(Vector2 pos, int width)

@@ -10,8 +10,8 @@ public:
 	ActiveState ConnectHost(IPDATA hostip);
 	bool CheckNetWork(void);
 private:
-	void OutCsv(void);
-	void OutData(void);
+	//void OutCsv(void);
+	//void OutData(void);
 
 	bool reAccess_;
 	IPDATA hostip_;
@@ -19,8 +19,6 @@ private:
 	int savenum;
 
 	bool revflag_;
-	std::chrono::system_clock::time_point begin;
-	std::chrono::system_clock::time_point end;
-	
-	std::map<std::string,int> num;
+
+
 };

@@ -14,8 +14,8 @@ private:
 	std::unique_ptr<BaseScene> old_;
 	std::unique_ptr<BaseScene> next_;
 	bool flag;
-	float ex;
-	float rad;
+	double ex;
+	double rad;
 	int rad_;
 };
 

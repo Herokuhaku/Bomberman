@@ -10,7 +10,7 @@ class Bomb :
 	public Obj
 {
 public:
-	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,float bombtime,int length,std::shared_ptr<Wall>& wall);
+	Bomb(int ownerID,int selfID,Vector2 pos,std::chrono::system_clock::time_point now,double bombtime,int length,std::shared_ptr<Wall>& wall);
 	~Bomb();
 	void Draw(void)override;
 	void Update(void)override;
@@ -28,8 +28,8 @@ private:
 
 	std::vector<std::pair<bool, std::chrono::system_clock::time_point>> wastime_;
 	int length_;			// 何段階伸びるか。
-	float lengthtime_;
-	float bombtime_;
+	double lengthtime_;
+	double bombtime_;
 	int bombcount_;			// 爆弾アニメーション millseconds
 	std::array<bool, 4> blockflag_;
 	int maxcount_;			// 最大値

@@ -9,8 +9,6 @@
 #include "../common/Vector2.h"
 #include "../Graphic/LAYER.h"
 
-#define COUNT_LIMIT 3000
-
 enum class GuestMode
 {
 	NOIP,
@@ -36,7 +34,7 @@ public:
 	void Init(void)override;
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
-	void Draw(float ex, float rad)override;
+	void Draw(double ex, double rad)override;
 
 private:
 	void KeyLoad(void);

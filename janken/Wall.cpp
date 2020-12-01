@@ -49,6 +49,10 @@ void Wall::ChangeFire(Vector2 pos, int num, DIR dir)
 				firemap_[tmp] = { num / 3 * 3,dir };
 				return;
 			}
+			else if (num % 3 == 0)
+			{
+				firemap_[tmp] = { num / 3 * 3,dir };
+			}
 		}
 		firemap_[tmp] = {num,dir};
 	}

@@ -3,7 +3,7 @@
 #include "Bomb.h"
 #include "../Scene/SceneMng.h"
 
-Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now, float bombtime,int length, std::shared_ptr<Wall>& wall)
+Bomb::Bomb(int ownerID, int selfID, Vector2 pos, std::chrono::system_clock::time_point now, double bombtime,int length, std::shared_ptr<Wall>& wall)
 {
 	ownerID_ = ownerID;
 	selfID_ = selfID;
@@ -44,9 +44,9 @@ void Bomb::Update(void)
 	}
 	if (!alive_)
 	{
-		float no = 0;
+		int no = 0;
 		Vector2 tmpos = pos_;
-		float clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
+		double clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
 		std::function<void(Vector2, Vector2, int,DIR,int)> longfire = [&](Vector2 tmp, Vector2 plus, int num,DIR dir,int blockf) {
 			tmp += plus;
 			if (clock >= lengthtime_ * num)
@@ -57,7 +57,7 @@ void Bomb::Update(void)
 				{
 					// 最初に炎を作った時間を記録
 					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
-					float frame = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count();
+					int frame = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count();
 					int frame_ = frame / lengthtime_;
 					int anim = static_cast<int>(abs(abs(3 - frame_) - 3))*3;
 					// 最大カウント数(4方向合わせて最大どこまで伸びたか)
@@ -98,8 +98,8 @@ void Bomb::Update(void)
 
 		std::function<void(Vector2, int, std::chrono::system_clock::time_point)>crossfire =
 			[&](Vector2 tmp, int num, std::chrono::system_clock::time_point time) {
-			double frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
-			int anim = abs(abs(4 - frame_) - 4);
+			int frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
+			int anim = abs(abs(3 - frame_) - 3);
 			anim *= 3;
 			wall_->ChangeFire(tmp,num + anim, DIR::RIGHT);
 			if (clock >= lengthtime_ * num)

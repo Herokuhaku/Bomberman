@@ -17,6 +17,6 @@ public:
     int GetNo();
     void Init(void);
 private:
-    std::map<DIR, float> dirRad_;
+    std::map<DIR,double> dirRad_;
 };
 

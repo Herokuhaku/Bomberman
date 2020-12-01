@@ -112,7 +112,7 @@ void NetWork::SendStandby(void)
 	{
 		//MesHeader data = { MesType::STANBY,0,0,0};
 		//NetWorkSend(lpNetWork.GetNetWorkHandle(), &data, sizeof(MesHeader));
-		SendMesData(MesType::STANBY);
+		SendMesData(MesType::STANBY_HOST);
 		TRACE("スタンバイok　初期化情報をゲストに送るよ\n");
 		network_state_->SetActive(ActiveState::Standby);
 	}
@@ -126,7 +126,7 @@ void NetWork::SendStart(void)
 	if (network_state_->GetActive() == ActiveState::Matching)
 	{
 		network_state_->SetActive(ActiveState::Play);
-		SendMesData(MesType::GAME_START);
+		SendMesData(MesType::STNBY_GUEST);
 
 		TRACE("スタンバイok　開始していいよってホストに送るよ\n");
 	}

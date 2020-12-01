@@ -90,13 +90,13 @@ private:
 	std::unique_ptr<Control>controller_;
 	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;
 	std::list<DellistData> keylist_;
-	std::pair<	std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
+	std::pair<std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
 	int speed_;
 	int layerchip_;
 	int bomblist;
 
-	HaveState pl;
-	
+	//HaveState pl;
+	std::map<Have,std::tuple<int,int,int>> plm;		// first Œ»İ‚ÌŠ”  second ‚Á‚Ä‚à‚æ‚¢Å‘å” third@‰æ‘œ‚Ì•\”Ô†
 public:
 	static int fallCount;
 };

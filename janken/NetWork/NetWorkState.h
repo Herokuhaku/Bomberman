@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 #include <list>
+#include <functional>
 #include "../_debug/_DebugConOut.h"
 
 enum class NetWorkMode
@@ -47,17 +48,17 @@ using ListInt = std::list<std::pair<int, unsigned int>>;	// playeridとネットワー
 enum class MesType :unsigned char
 {
 	NON = 100,
-	COUNT_DOWN,		// 接続受付カウントダウン
-	ID,				// 自分のIDとプレイヤー総数
-	STANBY,			// 初期化情報送信完了(ホスト用)
-	GAME_START,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
-	START_TIME,		// 全員の初期化完了後のゲーム開始時間
-	TMX_SIZE,		// TMXサイズ　総サイズ
-	TMX_DATA,		// TMXデータ　CSVのみ切り取って,を外したもの
-	POS,			// ゲーム中に送る
-	SET_BOMB,		// ボムの配置
-	DEATH,			// 死亡		どのキャラかわかるようにIDだけ付与する
-	LOST,			// 接続時に生成(ホストは自分のネットワークキャラにもセットする)
+	COUNT_DOWN_ROOM,	// 接続受付カウントダウン
+	ID,					// 自分のIDとプレイヤー総数
+	STANBY_HOST,		// 初期化情報送信完了(ホスト用)
+	STNBY_GUEST,		// ホストからの初期化情報での初期化完了,ゲーム開始(ゲスト用)
+	COUNT_DOWN_GAME,	// 全員の初期化完了後のゲーム開始時間
+	TMX_SIZE,			// TMXサイズ　総サイズ
+	TMX_DATA,			// TMXデータ　CSVのみ切り取って,を外したもの
+	POS,				// ゲーム中に送る
+	SET_BOMB,			// ボムの配置
+	DEATH,				// 死亡		どのキャラかわかるようにIDだけ付与する
+	LOST,				// 接続時に生成(ホストは自分のネットワークキャラにもセットする)
 	MAX
 };
 
@@ -105,7 +106,11 @@ public:
 	virtual void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 	virtual chronoi TimeStart(void);
 	virtual std::pair<int, int> PlayerID(void);
+	void OutCsv(void);
+	void OutData(void);
+	std::list<int> DeathList(void);
 protected:
+
 	const int portNum_ = 8086;
 	ActiveState active_;
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
@@ -118,4 +123,13 @@ protected:
 
 	chronoi timestart_;		// 時間変換用
 	std::pair<int, int> player;	// IDとMax
+
+	std::map<MesType, std::function<bool(MesHeader,MesPacket,int&)>> MesTypeList_;
+
+	std::map<std::string, int> num;
+
+	std::chrono::system_clock::time_point begin;
+	std::chrono::system_clock::time_point end;
+
+	std::list<int> deathlist_;
 };

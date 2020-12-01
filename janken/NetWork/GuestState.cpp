@@ -1,6 +1,3 @@
-#include <fstream>
-#include <iostream>
-#include <string>
 #include "GuestState.h"
 #include "NetWork.h"
 #include "../Scene/SceneMng.h"
@@ -41,9 +38,8 @@ bool GuestState::CheckNetWork(void)
 	{
 		MesHeader tmp;
 		auto data = lpNetWork.GetNetWorkHandle();
-		int revcount_ = 0;	
-		int id = -1;
-		while (ProcessMessage() == 0)
+		int revcount_ = 0;
+		while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
 			{
@@ -53,93 +49,101 @@ bool GuestState::CheckNetWork(void)
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= tmp.length*4)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
-					if (tmp.type == MesType::POS)
+					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
 					{
-						MesList bomblist;
-						for (auto& rev : revlist[tmpdata[0].iData / 5].first)
-						{
-							if (rev.first == MesType::SET_BOMB)bomblist.emplace_back(rev);
-						}
-						revlist[tmpdata[0].iData / 5].first.clear();
-						revlist[tmpdata[0].iData / 5].first = bomblist;
-						
-						SavePacket data = std::pair<MesType,MesPacket>(tmp.type,tmpdata);
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(),data);
-						}
 						break;
 					}
-					else if (tmp.type == MesType::SET_BOMB)
+					else
 					{
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0].iData / 5].first.emplace_back(data);
-						}
-						break;
+						continue;
 					}
-					else if (tmp.type == MesType::TMX_DATA)
-					{
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							for (auto& d : tmpdata)
-							{
-								if (revtmx.size() <= revcount_)
-								{
-									break;
-								}
-								revtmx[revcount_] = d;
-								revcount_++;
-							}
-						}
-						if (tmp.next)
-						{
-							continue;
-						}
-						break;
-					}
-					else if (tmp.type == MesType::TMX_SIZE)
-					{
-						unionData uni;
-						uni = tmpdata[0];
-						lpTiledLoader.SetTmxSize(uni);
-						num["width"] = uni.cData[0];
-						num["height"] = uni.cData[1];
-						num["layer"] = uni.cData[2];
-						uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
-						uni.iData /= 8;
-						if (uni.iData % 8 != 0) { uni.iData++; }
-						revtmx.resize(uni.iData);
-						begin = lpSceneMng.GetNowTime();
-						break;
-					}
-					else if (tmp.type == MesType::STANBY)
-					{
-						OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
-						OutData();		// csvと元々あるデータを参考にtmxデータを作成する
-						end = lpSceneMng.GetNowTime();
-						std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
-						TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
-						lpNetWork.SetRevStandby(true);
-						break;
-					}
-					else if (tmp.type == MesType::COUNT_DOWN)
-					{
-						timestart_.uninow[0] = tmpdata[0];
-						timestart_.uninow[1] = tmpdata[1];
-						active_ = ActiveState::Matching;
-						break;
-					}
-					else if (tmp.type == MesType::ID)
-					{
-						if (tmpdata.size() >= 2)
-						{
-							player.first = tmpdata[0].iData;
-							player.second = tmpdata[1].iData;
-						}
-						break;
-					}
+					//if (tmp.type == MesType::POS)
+					//{
+					//	MesList bomblist;
+					//	for (auto& rev : revlist[tmpdata[0].iData / 5].first)
+					//	{
+					//		if (rev.first == MesType::SET_BOMB)bomblist.emplace_back(rev);
+					//	}
+					//	revlist[tmpdata[0].iData / 5].first.clear();
+					//	revlist[tmpdata[0].iData / 5].first = bomblist;
+					//	
+					//	SavePacket data = std::pair<MesType,MesPacket>(tmp.type,tmpdata);
+					//	{
+					//		std::lock_guard<std::mutex> mut(mtx_);
+					//		revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(),data);
+					//	}
+					//	break;
+					//}
+					//else if (tmp.type == MesType::SET_BOMB)
+					//{
+					//	SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+					//	{
+					//		std::lock_guard<std::mutex> mut(mtx_);
+					//		revlist[tmpdata[0].iData / 5].first.emplace_back(data);
+					//	}
+					//	break;
+					//}
+					//else if (tmp.type == MesType::TMX_DATA)
+					//{
+					//	{
+					//		std::lock_guard<std::mutex> mut(mtx_);
+					//		for (auto& d : tmpdata)
+					//		{
+					//			if (revtmx.size() <= revcount_)
+					//			{
+					//				break;
+					//			}
+					//			revtmx[revcount_] = d;
+					//			revcount_++;
+					//		}
+					//	}
+					//	if (tmp.next)
+					//	{
+					//		continue;
+					//	}
+					//	break;
+					//}
+					//else if (tmp.type == MesType::TMX_SIZE)
+					//{
+					//	unionData uni;
+					//	uni = tmpdata[0];
+					//	lpTiledLoader.SetTmxSize(uni);
+					//	num["width"] = uni.cData[0];
+					//	num["height"] = uni.cData[1];
+					//	num["layer"] = uni.cData[2];
+					//	uni.iData = uni.cData[0] * uni.cData[1] * uni.cData[2];
+					//	uni.iData /= 8;
+					//	if (uni.iData % 8 != 0) { uni.iData++; }
+					//	revtmx.resize(uni.iData);
+					//	begin = lpSceneMng.GetNowTime();
+					//	break;
+					//}
+					//else if (tmp.type == MesType::STANBY)
+					//{
+					//	OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
+					//	OutData();		// csvと元々あるデータを参考にtmxデータを作成する
+					//	end = lpSceneMng.GetNowTime();
+					//	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+					//	TRACE("ゲストへ通達   :   ホストの準備ができたよ\n");
+					//	lpNetWork.SetRevStandby(true);
+					//	break;
+					//}
+					//else if (tmp.type == MesType::COUNT_DOWN)
+					//{
+					//	timestart_.uninow[0] = tmpdata[0];
+					//	timestart_.uninow[1] = tmpdata[1];
+					//	active_ = ActiveState::Matching;
+					//	break;
+					//}
+					//else if (tmp.type == MesType::ID)
+					//{
+					//	if (tmpdata.size() >= 2)
+					//	{
+					//		player.first = tmpdata[0].iData;
+					//		player.second = tmpdata[1].iData;
+					//	}
+					//	break;
+					//}
 				}
 			}
 		}
@@ -156,81 +160,81 @@ bool GuestState::CheckNetWork(void)
 	return true;
 }
 
-void GuestState::OutCsv(void)
-{
-	std::ofstream fp("Tiled/mapdata/csv.tmx"/*,std::ios::binary*/);
-	if (fp)
-	{
-		fp.clear();
-	}
-	int id = 0;
-	for (auto& i : revtmx)
-	{
-		int data = 0;
-		unsigned char onedata[4];
-		for (int c = 0; c < 4; c++)
-		{
-			onedata[c] = i.cData[c];
-		}
-		for (int c = 0; c < 4; c++)
-		{
-			unsigned char tmp[2];
-			for (int f = 0; f < 2; f++)
-			{
-				if (id < 357 * num["layer"])
-				{
-					if (f == 0)
-					{
-						tmp[f] = onedata[c] & 0x0f;
-					}
-					else
-					{
-						tmp[f] = onedata[c] >> 4;
-					}
-					if (id % num["width"] != 0)
-					{
-						fp << ",";
-					}
-					if (id % num["width"] == 0 && id != 0)
-					{
-						if (id % (num["width"]*num["height"]) != 0)fp << ",";
-						fp << "\n";
-					}
-					fp << static_cast<int>(tmp[f]);
-				}
-				id++;
-			}
-		}
-	}
-}
-
-void GuestState::OutData(void)
-{
-	std::ifstream ifp("Tiled/mapdata/tmx.dat");
-	std::ofstream ofp("Tiled/mapdata/tmp.tmx");
-	std::ifstream csvf("Tiled/mapdata/csv.tmx");
-	std::string save;
-	int rpos = 0;
-	do
-	{
-		while (getline(ifp, save))
-		{
-			int pos;
-			ofp << save;
-			ofp << "\n";
-			rpos += save.size() + 2;
-			if (pos = save.find("csv"), pos != std::string::basic_string::npos)
-			{
-				ofp.seekp(rpos);
-				std::string hozon;
-				int count = 0;
-				while (count++ < num["height"] && getline(csvf, hozon))
-				{
-					ofp << hozon;
-					ofp << "\n";
-					rpos += hozon.size() + 2;
-				}
-			}
-		}
-	} while (!ifp.eof());
-}
+//void GuestState::OutCsv(void)
+//{
+//	std::ofstream fp("Tiled/mapdata/csv.tmx"/*,std::ios::binary*/);
+//	if (fp)
+//	{
+//		fp.clear();
+//	}
+//	int id = 0;
+//	for (auto& i : revtmx)
+//	{
+//		int data = 0;
+//		unsigned char onedata[4];
+//		for (int c = 0; c < 4; c++)
+//		{
+//			onedata[c] = i.cData[c];
+//		}
+//		for (int c = 0; c < 4; c++)
+//		{
+//			unsigned char tmp[2];
+//			for (int f = 0; f < 2; f++)
+//			{
+//				if (id < 357 * num["layer"])
+//				{
+//					if (f == 0)
+//					{
+//						tmp[f] = onedata[c] & 0x0f;
+//					}
+//					else
+//					{
+//						tmp[f] = onedata[c] >> 4;
+//					}
+//					if (id % num["width"] != 0)
+//					{
+//						fp << ",";
+//					}
+//					if (id % num["width"] == 0 && id != 0)
+//					{
+//						if (id % (num["width"]*num["height"]) != 0)fp << ",";
+//						fp << "\n";
+//					}
+//					fp << static_cast<int>(tmp[f]);
+//				}
+//				id++;
+//			}
+//		}
+//	}
+//}
+//
+//void GuestState::OutData(void)
+//{
+//	std::ifstream ifp("Tiled/mapdata/tmx.dat");
+//	std::ofstream ofp("Tiled/mapdata/tmp.tmx");
+//	std::ifstream csvf("Tiled/mapdata/csv.tmx");
+//	std::string save;
+//	int rpos = 0;
+//	do
+//	{
+//		while (getline(ifp, save))
+//		{
+//			int pos;
+//			ofp << save;
+//			ofp << "\n";
+//			rpos += save.size() + 2;
+//			if (pos = save.find("csv"), pos != std::string::basic_string::npos)
+//			{
+//				ofp.seekp(rpos);
+//				std::string hozon;
+//				int count = 0;
+//				while (count++ < num["height"] && getline(csvf, hozon))
+//				{
+//					ofp << hozon;
+//					ofp << "\n";
+//					rpos += hozon.size() + 2;
+//				}
+//			}
+//		}
+//	} while (!ifp.eof());
+//}

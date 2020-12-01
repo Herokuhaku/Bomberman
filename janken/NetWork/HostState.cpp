@@ -18,6 +18,7 @@ bool HostState::CheckNetWork(void)
 	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;
+		int revcount_ = 0;
 		while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 		{
 			if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
@@ -28,31 +29,38 @@ bool HostState::CheckNetWork(void)
 				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) > tmp.length)
 				{
 					NetWorkRecv(lpNetWork.GetNetWorkHandle(), tmpdata.data(), tmp.length * 4);
-					if (tmp.type == MesType::POS)
+					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
 					{
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0].iData / 5].first.emplace_back(data);
-						}
 						break;
-					}
-					else if (tmp.type == MesType::SET_BOMB)
-					{
-						SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-						{
-							std::lock_guard<std::mutex> mut(mtx_);
-							revlist[tmpdata[0].iData / 5].first.emplace_back(data);
-						}
-						break;
+					}else{
+						continue;
 					}
 				}
-				if (tmp.type == MesType::GAME_START)
-				{
-					TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
-					active_ = ActiveState::Play;
-					break;
-				}
+				//	if (tmp.type == MesType::POS)
+				//	{
+				//		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+				//		{
+				//			std::lock_guard<std::mutex> mut(mtx_);
+				//			revlist[tmpdata[0].iData / 5].first.emplace_back(data);
+				//		}
+				//		break;
+				//	}
+				//	else if (tmp.type == MesType::SET_BOMB)
+				//	{
+				//		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+				//		{
+				//			std::lock_guard<std::mutex> mut(mtx_);
+				//			revlist[tmpdata[0].iData / 5].first.emplace_back(data);
+				//		}
+				//		break;
+				//	}
+				//}
+				//if (tmp.type == MesType::GAME_START)
+				//{
+				//	TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
+				//	active_ = ActiveState::Play;
+				//	break;
+				//}
 			}
 		}
 	}
