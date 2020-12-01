@@ -17,7 +17,9 @@ HostState::~HostState()
 
 bool HostState::CheckNetWork(void)
 {
-	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
+	end = std::chrono::system_clock::now();
+	int handle = GetNewAcceptNetWork();
+	if(active_ != ActiveState::Wait && active_ != ActiveState::Non && active_ != ActiveState::Matching)
 	{
 		MesHeader tmp;
 		int revcount_ = 0;
@@ -34,36 +36,56 @@ bool HostState::CheckNetWork(void)
 					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
 					{
 						break;
-					}else{
+					}
+					else
+					{
 						continue;
 					}
 				}
 			}
 		}
 	}
-	int handle = GetNewAcceptNetWork();
-	if (handle != -1)
+	else if (active_ == ActiveState::Wait)
 	{
-		handle_.push_back({handle,0});
-		handleFlag_ = true;
-		//networkHandle_ = handle;
-		TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
-		active_ = ActiveState::Matching;
-		StopListenNetWork();
-		//active_ = ActiveState::Init;
+		if (handle != -1)
+		{
+			lpNetWork.AddList({ handle,0 });
+			TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
+			active_ = ActiveState::Matching;
+			begin = std::chrono::system_clock::now();
+			//StopListenNetWork();
+			//active_ = ActiveState::Init;
+		}
 	}
-	if (handleFlag_)
+	else if (active_ == ActiveState::Matching)
 	{
-		begin = std::chrono::system_clock::now();
+		if (handle != -1)
+		{
+			lpNetWork.AddList({ handle,0 });
+			chronoi time{ std::chrono::system_clock::now() };
+			time.now = begin;
+			lpNetWork.SendMesData(MesType::COUNT_DOWN_ROOM,{time.uninow[0], time.uninow[1]},handle);
+			TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
+		}
+		int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		TRACE("%d \n",COUNT_LIMIT - seconds);
+		if (seconds >= COUNT_LIMIT)
+		{
+			active_ = ActiveState::Init;
+			StopListenNetWork();
+		}
 	}
-	end = lpSceneMng.GetNowTime();
-	if (GetLostNetWork() != -1)
+	int lost = GetLostNetWork();
+	if (lost != -1)
 	{
 		TRACE("ê⁄ë±Ç™êÿÇÍÇΩÇÊ\n");
+		lpNetWork.RemoveList(lost);
 		//PreparationListenNetWork(portNum_);
-		active_ = ActiveState::Non;
-		lpNetWork.SetNetWorkMode(NetWorkMode::NON);
-		
+		if(lpNetWork.ListSize() >= 0)
+		{
+			active_ = ActiveState::Non;
+			lpNetWork.SetNetWorkMode(NetWorkMode::NON);
+		}
 		return false;
 	}
 	return true;

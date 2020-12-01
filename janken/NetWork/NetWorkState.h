@@ -114,7 +114,6 @@ protected:
 	const int portNum_ = 8086;
 	ActiveState active_;
 	int networkHandle_ = 0;		// dxlibのネットワークハンドル
-	ListInt handle_;
 
 	std::mutex mtx_;
 	MesPacket revtmx;			// 受け取り用box(tmx)

@@ -331,7 +331,7 @@ void LoginScene::inHostIp(void)
 void LoginScene::Matching(void)
 {
 	end = lpSceneMng.GetNowTime();
-	if (lpNetWork.GetActive() == ActiveState::Matching)
+	if (lpNetWork.GetActive() == ActiveState::Matching && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
 		starttime_ = lpNetWork.TimeStart();
 		int countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
@@ -345,11 +345,12 @@ void LoginScene::Matching(void)
 				lpNetWork.SendStart();
 				updateMode_ = UpdateMode::GamePlay;
 			}
-			if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
-			{
-
-			}
 		}
+	}
+	if (lpNetWork.GetActive() == ActiveState::Init)
+	{
+		lpNetWork.SetListID();
+		updateMode_ = UpdateMode::StartInit;
 	}
 }
 
@@ -413,7 +414,7 @@ void LoginScene::SendData()
 	}
 	if (senddata.size() > 0)
 	{
-		lpNetWork.SendMesData(MesType::TMX_DATA, senddata);
+		lpNetWork.SendMesAll(MesType::TMX_DATA, senddata);
 	}else{
 		lpNetWork.SendMesData(MesType::TMX_DATA);
 	}

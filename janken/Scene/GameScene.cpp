@@ -171,7 +171,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double b
 		data[5].uiData = time.inow[0];
 		data[6].uiData = time.inow[1];
 
-		lpNetWork.SendMesData(MesType::SET_BOMB, data);
+		lpNetWork.SendMesAll(MesType::SET_BOMB, data);
 	}
 	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,length,wall_));
 }

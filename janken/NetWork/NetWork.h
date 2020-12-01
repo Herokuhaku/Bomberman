@@ -25,8 +25,9 @@ public:
 	void SetRevStandby(bool rev);
 
 	MesPacket SendMesHeader(MesHeader data);
-	bool SendMesData(MesType type, MesPacket data);
+	bool SendMesData(MesType type, MesPacket data,int handle);
 	bool SendMesData(MesType type);
+	bool SendMesAll(MesType type,MesPacket data);
 	void SendStandby(void);
 	void SendStart(void);
 	void SendTmxSize(void);
@@ -42,7 +43,13 @@ public:
 	ActiveState ConnectHost(IPDATA hostip);
 	void AddMesList(int id,MesList&,std::mutex& mtx);
 	chronoi TimeStart(void);
+	
+	void SetListID(void);
+	ListInt GetListID(void);
 	std::pair<int, int> PlayerID(void);
+	void AddList(std::pair<int,unsigned int> add);
+	void RemoveList(int lost);
+	int ListSize(void);
 private:
 	bool Setting(void);
 
@@ -59,6 +66,7 @@ private:
 	int size_;
 	Header header;
 	unsigned long long MaxCnt;
+	ListInt handlist_;
 	//
 	NetWork();
 	~NetWork();

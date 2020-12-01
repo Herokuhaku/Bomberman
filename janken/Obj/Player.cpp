@@ -100,7 +100,7 @@ void Player::UpdateDef()
 	tmpmes[1].iData = pos_.x;
 	tmpmes[2].iData = pos_.y;
 	tmpmes[3].iData = static_cast<int>(pldir_);
-	lpNetWork.SendMesData(MesType::POS,tmpmes);
+	lpNetWork.SendMesAll(MesType::POS,tmpmes);
 }
 
 void Player::UpdateAuto()
@@ -114,7 +114,7 @@ void Player::UpdateAuto()
 	tmpmes[2].iData = pos_.y;
 	tmpmes[3].iData = static_cast<int>(pldir_);
 
-	lpNetWork.SendMesData(MesType::POS, tmpmes);
+	lpNetWork.SendMesAll(MesType::POS, tmpmes);
 }
 
 void Player::UpdateNet()
@@ -377,7 +377,7 @@ void Player::CheckDeath(void)
 		pldir_ = DIR::DEATH;
 		unionData uni;
 		uni.iData = id_;
-		lpNetWork.SendMesData(MesType::DEATH, {uni});
+		lpNetWork.SendMesAll(MesType::DEATH, {uni});
 	}
 }
 

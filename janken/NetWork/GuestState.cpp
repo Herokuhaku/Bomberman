@@ -22,6 +22,7 @@ ActiveState GuestState::ConnectHost(IPDATA hostip)
 	hostip_ = hostip;
 	if (networkHandle_ >= 0)
 	{
+		lpNetWork.AddList(std::pair<int, unsigned int>(networkHandle_, 0));
 		active_ = ActiveState::Init;
 	}
 	else

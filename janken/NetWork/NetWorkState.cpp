@@ -9,13 +9,6 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 {
 	active_ = ActiveState::Non;
 	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
-	//	MesList bomblist;
-	//for (auto& rev : revlist[tmpdata[0].iData / 5].first)
-	//{
-	//	if (rev.first == MesType::SET_BOMB)bomblist.emplace_back(rev);
-	//}
-	//revlist[tmpdata[0].iData / 5].first.clear();
-	//revlist[tmpdata[0].iData / 5].first = bomblist;
 		bool flag = false;
 	for (auto& rev : revlist[tmpdata[0].iData / 5].first)
 	{

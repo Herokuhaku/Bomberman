@@ -8,7 +8,7 @@
 
 void NetWork::newUpdate(void)
 {
-	while (ProcessMessage() == 0 && GetLostNetWork() == -1)
+	while (ProcessMessage() == 0)
 	{
 		if (network_state_ != nullptr)
 		{
@@ -60,7 +60,7 @@ MesPacket NetWork::SendMesHeader(MesHeader data)
 	 return mesdata;
 }
 
-bool NetWork::SendMesData(MesType type, MesPacket data)
+bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 {
 	if (network_state_ == nullptr)
 	{
@@ -97,9 +97,17 @@ bool NetWork::SendMesData(MesType type, MesPacket data)
 
 bool NetWork::SendMesData(MesType type)
 {
-	MesPacket data;
-	SendMesData(type, std::move(data));
+	for (auto& handle : handlist_)
+	{
+		MesPacket data;
+		SendMesData(type, std::move(data), handle.first);
+	}
 	return true;
+}
+
+bool NetWork::SendMesAll(MesType type, MesPacket data)
+{
+	return false;
 }
 
 void NetWork::SendStandby(void)
@@ -141,7 +149,7 @@ void NetWork::SendTmxSize(void)
 	uni.cData[2] = std::atoi(tmx.num["nextlayerid"].c_str())-1;	// レイヤー数
 	uni.cData[3] = 0;											// リザーブ
 	
-	SendMesData(MesType::TMX_SIZE,{uni});
+	SendMesAll(MesType::TMX_SIZE,{uni});
 	return;
 }
 
@@ -216,6 +224,33 @@ chronoi NetWork::TimeStart(void)
 	return network_state_->TimeStart();
 }
 
+void NetWork::SetListID(void)
+{
+	int playermax_ = handlist_.size() + 1;
+
+	std::vector<unionData> data;
+	data.resize(2);
+	data[0].iData = 0;
+	data[1].iData = playermax_;
+
+	int id = 5;
+	for (auto& handlist : handlist_)
+	{
+		handlist.second = id;
+		id += 5;
+	}
+	for (auto hand : handlist_)
+	{
+		data[0].iData = hand.second;
+		SendMesData(MesType::ID, data, hand.first);
+	}
+}
+
+ListInt NetWork::GetListID(void)
+{
+	return handlist_;
+}
+
 std::pair<int, int> NetWork::PlayerID(void)
 {
 	if (network_state_ == nullptr)
@@ -223,6 +258,21 @@ std::pair<int, int> NetWork::PlayerID(void)
 		return {-1,-1};
 	}
 	return network_state_->PlayerID();
+}
+
+void NetWork::AddList(std::pair<int, unsigned int> add)
+{
+	handlist_.emplace_back(add);
+}
+
+void NetWork::RemoveList(int lost)
+{
+	handlist_.remove_if([&](std::pair<int, unsigned int> hl) {return hl.first == lost;});
+}
+
+int NetWork::ListSize(void)
+{
+	return handlist_.size();
 }
 
 bool NetWork::Setting(void)
