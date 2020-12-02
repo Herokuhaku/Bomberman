@@ -103,9 +103,10 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
-	virtual void SetPlayerList(int id, MesList& list, std::mutex& mtx);
-	virtual chronoi TimeStart(void);
-	virtual std::pair<int, int> PlayerID(void);
+	void SetPlayerList(int id, MesList& list, std::mutex& mtx);
+	chronoi TimeStart(void);
+	std::pair<int, int> PlayerID(void);
+	
 	void OutCsv(void);
 	void OutData(void);
 	std::list<int> DeathList(void);

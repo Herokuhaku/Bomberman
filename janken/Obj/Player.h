@@ -91,11 +91,10 @@ private:
 	std::map < INPUT_ID, std::function<bool(DellistData& data, bool flag)>> keymove_;
 	std::list<DellistData> keylist_;
 	std::pair<std::list<std::pair<INPUT_ID, TrgBool>>,bool> keydellist_;
-	int speed_;
-	int layerchip_;
-	int bomblist;
+	int speed_;										// 何も触ってないスピード(アイテム無し)
+	int layerchip_;									// 1レイヤーの総マス数 縦*横
+	int bomblist;									// 現状出している爆弾の数
 
-	//HaveState pl;
 	std::map<Have,std::tuple<int,int,int>> plm;		// first 現在の所持数  second 持ってもよい最大数 third　画像の表番号
 public:
 	static int fallCount;

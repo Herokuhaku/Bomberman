@@ -347,6 +347,10 @@ void LoginScene::Matching(void)
 			}
 		}
 	}
+	else if (lpNetWork.GetActive() == ActiveState::Matching)
+	{
+		int i = 0;
+	}
 	if (lpNetWork.GetActive() == ActiveState::Init)
 	{
 		lpNetWork.SetListID();
@@ -432,6 +436,18 @@ void LoginScene::NumPadInput(void)
 	if (Trg(KEY_INPUT_NUMPAD7)) { inputKey.emplace_back("7"); }
 	if (Trg(KEY_INPUT_NUMPAD8)) { inputKey.emplace_back("8"); }
 	if (Trg(KEY_INPUT_NUMPAD9)) { inputKey.emplace_back("9"); }
+	if (Trg(KEY_INPUT_0)) { inputKey.emplace_back("0"); }
+	if (Trg(KEY_INPUT_1)) { inputKey.emplace_back("1"); }
+	if (Trg(KEY_INPUT_2)) { inputKey.emplace_back("2"); }
+	if (Trg(KEY_INPUT_3)) { inputKey.emplace_back("3"); }
+	if (Trg(KEY_INPUT_4)) { inputKey.emplace_back("4"); }
+	if (Trg(KEY_INPUT_5)) { inputKey.emplace_back("5"); }
+	if (Trg(KEY_INPUT_6)) { inputKey.emplace_back("6"); }
+	if (Trg(KEY_INPUT_7)) { inputKey.emplace_back("7"); }
+	if (Trg(KEY_INPUT_8)) { inputKey.emplace_back("8"); }
+	if (Trg(KEY_INPUT_9)) { inputKey.emplace_back("9"); }
+
+
 	if (Trg(KEY_INPUT_DECIMAL)) { inputKey.emplace_back("."); }
 	if (Trg(KEY_INPUT_NUMPADENTER)) { inputKey.emplace_back("Enter");}
 	if (Trg(KEY_INPUT_BACK)) { if(inputKey.size() > 0)inputKey.pop_back(); }

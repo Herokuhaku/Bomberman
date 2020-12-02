@@ -103,7 +103,11 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 	MesTypeList_.try_emplace(MesType::STNBY_GUEST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
 		TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
-		active_ = ActiveState::Play;
+		int num = lpNetWork.StanbyCountUp(1);
+		if (num == lpNetWork.ListSize())
+		{
+			active_ = ActiveState::Play;
+		}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::COUNT_DOWN_GAME, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {

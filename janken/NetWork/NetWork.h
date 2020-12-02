@@ -50,6 +50,7 @@ public:
 	void AddList(std::pair<int,unsigned int> add);
 	void RemoveList(int lost);
 	int ListSize(void);
+	int StanbyCountUp(int num);
 private:
 	bool Setting(void);
 
@@ -67,6 +68,7 @@ private:
 	Header header;
 	unsigned long long MaxCnt;
 	ListInt handlist_;
+	int StanbyCount_;
 	//
 	NetWork();
 	~NetWork();

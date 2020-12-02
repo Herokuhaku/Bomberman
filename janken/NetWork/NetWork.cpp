@@ -107,6 +107,10 @@ bool NetWork::SendMesData(MesType type)
 
 bool NetWork::SendMesAll(MesType type, MesPacket data)
 {
+	for (auto& hl : handlist_)
+	{
+		SendMesData(type,data,hl.first);
+	}
 	return false;
 }
 
@@ -274,8 +278,15 @@ int NetWork::ListSize(void)
 	return handlist_.size();
 }
 
+int NetWork::StanbyCountUp(int num)
+{
+	StanbyCount_+= num;
+	return StanbyCount_;
+}
+
 bool NetWork::Setting(void)
 {
+	StanbyCount_ = 0;
 	maxByte_ = 0;
 	tmpmesdata_.resize(2);
 	size_ = 0;

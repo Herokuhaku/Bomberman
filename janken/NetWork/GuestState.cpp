@@ -44,7 +44,7 @@ bool GuestState::CheckNetWork(void)
 		{
 			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 			{
-				if (GetNetWorkDataLength(lpNetWork.GetNetWorkHandle()) >= sizeof(MesHeader))
+				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
 				{
 					NetWorkRecv(hl.first, &tmp, sizeof(MesHeader));
 					MesPacket tmpdata;
@@ -52,14 +52,14 @@ bool GuestState::CheckNetWork(void)
 					if (GetNetWorkDataLength(hl.first) >= tmp.length * 4)
 					{
 						NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
-						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
-						{
-							break;
-						}
-						else
-						{
-							continue;
-						}
+					}
+					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+					{
+						break;
+					}
+					else
+					{
+						continue;
 					}
 				}
 			}

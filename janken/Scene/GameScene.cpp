@@ -49,7 +49,7 @@ void GameScene::Init(void)
 
 	wall_ = std::make_shared<Wall>();
 	wall_->SetMapData(tmxdata_.MapData);
-	while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+	while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
 	{
 		if (lpNetWork.GetActive() == ActiveState::Play)
 		{
@@ -64,7 +64,7 @@ void GameScene::Init(void)
 	{
 		if (map != 0)
 		{
-			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
+			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 			{
 				objlist_.emplace_back(std::make_shared<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
 					Vector2{ 32,51 }, wall_, *this));

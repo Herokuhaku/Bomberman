@@ -19,7 +19,7 @@ bool HostState::CheckNetWork(void)
 {
 	end = std::chrono::system_clock::now();
 	int handle = GetNewAcceptNetWork();
-	if(active_ != ActiveState::Wait && active_ != ActiveState::Non && active_ != ActiveState::Matching)
+	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
 	{
 		MesHeader tmp;
 		int revcount_ = 0;
@@ -27,7 +27,8 @@ bool HostState::CheckNetWork(void)
 		{
 			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 			{
-				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
+				int i = GetNetWorkDataLength(hl.first);
+				if (i >= sizeof(MesHeader))
 				{
 					NetWorkRecv(hl.first, &tmp, sizeof(MesHeader));
 					MesPacket tmpdata;
@@ -35,15 +36,19 @@ bool HostState::CheckNetWork(void)
 					if (GetNetWorkDataLength(hl.first) > tmp.length)
 					{
 						NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
-						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
-						{
-							break;
-						}
-						else
-						{
-							continue;
-						}
 					}
+					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+					{
+						break;
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					break;
 				}
 			}
 		}
@@ -52,20 +57,25 @@ bool HostState::CheckNetWork(void)
 	{
 		if (handle != -1)
 		{
-			lpNetWork.AddList({ handle,0 });
-			TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
-			active_ = ActiveState::Matching;
+			//lpNetWork.AddList({ handle,0 });
+			//TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
 			begin = std::chrono::system_clock::now();
+
+			//chronoi time{ std::chrono::system_clock::now() };
+			//time.now = begin;
+			//lpNetWork.SendMesData(MesType::COUNT_DOWN_ROOM, { time.uninow[0], time.uninow[1] }, handle);
+			active_ = ActiveState::Matching;
 			//StopListenNetWork();
 			//active_ = ActiveState::Init;
 		}
 	}
-	else if (active_ == ActiveState::Matching)
+	if (active_ == ActiveState::Matching)
 	{
 		if (handle != -1)
 		{
 			lpNetWork.AddList({ handle,0 });
 			chronoi time{ std::chrono::system_clock::now() };
+
 			time.now = begin;
 			lpNetWork.SendMesData(MesType::COUNT_DOWN_ROOM,{time.uninow[0], time.uninow[1]},handle);
 			TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");

@@ -400,7 +400,6 @@ void Player::CheckItem(void)
 		if (std::get<0>(plm[Have::Length]) < std::get<1>(plm[Have::Length]))
 		{
 			std::get<0>(plm[Have::Length]) = std::get<0>(plm[Have::Length]) + 1;
-		//	plm[Have::Length] = { std::get<0>(plm[Have::Length]) + 1, std::get<1>(plm[Have::Length]), std::get<2>(plm[Have::Length])};
 		}
 		wall_->ChangeMapData("Item", centerpos_, -1);
 	}
