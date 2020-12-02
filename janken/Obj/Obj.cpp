@@ -21,10 +21,19 @@ Obj::~Obj()
 
 std::pair<ObjType,int> Obj::GetOwnerID(void)
 {
-	return {objtype_,0};
+	return {objtype_,id_};
 }
 
 bool Obj::GetDeleteFlag(void)
 {
 	return deleteflag_;
+}
+
+int Obj::GetSelfID()
+{
+	return id_;
+}
+
+void Obj::SetBombBool(int, bool)
+{
 }

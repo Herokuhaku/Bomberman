@@ -16,6 +16,7 @@ public:
 	void Update(void)override;
 	int GetNo()override;
 	void Init(void)override;
+	int GetSelfID()override;
 	std::pair<ObjType, int> GetOwnerID(void)override;
 private:
 	int ownerID_;

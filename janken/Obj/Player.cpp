@@ -231,9 +231,19 @@ void Player::Init(void)
 	layerchip_ = std::atoi(numstr["width"].c_str()) * std::atoi(numstr["height"].c_str());
 	numint["width"] = std::atoi(numstr["width"].c_str());
 
-	plm.try_emplace(Have::Bomb,1,4,10);
+	plm.try_emplace(Have::Bomb,4,4,10);
 	plm.try_emplace(Have::Length,2,6,9);
 	plm.try_emplace(Have::Speed,2,8,12);
+
+	for (int i = 0;i < std::get<1>(plm[Have::Bomb]);i++)
+	{
+		bomb_[i] = { i+1,false };
+	}
+}
+
+void Player::SetBombBool(int no, bool flag)
+{
+	bomb_[no].second = flag;
 }
 
 void Player::KeyInit()
@@ -357,7 +367,15 @@ void Player::KeyInit()
 			int check = (tmpos.x / width) + ((tmpos.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0 && bomblist < std::get<0>(plm[Have::Bomb]))
 			{
-				dynamic_cast<GameScene&>(*scene_).SetBomb(id_,++playerid_, tmpos,lpSceneMng.GetNowTime(),3000, std::get<0>(plm[Have::Length]),true);
+				for (auto& bom : bomb_)
+				{
+					if (!bom.second)
+					{
+						dynamic_cast<GameScene&>(*scene_).SetBomb(id_,id_+bom.first, tmpos, lpSceneMng.GetNowTime(), 3000, std::get<0>(plm[Have::Length]), true);
+						bom.second = true;
+						break;
+					}
+				}
 				bomblist++;
 				wall_->ChangeMapData("Obj", tmpos, -1);
 				return true;

@@ -108,7 +108,24 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	//}
 	//_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
 
-	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {return obj->GetDeleteFlag(); });
+	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {
+		bool flag = obj->GetDeleteFlag();
+		if (flag)
+		{
+			if (obj->GetOwnerID().first == ObjType::Bomb &&obj->GetOwnerID().second == lpNetWork.PlayerID().first)
+			{
+				for (auto& list : objlist_)
+				{
+					if (list->GetOwnerID().first == ObjType::Player && list->GetOwnerID().second == lpNetWork.PlayerID().first)
+					{
+						list->SetBombBool(obj->GetSelfID() - lpNetWork.PlayerID().first-1,false);
+					}
+				}
+			}
+		}
+		return  flag;
+		
+		});
 
 	return own;
 }
@@ -160,6 +177,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double b
 {
 	if (sendNet)
 	{
+
 		MesPacket data;
 		data.resize(7);
 		data[0].iData = ownerID;

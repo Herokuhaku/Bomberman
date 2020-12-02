@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <list>
+#include <array>
 #include "Obj.h"
 #include "../Wall.h"
 #include "../TiledLoader.h"
@@ -48,6 +49,7 @@ public:
 	void Update(void)override;
 	int GetNo()override;
 	void Init(void)override;
+	void SetBombBool(int, bool)override;
 private:
 	void UpdateDef();
 	void UpdateAuto();
@@ -75,6 +77,7 @@ private:
 	std::map<DIR,std::function<void(Vector2,int)>> dirupdate_;
 	static int countid_;
 	int playerid_;
+	std::array<std::pair<int, bool>, 4> bomb_;
 	//Vector2 oldpos_;
 	MesList meslist_;
 	std::mutex mtx_;

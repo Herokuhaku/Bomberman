@@ -24,6 +24,8 @@ public:
 	virtual void Init(void) = 0;
 	virtual std::pair<ObjType,int> GetOwnerID(void);
 	virtual bool GetDeleteFlag(void);
+	virtual int GetSelfID();
+	virtual void SetBombBool(int,bool);
 protected:
 	Vector2 pos_;
 	Vector2 size_;

@@ -156,6 +156,11 @@ void Bomb::Init(void)
 	//lengthtime_ = 1000;
 }
 
+int Bomb::GetSelfID()
+{
+	return selfID_;
+}
+
 std::pair<ObjType, int> Bomb::GetOwnerID(void)
 {
 	return std::pair<ObjType, int>(objtype_,ownerID_);
