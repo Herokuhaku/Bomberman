@@ -62,15 +62,15 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	{
 		updateMode_ = UpdateMode::SetNetWorkMode;
 	}
-	titleRun_[updateMode_]();
-	
-	KeyLoad();
 
-	Draw();
-	if (updateMode_ == UpdateMode::GamePlay)
+	if (!titleRun_[updateMode_]())
 	{
 		return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
 	}
+	KeyLoad();
+
+	Draw();
+
 	return own;
 }
 
@@ -102,7 +102,7 @@ void LoginScene::KeyLoad(void)
 	NumPadInput();
 }
 
-void LoginScene::SetNetWorkMode(void)
+bool LoginScene::SetNetWorkMode(void)
 {
 	Vector2 tmpos = fpos_;
 	int fsize = GetFontSize();
@@ -227,9 +227,10 @@ void LoginScene::SetNetWorkMode(void)
 		}
 		inputKey.clear();
 	}
+	return true;
 }
 
-void LoginScene::StartInit(void)
+bool LoginScene::StartInit(void)
 {
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init){
 	lpNetWork.SendTmxSize();
@@ -245,9 +246,10 @@ void LoginScene::StartInit(void)
 		updateMode_ = UpdateMode::GamePlay;
 		TRACE("ゲームを開始します！\n");
 	}
+	return true;
 }
 
-void LoginScene::inHostIp(void)
+bool LoginScene::inHostIp(void)
 {
 	IPDATA hostip = {};
 	bool state = false;
@@ -326,44 +328,55 @@ void LoginScene::inHostIp(void)
 	if (state == 1) {
 		updateMode_ = UpdateMode::Matching;
 	}
+	return true;
 }
 
-void LoginScene::Matching(void)
+bool LoginScene::Matching(void)
 {
 	end = lpSceneMng.GetNowTime();
-	if (lpNetWork.GetActive() == ActiveState::Matching && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
-		starttime_ = lpNetWork.TimeStart();
-		int countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
-		DrawFormatString(pos_.x,fpos_.y,0xffffff,"開始まであと　%d ms",COUNT_LIMIT - countdown);
-		if (countdown >= COUNT_LIMIT)
+		if (lpNetWork.GetActive() == ActiveState::Matching)
 		{
-			if (lpNetWork.GetRevStandby() && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+			starttime_ = lpNetWork.TimeStart();
+			int countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
+			DrawFormatString(pos_.x, fpos_.y, 0xffffff, "開始まであと　%d ms", COUNT_LIMIT - countdown);
+			if (countdown >= COUNT_LIMIT)
 			{
-				TRACE("送られてきた初期情報で初期化したよ\n\n\n");
-				tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
-				lpNetWork.SendStart();
-				updateMode_ = UpdateMode::GamePlay;
+				if (lpNetWork.GetRevStandby() && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+				{
+					TRACE("送られてきた初期情報で初期化したよ\n\n\n");
+					tmxdata_ = lpTiledLoader.ReadTmx("Tiled/mapdata/tmp");
+					lpNetWork.SendStart();
+					updateMode_ = UpdateMode::GamePlay;
+				}
 			}
 		}
+		else if (lpNetWork.GetActive() == ActiveState::Init)
+		{
+			lpNetWork.SetActive(ActiveState::Matching);
+		}
 	}
-	else if (lpNetWork.GetActive() == ActiveState::Matching)
-	{
-		int i = 0;
-	}
-	if (lpNetWork.GetActive() == ActiveState::Init)
+	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init)
 	{
 		lpNetWork.SetListID();
 		updateMode_ = UpdateMode::StartInit;
 	}
+	return true;
 }
 
-void LoginScene::GamePlay(void)
+bool LoginScene::GamePlay(void)
 {
-	int buf = 0;
-	int num = 0;
-	buf = 1234;
+	chronoi time{ std::chrono::system_clock::now() };
+	MesPacket data;
+	data.resize(2);
 
+	time.now = lpSceneMng.GetNowTime();
+	data[0].iData = time.inow[0];
+	data[1].iData = time.inow[1];
+
+	lpNetWork.SendMesAll(MesType::COUNT_DOWN_GAME,data);
+	return false;
 }
 
 void LoginScene::SendData()

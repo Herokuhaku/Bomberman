@@ -38,18 +38,18 @@ public:
 
 private:
 	void KeyLoad(void);
-	void SetNetWorkMode(void);
-	void StartInit(void);
-	void inHostIp(void);
-	void GamePlay(void);
-	void Matching(void);
+	bool SetNetWorkMode(void);
+	bool StartInit(void);
+	bool inHostIp(void);
+	bool GamePlay(void);
+	bool Matching(void);
 
 	void SendData();
 	void NumPadInput(void);
 	bool Trg(int id);
 
 	void ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& ip,int fsize);
-	std::map<UpdateMode, std::function<void(void)>> titleRun_;
+	std::map<UpdateMode, std::function<bool(void)>> titleRun_;
 	int screen_size_x_;
 	int screen_size_y_;
 

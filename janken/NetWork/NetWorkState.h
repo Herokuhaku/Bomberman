@@ -106,7 +106,7 @@ public:
 	void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 	chronoi TimeStart(void);
 	std::pair<int, int> PlayerID(void);
-	
+	void SetPlayerID(std::pair<int, unsigned int> pl);
 	void OutCsv(void);
 	void OutData(void);
 	std::list<int> DeathList(void);

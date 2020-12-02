@@ -47,20 +47,28 @@ bool GuestState::CheckNetWork(void)
 				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
 				{
 					NetWorkRecv(hl.first, &tmp, sizeof(MesHeader));
-					MesPacket tmpdata;
-					tmpdata.resize(tmp.length);
-					if (GetNetWorkDataLength(hl.first) >= tmp.length * 4)
+					int typenum = static_cast<int>(tmp.type);
+					if (static_cast<int>(MesType::NON) < typenum && typenum < static_cast<int>(MesType::MAX))
 					{
-						NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
+						MesPacket tmpdata;
+						tmpdata.resize(tmp.length);
+						if (GetNetWorkDataLength(hl.first) >= tmp.length * 4)
+						{
+							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
+						}
+						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+						{
+							break;
+						}
+						else
+						{
+							continue;
+						}
 					}
-					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
-					{
-						break;
-					}
-					else
-					{
-						continue;
-					}
+				}
+				else
+				{
+					break;
 				}
 			}
 		}

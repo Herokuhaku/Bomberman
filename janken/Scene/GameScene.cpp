@@ -64,7 +64,7 @@ void GameScene::Init(void)
 	{
 		if (map != 0)
 		{
-			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
+			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
 			{
 				objlist_.emplace_back(std::make_shared<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
 					Vector2{ 32,51 }, wall_, *this));

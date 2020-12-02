@@ -102,11 +102,11 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::STNBY_GUEST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
-		TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
 		int num = lpNetWork.StanbyCountUp(1);
 		if (num == lpNetWork.ListSize())
 		{
 			active_ = ActiveState::Play;
+			TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
 		}
 		return true;
 		});
@@ -178,6 +178,11 @@ chronoi NetWorkState::TimeStart(void)
 std::pair<int, int> NetWorkState::PlayerID(void)
 {
 	return player;
+}
+
+void NetWorkState::SetPlayerID(std::pair<int, unsigned int> pl)
+{
+	player = pl;
 }
 
 void NetWorkState::OutCsv(void)

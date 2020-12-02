@@ -36,6 +36,7 @@ public:
 	std::array<IPDATA, 5> GetIP(void);
 	NetWorkMode GetNetWorkMode(void);
 	ActiveState GetActive(void);
+	void SetActive(ActiveState active);
 	int GetNetWorkHandle(void);
 	bool GetRevStandby(void);
 	int GetMaxByte(void);

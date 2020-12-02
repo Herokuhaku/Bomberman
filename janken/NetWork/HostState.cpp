@@ -27,23 +27,26 @@ bool HostState::CheckNetWork(void)
 		{
 			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
 			{
-				int i = GetNetWorkDataLength(hl.first);
-				if (i >= sizeof(MesHeader))
+				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
 				{
 					NetWorkRecv(hl.first, &tmp, sizeof(MesHeader));
-					MesPacket tmpdata;
-					tmpdata.resize(tmp.length);
-					if (GetNetWorkDataLength(hl.first) > tmp.length)
+					int typenum = static_cast<int>(tmp.type);
+					if (static_cast<int>(MesType::NON) < typenum && typenum < static_cast<int>(MesType::MAX))
 					{
-						NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
-					}
-					if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
-					{
-						break;
-					}
-					else
-					{
-						continue;
+						MesPacket tmpdata;
+						tmpdata.resize(tmp.length);
+						if (GetNetWorkDataLength(hl.first) > tmp.length)
+						{
+							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
+						}
+						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+						{
+							break;
+						}
+						else
+						{
+							continue;
+						}
 					}
 				}
 				else

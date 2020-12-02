@@ -181,6 +181,14 @@ ActiveState NetWork::GetActive(void)
 	return network_state_->GetActive();
 }
 
+void NetWork::SetActive(ActiveState active)
+{
+	if (network_state_ != nullptr)
+	{
+		network_state_->SetActive(active);
+	}
+}
+
 int NetWork::GetNetWorkHandle(void)
 {
 	if (network_state_ == nullptr)
@@ -246,6 +254,10 @@ void NetWork::SetListID(void)
 	{
 		data[0].iData = hand.second;
 		SendMesData(MesType::ID,{ data[0],data[1]}, hand.first);
+	}
+	if (network_state_ != nullptr)
+	{
+		network_state_->SetPlayerID(std::pair<int,unsigned int>(0,playermax_));
 	}
 }
 
