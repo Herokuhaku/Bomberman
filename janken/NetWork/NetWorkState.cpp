@@ -32,10 +32,16 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 
 	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int& revcount_) {
-		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+		if (tmpdata.size() >= 2)
 		{
-			std::lock_guard<std::mutex> mut(mtx_);
-			revlist[tmpdata[0].iData / 5].first.emplace_back(data);
+			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5)
+			{
+				SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+				{
+					std::lock_guard<std::mutex> mut(mtx_);
+					revlist[tmpdata[0].iData / 5].first.emplace_back(data);
+				}
+			}
 		}
 		return true;
 		});
