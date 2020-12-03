@@ -5,6 +5,7 @@ Obj::Obj()
 	pos_ = { 0,0 };
 	size_ = { 0,0 };
 	alive_ = true;
+	animalive_ = true;
 	deleteflag_ = false;
 	objtype_ = ObjType::Obj;
 }

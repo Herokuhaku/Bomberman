@@ -32,6 +32,7 @@ protected:
 	int id_;
 	int screen;
 	bool alive_;
+	bool animalive_;
 	std::vector<int> animation_;
 	std::shared_ptr<Wall> wall_;
 	bool deleteflag_;

@@ -4,6 +4,8 @@
 #include "../_debug/_DebugDispOut.h"
 //#include "../_debug/_DebugConOut.h"
 #include "LoginScene.h"
+#include "GameScene.h"
+#include "CrossOverScene.h"
 #include "../Graphic/ImageMng.h"
 
  SceneMng* SceneMng::sInstance = nullptr;
@@ -15,6 +17,11 @@
 	 _dbgSetDrawPosFps(FPS_SIDE::LEFT, FPS_VER::TOP);
 	 while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	 {
+		 //if (lpNetWork.GetActive() == ActiveState::Lost)
+		 //{
+			// sceneNow_ = std::make_unique<CrossOverScene>(std::move(sceneNow_), std::make_unique<GameScene>());
+			// lpNetWork.SetActive(ActiveState::Non);
+		 //}
 		 now = std::chrono::system_clock::now();
 		 _dbgStartDraw();
 		 SetDrawScreen(DX_SCREEN_BACK);

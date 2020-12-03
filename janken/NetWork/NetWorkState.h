@@ -27,6 +27,7 @@ enum class ActiveState
 	Play,		// ゲーム中(ホスト/ゲスト)
 	//Instance,	// インスタンス中
 	OFFLINE,
+	Lost,
 };
 
 union unionData
@@ -109,7 +110,7 @@ public:
 	void SetPlayerID(std::pair<int, unsigned int> pl);
 	void OutCsv(void);
 	void OutData(void);
-	std::list<int> DeathList(void);
+	std::list<int> GetDeathNote(void);
 protected:
 
 	const int portNum_ = 8086;
@@ -132,5 +133,5 @@ protected:
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;
 
-	std::list<int> deathlist_;
+	std::list<int> deathnote_;
 };

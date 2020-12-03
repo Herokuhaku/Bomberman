@@ -32,21 +32,39 @@ Player::~Player()
 
 void Player::Draw(void)
 {
-	SetDrawScreen(screen);
-	ClsDrawScreen();
-	int coma = frame_++ / oneanimCnt * 5 + animationdir_[pldir_];
-	DrawGraph(0,0,animation_[coma], true);
-	if (frame_ > oneanimCnt * 4-1)frame_ = oneanimCnt*2;
-	SetDrawScreen(DX_SCREEN_BACK);
-	DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6,1.0f,0.0f,screen,true);
-	DrawBox(centerpos_.x-size_.x/2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2,0xff00ff,false);
+	if (animalive_)
+	{
+		SetDrawScreen(screen);
+		ClsDrawScreen();
+		int coma = frame_++ / oneanimCnt * 5 + animationdir_[pldir_];
+		DrawGraph(0, 0, animation_[coma], true);
+		if (!alive_ && frame_ > oneanimCnt * 4 - 1 && pldir_ == DIR::DEATH) {
+			animalive_ = false;
+		}
+		else if (frame_ > oneanimCnt * 4 - 1) {
+			frame_ = oneanimCnt * 2;
+		}
+		SetDrawScreen(DX_SCREEN_BACK);
+		DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6, 1.0f, 0.0f, screen, true);
+		DrawBox(centerpos_.x - size_.x / 2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2, 0xff00ff, false);
+	}
 }
 
 void Player::Update(void)
 {
-	update_();
-	CheckDeath();
-	CheckItem();
+	for (auto& list : lpNetWork.GetDeathNote())
+	{
+		if (list == id_)
+		{
+			pldir_ = DIR::DEATH;
+			alive_ = false;
+			return;
+		}
+	}
+	if (alive_)
+	{
+		update_();
+	}
 }
 
 int Player::GetNo()
@@ -57,6 +75,10 @@ int Player::GetNo()
 void Player::UpdateDef()
 {
 	(*controller_)();
+
+	CheckDeath();
+	CheckItem();
+
 	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
 	bombpos_ = centerpos_;
 	bool flag = false;
@@ -73,8 +95,8 @@ void Player::UpdateDef()
 				flag = true;
 			}
 		}
-		// キーをどっちも押してるとき追加
-		if (data.second[0] && data.second[1] && !flag)
+		// キーを押しとき追加
+		if (data.second[0] && !flag)
 		{
 			// listに追加
 			keylist_.emplace_front(std::pair<INPUT_ID, TrgBool>(data.first, data.second),false);
@@ -140,7 +162,7 @@ void Player::UpdateNet()
 				chronoi tmptime{std::chrono::system_clock::time_point()};
 				tmptime.inow[0] = tmp.second[5].iData;
 				tmptime.inow[1] = tmp.second[6].iData;
-				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,2,false);
+				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,tmp.second[4].iData,false);
 				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
@@ -251,7 +273,7 @@ void Player::KeyInit()
 	centerpos_ = { pos_.x + size_.x/2,pos_.y+size_.y-size_.x/2};
 	bombpos_ = centerpos_;
 	keymove_.try_emplace(INPUT_ID::RIGHT, [&](DellistData& data, bool flag) {
-		if (data.first.second[static_cast<int>(Trg::Now)] && data.first.second[static_cast<int>(Trg::Old)] && !flag)
+		if (data.first.second[static_cast<int>(Trg::Now)] && !flag)
 		{
 			centerpos_.x += (size_.x/2+ std::get<0>(plm[Have::Speed]));
 			pldir_ = DIR::RIGHT;
@@ -364,6 +386,7 @@ void Player::KeyInit()
 		if (data.first.second[static_cast<int>(Trg::Now)] && !data.first.second[static_cast<int>(Trg::Old)])
 		{
 			Vector2 tmpos = Vector2(pos_.x + size_.x / 2, pos_.y + size_.x / 2) / 32 * 32 + size_.x / 2;
+			//Vector2 tmpos = pos_;
 			int check = (tmpos.x / width) + ((tmpos.y / width) * numint["width"]);
 			if (wall_->GetMapData()["Obj"][check] == 0 && bomblist < std::get<0>(plm[Have::Bomb]))
 			{
@@ -395,7 +418,11 @@ void Player::CheckDeath(void)
 		pldir_ = DIR::DEATH;
 		unionData uni;
 		uni.iData = id_;
-		lpNetWork.SendMesAll(MesType::DEATH, {uni});
+		if (alive_) {
+			lpNetWork.SendMesAll(MesType::DEATH, { uni });
+		}
+
+		alive_ = false;
 	}
 }
 

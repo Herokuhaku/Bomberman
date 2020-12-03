@@ -37,7 +37,7 @@ bool NetWork::SetNetWorkMode(NetWorkMode nwmode)
 		network_state_ = std::make_unique<GuestState>();
 		break;
 	case NetWorkMode::NON:
-		network_state_.reset();
+		//network_state_.reset();
 		break;
 	default:
 		TRACE("セットするNetWorkModeが異常値");
@@ -157,6 +157,11 @@ void NetWork::SendTmxSize(void)
 	return;
 }
 
+bool NetWork::GetNetWorkState(void)
+{
+	return network_state_ == nullptr;
+}
+
 std::array<IPDATA,5> NetWork::GetIP(void)
 {
 	GetMyIPAddress(mipdata_.data(),5);
@@ -206,6 +211,17 @@ bool NetWork::GetRevStandby(void)
 int NetWork::GetMaxByte(void)
 {
 	return maxByte_;
+}
+
+std::list<int> NetWork::GetDeathNote(void)
+{
+	if (network_state_ == nullptr)
+	{
+		std::list<int> tmp;
+		tmp.emplace_back(-1);
+		return tmp;
+	}
+	return network_state_->GetDeathNote();
 }
 
 ActiveState NetWork::ConnectHost(IPDATA hostip)
@@ -294,6 +310,11 @@ int NetWork::StanbyCountUp(int num)
 {
 	StanbyCount_+= num;
 	return StanbyCount_;
+}
+
+std::pair<int unsigned,int> NetWork::GetListIdFront()
+{
+	return handlist_.front();
 }
 
 bool NetWork::Setting(void)

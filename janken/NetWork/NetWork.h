@@ -31,6 +31,7 @@ public:
 	void SendStandby(void);
 	void SendStart(void);
 	void SendTmxSize(void);
+	bool GetNetWorkState(void);
 	
 	//IPDATA GetIP(void);		// ipdata‚Ì’†g‚ğ•Ô‚è’l‚Æ‚µ‚Ä•Ô‚·
 	std::array<IPDATA, 5> GetIP(void);
@@ -40,6 +41,7 @@ public:
 	int GetNetWorkHandle(void);
 	bool GetRevStandby(void);
 	int GetMaxByte(void);
+	std::list<int> GetDeathNote(void);
 
 	ActiveState ConnectHost(IPDATA hostip);
 	void AddMesList(int id,MesList&,std::mutex& mtx);
@@ -52,6 +54,7 @@ public:
 	void RemoveList(int lost);
 	int ListSize(void);
 	int StanbyCountUp(int num);
+	std::pair<int unsigned,int> GetListIdFront();
 private:
 	bool Setting(void);
 

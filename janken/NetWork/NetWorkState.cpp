@@ -10,24 +10,28 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 	active_ = ActiveState::Non;
 	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
 		bool flag = false;
-	for (auto& rev : revlist[tmpdata[0].iData / 5].first)
-	{
-		if (rev.first == MesType::POS)
+		if (revlist.size() < tmpdata[0].iData / 5 + 1)
 		{
+			return true;
+		}
+		for (auto& rev : revlist[tmpdata[0].iData / 5].first)
+		{
+			if (rev.first == MesType::POS)
 			{
-				std::lock_guard<std::mutex> mut(mtx_);
-				rev.second = tmpdata;
+				{
+					std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData / 5].second);
+					rev.second = tmpdata;
+				}
+				flag = true;
 			}
-			flag = true;
 		}
-	}
-	if (!flag) {
-		SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
-		{
-			std::lock_guard<std::mutex> mut(mtx_);
-			revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(), data);
+		if (!flag) {
+			SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
+			{
+				std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData / 5].second);
+				revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(), data);
+			}
 		}
-	}
 	return true;
 		});
 
@@ -36,9 +40,13 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		{
 			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5)
 			{
+				if (revlist.size() < tmpdata[0].iData / 5 + 1)
+				{
+					return true;
+				}
 				SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
 				{
-					std::lock_guard<std::mutex> mut(mtx_);
+					std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData/5].second);
 					revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 				}
 			}
@@ -47,6 +55,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 
 	MesTypeList_.try_emplace(MesType::TMX_DATA, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		{
 			std::lock_guard<std::mutex> mut(mtx_);
 			for (auto& d : tmpdata)
@@ -67,6 +76,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 
 	MesTypeList_.try_emplace(MesType::TMX_SIZE, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		unionData uni;
 		uni = tmpdata[0];
 		lpTiledLoader.SetTmxSize(uni);
@@ -82,6 +92,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 
 	MesTypeList_.try_emplace(MesType::STANBY_HOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
 		OutData();		// csvと元々あるデータを参考にtmxデータを作成する
 		end = lpSceneMng.GetNowTime();
@@ -108,6 +119,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::STNBY_GUEST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		if (lpNetWork.GetNetWorkMode() != NetWorkMode::HOST)return true;
 		int num = lpNetWork.StanbyCountUp(1);
 		if (num == lpNetWork.ListSize())
 		{
@@ -125,13 +137,25 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::DEATH, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		for (auto& note : deathnote_)
+		{
+			if (note == tmpdata[0].iData)return true;
+		}
 		if (tmpdata.size() >= 1)
 		{
-			deathlist_.emplace_back(tmpdata[0].iData);
+			deathnote_.emplace_back(tmpdata[0].iData);
 		}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::LOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+		for (auto& note : deathnote_)
+		{
+			if (note == tmpdata[0].iData)return true;
+		}
+		if (tmpdata.size() >= 1)
+		{
+			deathnote_.emplace_back(tmpdata[0].iData);
+		}
 		return true;
 		});
 
@@ -202,7 +226,7 @@ void NetWorkState::OutCsv(void)
 	for (auto& i : revtmx)
 	{
 		int data = 0;
-		unsigned char onedata[4];
+		unsigned char onedata[4] = {0,0,0,0};
 		for (int c = 0; c < 4; c++)
 		{
 			onedata[c] = i.cData[c];
@@ -270,7 +294,7 @@ void NetWorkState::OutData(void)
 	} while (!ifp.eof());
 }
 
-std::list<int> NetWorkState::DeathList(void)
+std::list<int> NetWorkState::GetDeathNote(void)
 {
-	return deathlist_;
+	return deathnote_;
 }

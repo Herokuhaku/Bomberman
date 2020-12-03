@@ -91,7 +91,10 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
 	if (seconds <= START_LIMIT)
 	{
-		DrawFormatString(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,0x00ffff,"開始まで　%d　秒",(START_LIMIT - seconds)/1000);
+		SetFontSize(32);
+		DrawFormatString(lpSceneMng.GetScreenSize().x / 2 - GetFontSize() * 4 + 5, lpSceneMng.GetScreenSize().y / 2 + 5, 0x000000, "開始まで　%d　秒", (START_LIMIT - seconds) / 1000);
+		DrawFormatString(lpSceneMng.GetScreenSize().x/2 - GetFontSize()*4, lpSceneMng.GetScreenSize().y / 2,0xff00ff,"開始まで　%d　秒",(START_LIMIT - seconds)/1000);
+		SetFontSize(16);
 	}
 	else {
 		for (auto& obj : objlist_)
@@ -175,9 +178,9 @@ void GameScene::Draw(double ex, double rad)
 
 void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double bombtime,int length,bool sendNet)
 {
+	int tile = std::atoi(num["tilewidth"].c_str());
 	if (sendNet)
 	{
-
 		MesPacket data;
 		data.resize(7);
 		data[0].iData = ownerID;
@@ -190,6 +193,12 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double b
 		data[6].uiData = time.inow[1];
 
 		lpNetWork.SendMesAll(MesType::SET_BOMB, data);
+	}
+	else
+	{
+		pos = pos / tile * tile + (tile/2);
+		//pos += tile / 2;
+
 	}
 	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,length,wall_));
 }

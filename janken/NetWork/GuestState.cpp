@@ -42,7 +42,7 @@ bool GuestState::CheckNetWork(void)
 		int revcount_ = 0;
 		for (auto& hl : lpNetWork.GetListID())
 		{
-			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
+			while (ProcessMessage() == 0)
 			{
 				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
 				{
@@ -75,9 +75,9 @@ bool GuestState::CheckNetWork(void)
 	}
 	if (GetLostNetWork() != -1)
 	{
-		CloseNetWork(networkHandle_);
+		CloseNetWork(lpNetWork.GetListIdFront().first);
 		TRACE("Ú‘±‚ªØ‚ê‚½‚æI\n\n\n");
-		active_ = ActiveState::Non;
+		active_ = ActiveState::Lost;
 		lpNetWork.SetNetWorkMode(NetWorkMode::NON);
 		lpNetWork.SetRevStandby(false);
 		return false;

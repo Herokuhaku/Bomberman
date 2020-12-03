@@ -22,12 +22,26 @@ Bomb::~Bomb()
 
 void Bomb::Draw(void)
 {
+	int time = (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count());
 	if (alive_) {
-		int time = (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count());
 		SetDrawScreen(screen);
 		ClsDrawScreen();
 		DrawGraph(0, 0, animation_[time/bombcount_ % 2], true);
 		if (bombcount_ -10 > 0) { bombcount_ -=2; }
+		SetDrawScreen(DX_SCREEN_BACK);
+		DrawRotaGraph(pos_.x, pos_.y, 1.0f, 0.0f, screen, true);
+	}
+	else if(animalive_)
+	{
+		int anim = ((((time) / 100) % 2) == 0);
+		anim += ((time)/100);
+		if (anim >= 14){
+			animalive_ = false;
+			return;
+		}
+		SetDrawScreen(screen);
+		ClsDrawScreen();
+		DrawGraph(0, 0, animation_[anim], true);
 		SetDrawScreen(DX_SCREEN_BACK);
 		DrawRotaGraph(pos_.x, pos_.y, 1.0f, 0.0f, screen, true);
 	}
