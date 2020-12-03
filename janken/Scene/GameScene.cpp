@@ -6,6 +6,8 @@
 #include "../Obj/Player.h"
 #include "../Obj/Bomb.h"
 #include "../Obj/Fire.h"
+#include "RotationScene.h"
+#include "LoginScene.h"
 #include "../_debug/_DebugDispOut.h"
 
 GameScene::GameScene():time{lpSceneMng.GetNowTime()}
@@ -15,6 +17,8 @@ GameScene::GameScene():time{lpSceneMng.GetNowTime()}
 
 GameScene::~GameScene()
 {
+	lpNetWork.Destroy();
+	lpTiledLoader.Destroy();
 }
 
 void GameScene::Init(void)
@@ -66,8 +70,8 @@ void GameScene::Init(void)
 		{
 			if (playerID.second * 5 > id || lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
 			{
-				objlist_.emplace_back(std::make_shared<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
-					Vector2{ 32,51 }, wall_, *this));
+				objlist_.emplace_back(std::make_unique<Player>(Vector2({ i % std::atoi(num["width"].c_str()) * 32,i / std::atoi(num["width"].c_str()) * 32}),
+					Vector2{ 32,51 }, wall_,*this));
 				id += 5;
 			}
 		}
@@ -130,6 +134,10 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		
 		});
 
+	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_L))
+	{
+		return std::make_unique<RotationScene>(std::move(own),std::make_unique<LoginScene>());
+	}
 	return own;
 }
 

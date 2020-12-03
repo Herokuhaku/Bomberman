@@ -215,6 +215,12 @@ void NetWorkState::SetPlayerID(std::pair<int, unsigned int> pl)
 	player = pl;
 }
 
+void NetWorkState::DeletePlayerList()
+{
+	revlist.clear();
+	revlist.shrink_to_fit();
+}
+
 void NetWorkState::OutCsv(void)
 {
 	std::ofstream fp("Tiled/mapdata/csv.tmx"/*,std::ios::binary*/);

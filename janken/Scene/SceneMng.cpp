@@ -17,11 +17,6 @@
 	 _dbgSetDrawPosFps(FPS_SIDE::LEFT, FPS_VER::TOP);
 	 while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	 {
-		 //if (lpNetWork.GetActive() == ActiveState::Lost)
-		 //{
-			// sceneNow_ = std::make_unique<CrossOverScene>(std::move(sceneNow_), std::make_unique<GameScene>());
-			// lpNetWork.SetActive(ActiveState::Non);
-		 //}
 		 now = std::chrono::system_clock::now();
 		 _dbgStartDraw();
 		 SetDrawScreen(DX_SCREEN_BACK);

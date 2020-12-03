@@ -31,8 +31,23 @@ class TiledLoader
 public:
 	static TiledLoader& GetInstance()
 	{
-		static TiledLoader sInstance;
-		return sInstance;
+		Create();
+		return *sInstance;
+	}
+	static void Create()
+	{
+		if (sInstance == nullptr)
+		{
+			sInstance = new TiledLoader();
+		}
+	}
+	static void Destroy()
+	{
+		if (sInstance != nullptr)
+		{
+			delete sInstance;
+		}
+		sInstance = nullptr;
 	}
 	TmxData ReadTmx(std::string filename);
 	TsxData ReadTsx(std::string filename);
@@ -48,5 +63,6 @@ private:
 	std::map<int,TmxLayerData> layer_;
 	TiledLoader();
 	~TiledLoader();
+	static TiledLoader* sInstance;
 };
 

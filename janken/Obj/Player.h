@@ -42,7 +42,6 @@ class Player :
 	public Obj
 {
 public:
-	Player();
 	Player(Vector2 pos,Vector2 size,std::shared_ptr<Wall>& wall,BaseScene& scene);
 	~Player();
 	void Draw(void)override;
@@ -84,8 +83,8 @@ private:
 	
 	MOVE_TYPE type;						// movetypeŠm”F—p
 	
-	std::unique_ptr<BaseScene> scene_;
-	
+	//std::unique_ptr<BaseScene> scene_;
+	BaseScene& scene_;
 	Vector2 bombpos_;
 	std::map<std::string, std::string> numstr;
 

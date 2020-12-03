@@ -8,6 +8,8 @@
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 #include "_debug/_DebugConOut.h"
 
+TiledLoader* TiledLoader::sInstance = nullptr;
+
 namespace xml = rapidxml;
 using rapid_node = xml::xml_node<>*;
 using rapid_atr = xml::xml_attribute<>*;

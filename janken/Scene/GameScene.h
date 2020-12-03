@@ -10,7 +10,7 @@
 using UniObj = std::unique_ptr<Obj>;
 using ShareObj = std::shared_ptr<Obj>;
 
-using VecObj = std::vector<ShareObj>;
+using VecObj = std::vector<UniObj>;
 using ListObj = std::list<ShareObj>;
 
 using TimeP = std::chrono::system_clock::time_point;

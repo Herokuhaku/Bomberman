@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <mutex>
 #include"../NetWork/NetWork.h"
 #include "../_debug/_DebugConOut.h"
 #include "../Graphic/ImageMng.h"
@@ -11,6 +12,7 @@
 #include "RotationScene.h"
 #include "GameScene.h"
 #include "SceneMng.h"
+
 LoginScene::LoginScene() :starttime_{std::chrono::system_clock::now()}
 {
 	Init();
@@ -52,8 +54,10 @@ void LoginScene::Init(void)
 	tsxdata_ = lpTiledLoader.ReadTsx("Tiled/mapdata/map");
 	lpTiledLoader.TmxCsv();
 
-	lpNetWork.Update();
+	//lpNetWork.Update();
 	screenID = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y);
+	updateMode_ = UpdateMode::SetNetWorkMode;
+	netWorkRunflag_ = false;
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
@@ -104,6 +108,7 @@ void LoginScene::KeyLoad(void)
 
 bool LoginScene::SetNetWorkMode(void)
 {
+
 	Vector2 tmpos = fpos_;
 	int fsize = GetFontSize();
 	int nextf = false;
@@ -470,6 +475,7 @@ bool LoginScene::Trg(int id)
 {
 	return !oldbuf[id] && nowbuf[id];
 }
+
 
 void LoginScene::ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& tmpip,int fsize)
 {

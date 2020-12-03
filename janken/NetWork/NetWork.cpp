@@ -6,9 +6,11 @@
 #include "../_debug/_DebugConOut.h"
 #include "../TiledLoader.h"
 
+NetWork* NetWork::sInstance = nullptr;
+
 void NetWork::newUpdate(void)
 {
-	while (ProcessMessage() == 0)
+	while (ProcessMessage() == 0 && !delflag)
 	{
 		if (network_state_ != nullptr)
 		{
@@ -25,6 +27,7 @@ void NetWork::Update(void)
 
 bool NetWork::SetNetWorkMode(NetWorkMode nwmode)
 {
+	Update();
 	switch (nwmode)
 	{
 	case NetWorkMode::OFFLINE:
@@ -242,6 +245,20 @@ void NetWork::AddMesList(int id, MesList& list, std::mutex& mtx)
 	network_state_->SetPlayerList(id,list,mtx);
 }
 
+void NetWork::DeleteMesList()
+{
+	if (network_state_ == nullptr)
+	{
+		return;
+	}
+	network_state_->DeletePlayerList();
+}
+
+void NetWork::DeleteNetWorkState()
+{
+	network_state_.reset();
+}
+
 chronoi NetWork::TimeStart(void)
 {
 	if (network_state_ == nullptr)
@@ -341,10 +358,12 @@ bool NetWork::Setting(void)
 NetWork::NetWork()
 {
 	revStandby_ = false;
+	delflag = false;
 	mipdata_ = {};
 	Setting();
 }
 
 NetWork::~NetWork()
 {
+	delflag = true;
 }

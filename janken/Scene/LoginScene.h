@@ -8,7 +8,6 @@
 #include "BaseScene.h"
 #include "../common/Vector2.h"
 #include "../Graphic/LAYER.h"
-
 enum class GuestMode
 {
 	NOIP,
@@ -68,6 +67,8 @@ private:
 
 	chronoi starttime_;
 	std::chrono::system_clock::time_point end;
+
+	bool netWorkRunflag_;
 	/*std::map<std::string,LAYER> layer_;
 	std::map<std::string,std::vector<int>> mapdata_;*/
 };

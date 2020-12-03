@@ -108,6 +108,7 @@ public:
 	chronoi TimeStart(void);
 	std::pair<int, int> PlayerID(void);
 	void SetPlayerID(std::pair<int, unsigned int> pl);
+	void DeletePlayerList();
 	void OutCsv(void);
 	void OutData(void);
 	std::list<int> GetDeathNote(void);

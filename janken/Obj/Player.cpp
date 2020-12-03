@@ -11,14 +11,7 @@
 int Player::countid_ = 0;
 int Player::fallCount = 0;
 
-Player::Player()
-{
-	pos_ = { 0,0 };
-	size_ = { 0,0 };
-	Init();
-}
-
-Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall>& wall,BaseScene& scene) :scene_(std::move(&scene))
+Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall>& wall,BaseScene& scene) :scene_(scene)
 {
 	pos_ = pos;
 	size_ = size;
@@ -28,6 +21,7 @@ Player::Player(Vector2 pos, Vector2 size, std::shared_ptr<Wall>& wall,BaseScene&
 
 Player::~Player()
 {
+	countid_ -= 5;
 }
 
 void Player::Draw(void)
@@ -162,7 +156,7 @@ void Player::UpdateNet()
 				chronoi tmptime{std::chrono::system_clock::time_point()};
 				tmptime.inow[0] = tmp.second[5].iData;
 				tmptime.inow[1] = tmp.second[6].iData;
-				dynamic_cast<GameScene&>(*scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,tmp.second[4].iData,false);
+				dynamic_cast<GameScene&>(scene_).SetBomb(tmp.second[0].iData,tmp.second[1].iData, { tmp.second[2].iData ,tmp.second[3].iData },tmptime.now,3000,tmp.second[4].iData,false);
 				wall_->ChangeMapData("Obj", tmpos, -1);
 			}
 			meslist_.erase(meslist_.begin());
@@ -286,14 +280,16 @@ void Player::KeyInit()
 			{
 				pos_.x += std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y/32*32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
+				return true;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.x += std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;	// 32ÇÃî{êîÇ…Ç»ÇÈÇÊÇ§Ç…êÿÇËéÃÇƒ
+				return true;
 			}
-			return true;
+			centerpos_.x -= (size_.x / 2 + std::get<0>(plm[Have::Speed]));
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)] || !data.first.second[static_cast<int>(Trg::Old)])
 		{
@@ -313,14 +309,16 @@ void Player::KeyInit()
 			{
 				pos_.x -= std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;
+				return true;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.x -= std::get<0>(plm[Have::Speed]);
 				pos_.y = centerpos_.y / 32 * 32;
+				return true;
 			}
-			return true;
+			centerpos_.x += (size_.x / 2 + std::get<0>(plm[Have::Speed]));
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
@@ -340,14 +338,16 @@ void Player::KeyInit()
 			{
 				pos_.y -= std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
+				return true;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.y -= std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
+				return true;
 			}
-			return true;
+			centerpos_.y += (size_.x / 2 + std::get<0>(plm[Have::Speed]));
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
@@ -367,14 +367,16 @@ void Player::KeyInit()
 			{
 				pos_.y += std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
+				return true;
 			}
 			else if (wall_->GetMapData()["Obj"][bombcheck] == 255 &&
 				wall_->GetMapData()["Obj"][next] == 0)
 			{
 				pos_.y += std::get<0>(plm[Have::Speed]);
 				pos_.x = centerpos_.x / 32 * 32;
+				return true;
 			}
-			return true;
+			centerpos_.y -= (size_.x / 2 + std::get<0>(plm[Have::Speed]));
 		}
 		else if (!data.first.second[static_cast<int>(Trg::Now)])
 		{
@@ -394,7 +396,7 @@ void Player::KeyInit()
 				{
 					if (!bom.second)
 					{
-						dynamic_cast<GameScene&>(*scene_).SetBomb(id_,id_+bom.first, tmpos, lpSceneMng.GetNowTime(), 3000, std::get<0>(plm[Have::Length]), true);
+						dynamic_cast<GameScene&>(scene_).SetBomb(id_,id_+bom.first, tmpos, lpSceneMng.GetNowTime(), 3000, std::get<0>(plm[Have::Length]), true);
 						bom.second = true;
 						break;
 					}
@@ -428,7 +430,7 @@ void Player::CheckDeath(void)
 
 void Player::CheckItem(void)
 {
-	bomblist = dynamic_cast<GameScene&>(*scene_).BombCount(id_);
+	bomblist = dynamic_cast<GameScene&>(scene_).BombCount(id_);
 	int checknum = wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])];
 	// îöíeêî
 	if (checknum == std::get<2>(plm[Have::Bomb]))

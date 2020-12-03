@@ -15,8 +15,23 @@ class NetWork
 public:
 	static NetWork& GetInstance()
 	{
-		static NetWork sInstance;
-		return sInstance;
+		Create();
+		return *sInstance;
+	}
+	static void Create()
+	{
+		if (sInstance == nullptr)
+		{
+			sInstance = new NetWork;
+		}
+	}
+	static void Destroy()
+	{
+		if (sInstance != nullptr)
+		{
+			delete sInstance;
+		}
+		sInstance = nullptr;
 	}
 	void newUpdate(void);
 	void Update(void);
@@ -45,6 +60,9 @@ public:
 
 	ActiveState ConnectHost(IPDATA hostip);
 	void AddMesList(int id,MesList&,std::mutex& mtx);
+	void DeleteMesList();
+	void DeleteNetWorkState();
+
 	chronoi TimeStart(void);
 	
 	void SetListID(void);
@@ -73,8 +91,11 @@ private:
 	unsigned long long MaxCnt;
 	ListInt handlist_;
 	int StanbyCount_;
+	bool delflag;
 	//
 	NetWork();
 	~NetWork();
+
+	static NetWork* sInstance;
 };
 
