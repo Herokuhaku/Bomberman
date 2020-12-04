@@ -24,6 +24,13 @@ enum class UpdateMode
 	MAX
 };
 
+struct Color
+{
+	unsigned char Red;
+	unsigned char Green;
+	unsigned char Blue;
+};
+
 class LoginScene :
 	public BaseScene
 {
@@ -69,6 +76,7 @@ private:
 	std::chrono::system_clock::time_point end;
 
 	bool netWorkRunflag_;
+	Color col_;
 	/*std::map<std::string,LAYER> layer_;
 	std::map<std::string,std::vector<int>> mapdata_;*/
 };

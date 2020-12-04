@@ -17,8 +17,8 @@ GameScene::GameScene():time{lpSceneMng.GetNowTime()}
 
 GameScene::~GameScene()
 {
-	lpNetWork.Destroy();
 	lpTiledLoader.Destroy();
+	lpNetWork.Destroy();
 }
 
 void GameScene::Init(void)
@@ -133,10 +133,9 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		return  flag;
 		
 		});
-
-	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_L))
+	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_ESCAPE))
 	{
-		return std::make_unique<RotationScene>(std::move(own),std::make_unique<LoginScene>());
+		return std::make_unique<RotationScene>(std::move(own), std::make_unique<LoginScene>());
 	}
 	return own;
 }
@@ -195,7 +194,7 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double b
 		data[1].iData = selfID;
 		data[2].iData = pos.x;
 		data[3].iData = pos.y;
-		data[4].iData = bombtime / 1000.0;
+		data[4].iData = length;
 		time.now = lpSceneMng.GetNowTime();
 		data[5].uiData = time.inow[0];
 		data[6].uiData = time.inow[1];

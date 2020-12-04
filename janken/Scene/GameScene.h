@@ -15,8 +15,6 @@ using ListObj = std::list<ShareObj>;
 
 using TimeP = std::chrono::system_clock::time_point;
 
-
-
 class GameScene :
 	public BaseScene
 {

@@ -54,14 +54,17 @@ void LoginScene::Init(void)
 	tsxdata_ = lpTiledLoader.ReadTsx("Tiled/mapdata/map");
 	lpTiledLoader.TmxCsv();
 
-	//lpNetWork.Update();
 	screenID = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y);
 	updateMode_ = UpdateMode::SetNetWorkMode;
 	netWorkRunflag_ = false;
+	col_.Red = rand() % 255;
+	col_.Blue = rand() % 255;
+	col_.Green = rand() % 255;
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 {
+	Draw();
 	if (updateMode_ != UpdateMode::SetNetWorkMode && lpNetWork.GetNetWorkMode() == NetWorkMode::NON)
 	{
 		updateMode_ = UpdateMode::SetNetWorkMode;
@@ -73,7 +76,7 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	}
 	KeyLoad();
 
-	Draw();
+
 
 	return own;
 }
@@ -82,6 +85,7 @@ void LoginScene::Draw(void)
 {
 	//DrawGraph(0, 0, plimage_, true);
 	//lpImageMng.AddDraw({ lpImageMng.GetID("image/“ä‚Ì‚É‚±‚¿‚á‚ñ.png")[0],pos_.x,pos_.y,1.0f,0.0f,LAYER::BG,100 });
+	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
 }
 
 void LoginScene::Draw(double ex, double rad)
@@ -89,7 +93,7 @@ void LoginScene::Draw(double ex, double rad)
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
 
-	DrawBox(0,0,lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y,0xffffff,true);
+	DrawBox(0,0,lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y,GetColor(col_.Red,col_.Green,col_.Blue),true);
 
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x / 2, lpSceneMng.GetScreenSize().y / 2, ex, rad, screenID, true);
@@ -204,6 +208,7 @@ bool LoginScene::SetNetWorkMode(void)
 	}
 	if (num != -1)
 	{
+		lpNetWork.Update();
 		switch (lpNetWork.GetNetWorkMode())
 		{
 		case NetWorkMode::HOST:
@@ -244,6 +249,7 @@ bool LoginScene::StartInit(void)
 	}
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)
 	{
+		lpNetWork.SetActive(ActiveState::Play);
 		updateMode_ = UpdateMode::GamePlay;
 	}
 	if (lpNetWork.GetActive() == ActiveState::Play)
@@ -372,15 +378,20 @@ bool LoginScene::Matching(void)
 
 bool LoginScene::GamePlay(void)
 {
+	if (lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE) {
+		lpNetWork.SetTimeStart(lpSceneMng.GetNowTime());
+		return false;
+	}
 	chronoi time{ std::chrono::system_clock::now() };
 	MesPacket data;
+
 	data.resize(2);
 
 	time.now = lpSceneMng.GetNowTime();
 	data[0].iData = time.inow[0];
 	data[1].iData = time.inow[1];
 
-	lpNetWork.SendMesAll(MesType::COUNT_DOWN_GAME,data);
+	lpNetWork.SendMesAll(MesType::COUNT_DOWN_GAME, data);
 	return false;
 }
 

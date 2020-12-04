@@ -64,7 +64,7 @@ public:
 	void DeleteNetWorkState();
 
 	chronoi TimeStart(void);
-	
+	void SetTimeStart(std::chrono::system_clock::time_point);
 	void SetListID(void);
 	ListInt GetListID(void);
 	std::pair<int, int> PlayerID(void);

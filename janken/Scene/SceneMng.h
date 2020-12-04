@@ -7,6 +7,8 @@
 
 #define lpSceneMng SceneMng::GetInstance()
 
+using TimeP = std::chrono::system_clock::time_point;
+
 class SceneMng
 {
 public:

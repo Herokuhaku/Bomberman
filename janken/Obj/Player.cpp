@@ -70,7 +70,9 @@ void Player::UpdateDef()
 {
 	(*controller_)();
 
-	CheckDeath();
+	if (CheckDeath()) {
+		return;
+	}
 	CheckItem();
 
 	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
@@ -186,16 +188,21 @@ void Player::Init(void)
 			type = MOVE_TYPE::Def;
 			controller_ = std::make_unique<KeyBoard>();
 		}
-		else if(id_ % 5 == 0 && id_ % 10 != 0)
+		else
 		{
 			update_ = std::bind(&Player::UpdateNet, this);
 			type = MOVE_TYPE::Net;
 		}
-		else
-		{
-			update_ = std::bind(&Player::UpdateAuto, this);
-			type = MOVE_TYPE::Auto;
-		}
+		//else if(id_ % 5 == 0 && id_ % 10 != 0)
+		//{
+		//	update_ = std::bind(&Player::UpdateNet, this);
+		//	type = MOVE_TYPE::Net;
+		//}
+		//else
+		//{
+		//	update_ = std::bind(&Player::UpdateAuto, this);
+		//	type = MOVE_TYPE::Auto;
+		//}
 	}
 	else if(lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
@@ -413,7 +420,7 @@ void Player::KeyInit()
 	keylist_.clear();
 }
 
-void Player::CheckDeath(void)
+bool Player::CheckDeath(void)
 {
 	if (wall_->GetFireData()[(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])].first != 255)
 	{
@@ -425,7 +432,9 @@ void Player::CheckDeath(void)
 		}
 
 		alive_ = false;
+		return true;
 	}
+	return false;
 }
 
 void Player::CheckItem(void)

@@ -6,7 +6,7 @@ class HostState :
 public:
 	HostState();
 	virtual	~HostState();
-	virtual NetWorkMode GetMode(void) { return NetWorkMode::HOST; };
+	NetWorkMode GetMode(void) { return NetWorkMode::HOST; };
 
 	bool CheckNetWork(void);
 private:

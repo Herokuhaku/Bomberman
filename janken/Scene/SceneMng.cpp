@@ -7,6 +7,7 @@
 #include "GameScene.h"
 #include "CrossOverScene.h"
 #include "../Graphic/ImageMng.h"
+#include "RotationScene.h"
 
  SceneMng* SceneMng::sInstance = nullptr;
 
@@ -15,7 +16,7 @@
 	 sceneNow_ = std::make_unique<LoginScene>();
 
 	 _dbgSetDrawPosFps(FPS_SIDE::LEFT, FPS_VER::TOP);
-	 while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
+	 while (!ProcessMessage())
 	 {
 		 now = std::chrono::system_clock::now();
 		 _dbgStartDraw();

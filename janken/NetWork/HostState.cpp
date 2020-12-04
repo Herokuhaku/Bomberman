@@ -19,13 +19,13 @@ bool HostState::CheckNetWork(void)
 {
 	end = std::chrono::system_clock::now();
 	int handle = GetNewAcceptNetWork();
-	if(active_ != ActiveState::Wait && active_ != ActiveState::Non)
+	if(active_ != ActiveState::Wait && active_ != ActiveState::Non && active_ != ActiveState::Lost)
 	{
 		MesHeader tmp;
 		int revcount_ = 0;
 		for (auto& hl : lpNetWork.GetListID())
 		{
-			while (ProcessMessage() == 0 && GetLostNetWork() == -1)
+			while (ProcessMessage() == 0)
 			{
 				if (GetNetWorkDataLength(hl.first) >= sizeof(MesHeader))
 				{
@@ -97,10 +97,11 @@ bool HostState::CheckNetWork(void)
 		TRACE("Ú‘±‚ªØ‚ê‚½‚æ\n");
 		lpNetWork.RemoveList(lost);
 		//PreparationListenNetWork(portNum_);
-		if(lpNetWork.ListSize() >= 0)
+		if(lpNetWork.ListSize() <= 0)
 		{
-			active_ = ActiveState::Non;
+			active_ = ActiveState::Lost;
 			lpNetWork.SetNetWorkMode(NetWorkMode::NON);
+			StopListenNetWork();
 		}
 		return false;
 	}

@@ -27,7 +27,7 @@ void NetWork::Update(void)
 
 bool NetWork::SetNetWorkMode(NetWorkMode nwmode)
 {
-	Update();
+	//Update();
 	switch (nwmode)
 	{
 	case NetWorkMode::OFFLINE:
@@ -40,7 +40,7 @@ bool NetWork::SetNetWorkMode(NetWorkMode nwmode)
 		network_state_ = std::make_unique<GuestState>();
 		break;
 	case NetWorkMode::NON:
-		//network_state_.reset();
+		network_state_.reset();
 		break;
 	default:
 		TRACE("セットするNetWorkModeが異常値");
@@ -269,6 +269,15 @@ chronoi NetWork::TimeStart(void)
 	return network_state_->TimeStart();
 }
 
+void NetWork::SetTimeStart(std::chrono::system_clock::time_point time)
+{
+	if (network_state_ == nullptr)
+	{
+		return;
+	}
+	network_state_->SetTimeStart(time);
+}
+
 void NetWork::SetListID(void)
 {
 	int playermax_ = handlist_.size() + 1;
@@ -331,6 +340,10 @@ int NetWork::StanbyCountUp(int num)
 
 std::pair<int unsigned,int> NetWork::GetListIdFront()
 {
+	if (handlist_.size() < 1)
+	{
+		return {-1,0};
+	}
 	return handlist_.front();
 }
 

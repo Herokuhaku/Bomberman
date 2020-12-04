@@ -78,7 +78,7 @@ bool GuestState::CheckNetWork(void)
 		CloseNetWork(lpNetWork.GetListIdFront().first);
 		TRACE("Ú‘±‚ªØ‚ê‚½‚æI\n\n\n");
 		active_ = ActiveState::Lost;
-		lpNetWork.SetNetWorkMode(NetWorkMode::NON);
+		//lpNetWork.SetNetWorkMode(NetWorkMode::NON);
 		lpNetWork.SetRevStandby(false);
 		return false;
 	}

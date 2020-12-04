@@ -106,6 +106,7 @@ public:
 	virtual bool CheckNetWork(void);
 	void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 	chronoi TimeStart(void);
+	void SetTimeStart(std::chrono::system_clock::time_point time);		// OFFLINEÉÇÅ[Éhóp
 	std::pair<int, int> PlayerID(void);
 	void SetPlayerID(std::pair<int, unsigned int> pl);
 	void DeletePlayerList();
@@ -133,6 +134,6 @@ protected:
 
 	std::chrono::system_clock::time_point begin;
 	std::chrono::system_clock::time_point end;
-
+	std::map<MesType, bool> mesFlag_;
 	std::list<int> deathnote_;
 };

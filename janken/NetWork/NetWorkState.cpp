@@ -38,7 +38,9 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int& revcount_) {
 		if (tmpdata.size() >= 2)
 		{
-			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5)
+			int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
+			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5 && tmpdata[0].iData != tmpdata[1].iData && 
+				mesFlag_[MesType::COUNT_DOWN_GAME] &&  seconds >= START_LIMIT)
 			{
 				if (revlist.size() < tmpdata[0].iData / 5 + 1)
 				{
@@ -102,19 +104,23 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::COUNT_DOWN_ROOM, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
-		if (tmpdata.size() >= 2)
+		mesFlag_.try_emplace(MesType::COUNT_DOWN_ROOM,false);
+		if (tmpdata.size() >= 2 && !mesFlag_[MesType::COUNT_DOWN_ROOM])
 		{
 			timestart_.uninow[0] = tmpdata[0];
 			timestart_.uninow[1] = tmpdata[1];
+			active_ = ActiveState::Matching;
+			mesFlag_[MesType::COUNT_DOWN_ROOM] = true;
 		}
-		active_ = ActiveState::Matching;
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::ID, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
-		if (tmpdata.size() >= 2)
+		if (tmpdata.size() >= 2 && tmpdata[0].iData % 5 == 0&& tmpdata[0].iData <= tmpdata[1].iData*5-5
+			&& !mesFlag_[MesType::ID])
 		{
 			player.first = tmpdata[0].iData;
 			player.second = tmpdata[1].iData;
+			mesFlag_[MesType::ID] = true;
 		}
 		return true;
 		});
@@ -124,15 +130,18 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		if (num == lpNetWork.ListSize())
 		{
 			active_ = ActiveState::Play;
+			timestart_.now = lpSceneMng.GetNowTime();
 			TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
 		}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::COUNT_DOWN_GAME, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
-		if (tmpdata.size() >= 2)
+		if (lpNetWork.GetActive() != ActiveState::Play)return true;
+		if (tmpdata.size() >= 2 && !mesFlag_[MesType::COUNT_DOWN_GAME])
 		{
 			timestart_.uninow[0] = tmpdata[0];
 			timestart_.uninow[1] = tmpdata[1];
+			mesFlag_[MesType::COUNT_DOWN_GAME] = true;
 		}
 		return true;
 		});
@@ -203,6 +212,11 @@ void NetWorkState::SetPlayerList(int id, MesList& list, std::mutex& mtx)
 chronoi NetWorkState::TimeStart(void)
 {
 	return timestart_;
+}
+
+void NetWorkState::SetTimeStart(std::chrono::system_clock::time_point time)
+{
+	timestart_.now = time;
 }
 
 std::pair<int, int> NetWorkState::PlayerID(void)

@@ -56,7 +56,7 @@ private:
 
 	void KeyInit();
 
-	void CheckDeath(void);
+	bool CheckDeath(void);
 	void CheckItem(void);
 
 	void DirRight(Vector2,int);
