@@ -165,6 +165,18 @@ bool NetWork::GetNetWorkState(void)
 	return network_state_ == nullptr;
 }
 
+std::pair<int, unsigned int> NetWork::GetLostPlayer(int lost)
+{
+	for (auto& list : handlist_)
+	{
+		if (list.first == lost)
+		{
+			return list;
+		}
+	}
+	return {-1,0};
+}
+
 std::array<IPDATA,5> NetWork::GetIP(void)
 {
 	GetMyIPAddress(mipdata_.data(),5);

@@ -95,7 +95,13 @@ bool HostState::CheckNetWork(void)
 	if (lost != -1)
 	{
 		TRACE("Ú‘±‚ªØ‚ê‚½‚æ\n");
+		MesPacket data;
+		data.resize(2);
+		std::pair<int,unsigned int> pl = lpNetWork.GetLostPlayer(lost);
+		data[0].iData = pl.first;
+		data[1].iData = pl.second;
 		lpNetWork.RemoveList(lost);
+		lpNetWork.SendMesAll(MesType::LOST, data);
 		//PreparationListenNetWork(portNum_);
 		if(lpNetWork.ListSize() <= 0)
 		{

@@ -32,6 +32,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 				revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(), data);
 			}
 		}
+		lpNetWork.SendMesAll(MesType::POS,tmpdata);
 	return true;
 		});
 
@@ -51,6 +52,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 					std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData/5].second);
 					revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 				}
+				lpNetWork.SendMesAll(MesType::SET_BOMB, tmpdata);
 			}
 		}
 		return true;
@@ -131,6 +133,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		{
 			active_ = ActiveState::Play;
 			timestart_.now = lpSceneMng.GetNowTime();
+			mesFlag_[MesType::COUNT_DOWN_GAME] = true;
 			TRACE("ホスト側へ通達   :   ゲストの準備ができたよ\n");
 		}
 		return true;
@@ -154,6 +157,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		{
 			deathnote_.emplace_back(tmpdata[0].iData);
 		}
+		lpNetWork.SendMesAll(MesType::DEATH, tmpdata);
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::LOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {

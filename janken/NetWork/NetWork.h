@@ -48,6 +48,7 @@ public:
 	void SendTmxSize(void);
 	bool GetNetWorkState(void);
 	
+	std::pair<int, unsigned int> GetLostPlayer(int);
 	//IPDATA GetIP(void);		// ipdata‚Ì’†g‚ğ•Ô‚è’l‚Æ‚µ‚Ä•Ô‚·
 	std::array<IPDATA, 5> GetIP(void);
 	NetWorkMode GetNetWorkMode(void);
