@@ -22,7 +22,7 @@ Bomb::~Bomb()
 
 void Bomb::Draw(void)
 {
-	int time = (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count());
+	__int64 time = (std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count());
 	if (alive_) {
 		SetDrawScreen(screen);
 		ClsDrawScreen();
@@ -33,7 +33,7 @@ void Bomb::Draw(void)
 	}
 	else if(animalive_)
 	{
-		int anim = ((((time) / 100) % 2) == 0);
+		__int64 anim = ((((time) / 100) % 2) == 0);
 		anim += ((time)/100);
 		if (anim >= 14){
 			animalive_ = false;
@@ -60,7 +60,7 @@ void Bomb::Update(void)
 	{
 		int no = 0;
 		Vector2 tmpos = pos_;
-		double clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
+		__int64 clock = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - now_).count();
 		std::function<void(Vector2, Vector2, int,DIR,int)> longfire = [&](Vector2 tmp, Vector2 plus, int num,DIR dir,int blockf) {
 			tmp += plus;
 			if (clock >= lengthtime_ * num)
@@ -71,9 +71,8 @@ void Bomb::Update(void)
 				{
 					// 最初に炎を作った時間を記録
 					if (num < length_ && !wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
-					int frame = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count();
-					int frame_ = frame / lengthtime_;
-					int anim = static_cast<int>(abs(abs(3 - frame_) - 3))*3;
+					__int64 frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count()/static_cast<int>(lengthtime_);
+					__int64 anim = static_cast<__int64>(abs(abs(3 - frame_) - 3))*3;
 					// 最大カウント数(4方向合わせて最大どこまで伸びたか)
 					maxcount_ = max(num, maxcount_);
 					// ブロックがあればブロックを消してフラグを立てる
@@ -90,7 +89,7 @@ void Bomb::Update(void)
 						anim++;
 					}
 					// 炎のアニメーション指定
-					wall_->ChangeFire(tmp,1+anim, dir);
+					wall_->ChangeFire(tmp,1+static_cast<int>(anim), dir);
 					// 次の炎を出していいか判定
 					if (num < length_ - 1 && !blockflag_[blockf])
 					{
@@ -112,10 +111,11 @@ void Bomb::Update(void)
 
 		std::function<void(Vector2, int, std::chrono::system_clock::time_point)>crossfire =
 			[&](Vector2 tmp, int num, std::chrono::system_clock::time_point time) {
-			int frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / lengthtime_;
-			int anim = abs(abs(3 - frame_) - 3);
+			__int64 frame_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - wastime_[num].second).count() / static_cast<int>(lengthtime_);
+			__int64 anim = abs(abs(3 - frame_) - 3);
 			anim *= 3;
-			wall_->ChangeFire(tmp,num + anim, DIR::RIGHT);
+
+			wall_->ChangeFire(tmp,num + static_cast<int>(anim), DIR::RIGHT);
 			if (clock >= lengthtime_ * num)
 			{
 				if(!wastime_[num].first)wastime_[num].second = end_; wastime_[num].first = true;
@@ -133,7 +133,8 @@ void Bomb::Update(void)
 	}
 	else
 	{
-		if (wall_->GetFireData()[(pos_.x / width) + ((pos_.y / width) * numint["width"])].first != 255)
+		int check = (pos_.x / width) + ((pos_.y / width) * numint["width"]);
+		if (wall_->GetFireData()[check].first != 255)
 		{
 			alive_ = false;
 			now_ = end_;

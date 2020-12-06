@@ -422,7 +422,8 @@ void Player::KeyInit()
 
 bool Player::CheckDeath(void)
 {
-	if (wall_->GetFireData()[(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])].first != 255)
+	int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
+	if (wall_->GetFireData()[check].first != 255)
 	{
 		pldir_ = DIR::DEATH;
 		unionData uni;
@@ -440,7 +441,8 @@ bool Player::CheckDeath(void)
 void Player::CheckItem(void)
 {
 	bomblist = dynamic_cast<GameScene&>(scene_).BombCount(id_);
-	int checknum = wall_->GetMapData()["Item"][(centerpos_.x / width) + ((centerpos_.y / width) * numint["width"])];
+	int check = (centerpos_.x / width) + ((centerpos_.y / width) * numint["width"]);
+	int checknum = wall_->GetMapData()["Item"][check];
 	// ”š’e”
 	if (checknum == std::get<2>(plm[Have::Bomb]))
 	{

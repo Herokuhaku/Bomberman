@@ -10,7 +10,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 	active_ = ActiveState::Non;
 	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
 		bool flag = false;
-		if (revlist.size() < tmpdata[0].iData / 5 + 1)
+		if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1)
 		{
 			return true;
 		}
@@ -39,11 +39,11 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int& revcount_) {
 		if (tmpdata.size() >= 2)
 		{
-			int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
+			__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
 			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5 && tmpdata[0].iData != tmpdata[1].iData && 
 				mesFlag_[MesType::COUNT_DOWN_GAME] &&  seconds >= START_LIMIT)
 			{
-				if (revlist.size() < tmpdata[0].iData / 5 + 1)
+				if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1)
 				{
 					return true;
 				}
@@ -301,8 +301,8 @@ void NetWorkState::OutData(void)
 			int pos;
 			ofp << save;
 			ofp << "\n";
-			rpos += save.size() + 2;
-			if (pos = save.find("csv"), pos != std::string::basic_string::npos)
+			rpos += static_cast<int>(save.size()) + 2;
+			if (pos = static_cast<int>(save.find("csv")), pos != std::string::basic_string::npos)
 			{
 				ofp.seekp(rpos);
 				std::string hozon;
@@ -311,7 +311,7 @@ void NetWorkState::OutData(void)
 				{
 					ofp << hozon;
 					ofp << "\n";
-					rpos += hozon.size() + 2;
+					rpos += static_cast<int>(hozon.size()) + 2;
 				}
 			}
 		}

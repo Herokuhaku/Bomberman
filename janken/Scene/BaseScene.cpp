@@ -1,8 +1,10 @@
 #include <DxLib.h>
 #include "BaseScene.h"
+#include "SceneMng.h"
 #include "../Graphic/ImageMng.h"
 BaseScene::BaseScene()
 {
+	screenID = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y,true);
 }
 
 BaseScene::~BaseScene()

@@ -157,8 +157,6 @@
     <ClCompile Include="Scene\RotationScene.cpp" />
     <ClCompile Include="Scene\CrossOverScene.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
-    <ClCompile Include="Graphic\ImageMng.cpp" />
-    <ClCompile Include="Graphic\LAYER.cpp" />
     <ClCompile Include="NetWork\GuestState.cpp" />
     <ClCompile Include="NetWork\HostState.cpp" />
     <ClCompile Include="main.cpp" />
@@ -187,8 +185,6 @@
     <ClInclude Include="Scene\RotationScene.h" />
     <ClInclude Include="Scene\CrossOverScene.h" />
     <ClInclude Include="Scene\GameScene.h" />
-    <ClInclude Include="Graphic\ImageMng.h" />
-    <ClInclude Include="Graphic\LAYER.h" />
     <ClInclude Include="NetWork\GuestState.h" />
     <ClInclude Include="NetWork\HostState.h" />
     <ClInclude Include="main.h" />
