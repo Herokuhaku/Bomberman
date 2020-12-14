@@ -77,7 +77,8 @@ private:
 
 	bool netWorkRunflag_;
 	Color col_;
-	/*std::map<std::string,LAYER> layer_;
-	std::map<std::string,std::vector<int>> mapdata_;*/
+
+	bool connect_;
+	std::chrono::system_clock::time_point overtime_;
 };
 

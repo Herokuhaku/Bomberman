@@ -9,6 +9,7 @@ HostState::HostState()
 		active_ = ActiveState::Wait;
 	}
 	handleFlag_ = false;
+	connect_ = false;
 }
 
 HostState::~HostState()
@@ -35,7 +36,7 @@ bool HostState::CheckNetWork(void)
 					{
 						MesPacket tmpdata;
 						tmpdata.resize(tmp.length);
-						if (GetNetWorkDataLength(hl.first) > tmp.length)
+						if (GetNetWorkDataLength(hl.first) > static_cast<int>(tmp.length))
 						{
 							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
 						}
@@ -82,8 +83,9 @@ bool HostState::CheckNetWork(void)
 			time.now = begin;
 			lpNetWork.SendMesData(MesType::COUNT_DOWN_ROOM,{time.uninow[0], time.uninow[1]},handle);
 			TRACE("ê⁄ë±Ç≥ÇÍÇΩÇÊ\n");
+			connect_ = true;
 		}
-		int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+		__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 		TRACE("%d \n",COUNT_LIMIT - seconds);
 		if (seconds >= COUNT_LIMIT)
 		{
@@ -106,10 +108,15 @@ bool HostState::CheckNetWork(void)
 		if(lpNetWork.ListSize() <= 0)
 		{
 			active_ = ActiveState::Lost;
-			lpNetWork.SetNetWorkMode(NetWorkMode::NON);
+			//lpNetWork.SetNetWorkMode(NetWorkMode::NON);
 			StopListenNetWork();
 		}
 		return false;
 	}
 	return true;
+}
+
+std::pair<bool, int> HostState::GetConnect()
+{
+	return std::pair<bool, int>(connect_, COUNT_LIMIT - std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 }

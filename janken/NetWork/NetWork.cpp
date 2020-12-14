@@ -359,6 +359,15 @@ std::pair<int unsigned,int> NetWork::GetListIdFront()
 	return handlist_.front();
 }
 
+std::pair<bool, int> NetWork::GetConnect()
+{
+	if (network_state_ == nullptr)
+	{
+		return std::pair<bool, int>(false, 0);
+	}
+	return network_state_->GetConnect();
+}
+
 bool NetWork::Setting(void)
 {
 	StanbyCount_ = 0;

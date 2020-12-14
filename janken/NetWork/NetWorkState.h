@@ -104,6 +104,8 @@ public:
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
 	virtual bool CheckNetWork(void);
+	virtual std::pair<bool, int> GetConnect();
+
 	void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 	chronoi TimeStart(void);
 	void SetTimeStart(std::chrono::system_clock::time_point time);		// OFFLINEÉÇÅ[Éhóp

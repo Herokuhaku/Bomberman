@@ -53,13 +53,17 @@ void GameScene::Init(void)
 
 	wall_ = std::make_shared<Wall>();
 	wall_->SetMapData(tmxdata_.MapData);
-	while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
+	//while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
+	//{
+	//	if (lpNetWork.GetActive() == ActiveState::Play)
+	//	{
+	//		playerID = lpNetWork.PlayerID();
+	//		break;
+	//	}
+	//}
+	if (lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
 	{
-		if (lpNetWork.GetActive() == ActiveState::Play)
-		{
-			playerID = lpNetWork.PlayerID();
-			break;
-		}
+		playerID = lpNetWork.PlayerID();
 	}
 	int i = 0;
 	num = lpTiledLoader.GetTmx().num;
@@ -92,7 +96,7 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	end = lpSceneMng.GetNowTime();
 	Draw();
-	int seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
+	__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
 	if (seconds <= START_LIMIT)
 	{
 		SetFontSize(32);
@@ -204,8 +208,6 @@ void GameScene::SetBomb(int ownerID, int selfID, Vector2 pos,TimeP now, double b
 	else
 	{
 		pos = pos / tile * tile + (tile/2);
-		//pos += tile / 2;
-
 	}
 	objlist_.emplace_back(std::make_shared<Bomb>(ownerID,selfID,pos,now,bombtime,length,wall_));
 }

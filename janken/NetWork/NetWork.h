@@ -74,6 +74,8 @@ public:
 	int ListSize(void);
 	int StanbyCountUp(int num);
 	std::pair<int unsigned,int> GetListIdFront();
+
+	std::pair<bool, int> GetConnect();
 private:
 	bool Setting(void);
 

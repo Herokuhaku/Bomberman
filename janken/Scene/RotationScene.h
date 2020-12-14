@@ -16,6 +16,6 @@ private:
 	bool flag;
 	double ex;
 	double rad;
-	int rad_;
+	double rad_;
 };
 

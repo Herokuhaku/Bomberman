@@ -41,15 +41,17 @@ void RotationScene::DrawOwnScreen(void)
 	}
 	if (!flag)
 	{
-		ex -= 0.008;
-		rad_ -= 0.05;
+		ex -= 1.0 / 128.0;
+		//ex -= 0.008;
+		rad_ -= 1.0/180.0;
 		rad -= cos(rad_);
 		old_->Draw(ex,rad);
 	}
 	else
 	{
-		ex += 0.008;
-		rad_ += 0.05;
+		ex += 1.0 / 128.0;
+		//ex += 0.008;
+		rad_ += 1.0/180.0;
 		rad += cos(rad_);
 		next_->Draw(ex,rad);
 	}

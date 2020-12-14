@@ -6,7 +6,7 @@
 
 #define COUNT_LIMIT 15000
 #define START_LIMIT 10000
-
+#define OVER_LIMIT 40000
 class BaseScene
 {
 public:

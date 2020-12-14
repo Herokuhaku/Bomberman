@@ -32,16 +32,18 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 				revlist[tmpdata[0].iData / 5].first.insert(revlist[tmpdata[0].iData / 5].first.begin(), data);
 			}
 		}
-		lpNetWork.SendMesAll(MesType::POS,tmpdata);
-	return true;
+		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST) {
+			lpNetWork.SendMesAll(MesType::POS, tmpdata);
+		}
+			return true;
 		});
 
 	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int& revcount_) {
 		if (tmpdata.size() >= 2)
 		{
 			__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
-			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5 && tmpdata[0].iData != tmpdata[1].iData && 
-				mesFlag_[MesType::COUNT_DOWN_GAME] &&  seconds >= START_LIMIT)
+			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5 && tmpdata[0].iData != tmpdata[1].iData &&
+				mesFlag_[MesType::COUNT_DOWN_GAME] && seconds >= START_LIMIT)
 			{
 				if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1)
 				{
@@ -49,10 +51,12 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 				}
 				SavePacket data = std::pair<MesType, MesPacket>(tmp.type, tmpdata);
 				{
-					std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData/5].second);
+					std::lock_guard<std::mutex> mut(revlist[tmpdata[0].iData / 5].second);
 					revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 				}
-				lpNetWork.SendMesAll(MesType::SET_BOMB, tmpdata);
+				if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST) {
+					lpNetWork.SendMesAll(MesType::SET_BOMB, tmpdata);
+				}
 			}
 		}
 		return true;
@@ -157,7 +161,10 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		{
 			deathnote_.emplace_back(tmpdata[0].iData);
 		}
-		lpNetWork.SendMesAll(MesType::DEATH, tmpdata);
+		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
+		{
+			lpNetWork.SendMesAll(MesType::DEATH, tmpdata);
+		}
 		return true;
 		});
 	MesTypeList_.try_emplace(MesType::LOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
@@ -168,6 +175,10 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		if (tmpdata.size() >= 1)
 		{
 			deathnote_.emplace_back(tmpdata[0].iData);
+		}
+		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
+		{
+			lpNetWork.SendMesAll(MesType::LOST, tmpdata);
 		}
 		return true;
 		});
@@ -207,6 +218,10 @@ void NetWorkState::SetNetWorkHandle(int nethandle)
 bool NetWorkState::CheckNetWork(void)
 {
 	return true;
+}
+std::pair<bool, int> NetWorkState::GetConnect()
+{
+	return std::pair<bool, int>(false,0);
 }
 void NetWorkState::SetPlayerList(int id, MesList& list, std::mutex& mtx)
 {

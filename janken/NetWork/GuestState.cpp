@@ -52,7 +52,7 @@ bool GuestState::CheckNetWork(void)
 					{
 						MesPacket tmpdata;
 						tmpdata.resize(tmp.length);
-						if (GetNetWorkDataLength(hl.first) >= tmp.length * 4)
+						if (GetNetWorkDataLength(hl.first) >= static_cast<int>(tmp.length) * 4)
 						{
 							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
 						}

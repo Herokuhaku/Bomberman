@@ -57,9 +57,10 @@ void LoginScene::Init(void)
 	screenID = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y);
 	updateMode_ = UpdateMode::SetNetWorkMode;
 	netWorkRunflag_ = false;
-	col_.Red = rand() % 255;
-	col_.Blue = rand() % 255;
-	col_.Green = rand() % 255;
+	col_.Red = rand() % 128;
+	col_.Blue = rand() % 128;
+	col_.Green = rand() % 128;
+	connect_ = false;
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
@@ -271,7 +272,6 @@ bool LoginScene::inHostIp(void)
 	auto tmpip = lpNetWork.GetIP();
 	Vector2 pos = pos_;
 
-
 	ViewIP(tmpos,tmpip,fsize);			// IP表示
 	DrawString(pos.x, tmpos.y/* + 100*/,"IPを入力してください", 0xffffff, true);
 	tmpos.y += fsize;
@@ -349,8 +349,9 @@ bool LoginScene::Matching(void)
 	{
 		if (lpNetWork.GetActive() == ActiveState::Matching)
 		{
+			connect_ = true;
 			starttime_ = lpNetWork.TimeStart();
-			int countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
+			__int64 countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
 			DrawFormatString(pos_.x, fpos_.y, 0xffffff, "開始まであと　%d ms", COUNT_LIMIT - countdown);
 			if (countdown >= COUNT_LIMIT)
 			{
@@ -367,11 +368,35 @@ bool LoginScene::Matching(void)
 		{
 			lpNetWork.SetActive(ActiveState::Matching);
 		}
+		else if (lpNetWork.GetActive() == ActiveState::Lost && connect_)
+		{
+			connect_ = false;
+		}
+		if (!connect_)
+		{
+			DrawFormatString(pos_.x, fpos_.y, 0xffffff, "接続時間オーバー : モード選択へ戻るまで : %d");
+		}
 	}
-	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST && lpNetWork.GetActive() == ActiveState::Init)
+	else if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
 	{
-		lpNetWork.SetListID();
-		updateMode_ = UpdateMode::StartInit;
+		Vector2 tmpos = fpos_;
+		int fsize = GetFontSize();
+		tmpos.y += fsize * 3;
+		auto tmpip = lpNetWork.GetIP();
+
+		ViewIP(tmpos, tmpip, fsize);
+		DrawString(tmpos.x, tmpos.y+=fsize, "ホスト : 接続待機中", 0xffffff, true);
+		auto connect = lpNetWork.GetConnect();
+		if (connect.first)
+		{
+			DrawString(tmpos.x, tmpos.y+=fsize, "一人目の接続を確認済", 0xffffff, true);
+			DrawFormatString(tmpos.x, tmpos.y+=fsize,0xffffff,"開始まで　%d ms",connect.second);
+		}
+		if (lpNetWork.GetActive() == ActiveState::Init)
+		{
+			lpNetWork.SetListID();
+			updateMode_ = UpdateMode::StartInit;
+		}
 	}
 	return true;
 }
