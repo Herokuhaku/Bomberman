@@ -20,8 +20,9 @@ public:
 	~Obj();
 	virtual void Draw(void) = 0;
 	virtual void Update(void) = 0;
-	virtual int GetNo() = 0;
+	virtual int GetNo(void) = 0;
 	virtual void Init(void) = 0;
+	virtual bool GetAlive(void);
 	virtual std::pair<ObjType,int> GetOwnerID(void);
 	virtual bool GetDeleteFlag(void);
 	virtual int GetSelfID();

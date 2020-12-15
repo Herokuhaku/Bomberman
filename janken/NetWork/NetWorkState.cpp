@@ -7,6 +7,7 @@
 
 NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 {
+	result_.fill(-1);
 	active_ = ActiveState::Non;
 	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
 		bool flag = false;
@@ -176,13 +177,20 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		{
 			deathnote_.emplace_back(tmpdata[0].iData);
 		}
-		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
-		{
-			lpNetWork.SendMesAll(MesType::LOST, tmpdata);
-		}
 		return true;
-		});
-
+	});
+	MesTypeList_.try_emplace(MesType::RESULT, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
+		int i = 0;
+		result_.fill(-1);
+		for (auto& ary : result_)
+		{
+			if (tmpdata.size() > i) {
+				ary = tmpdata[i++].iData;
+			}
+		}
+		lpNetWork.SetActive(ActiveState::Result);
+		return true;
+	});
 }
 
 NetWorkState::~NetWorkState()
@@ -215,6 +223,16 @@ void NetWorkState::SetNetWorkHandle(int nethandle)
 	networkHandle_ = nethandle;
 }
 
+void NetWorkState::SetResult(std::array<int, 5> result)
+{
+	result_ = result;
+}
+
+std::array<int, 5> NetWorkState::GetResult(void)
+{
+	return result_;
+}
+
 bool NetWorkState::CheckNetWork(void)
 {
 	return true;
@@ -222,6 +240,14 @@ bool NetWorkState::CheckNetWork(void)
 std::pair<bool, int> NetWorkState::GetConnect()
 {
 	return std::pair<bool, int>(false,0);
+}
+void NetWorkState::AddDeathNote(int id)
+{
+	for (auto& note : deathnote_)
+	{
+		if (note == id)return;
+	}
+	deathnote_.emplace_back(id);
 }
 void NetWorkState::SetPlayerList(int id, MesList& list, std::mutex& mtx)
 {

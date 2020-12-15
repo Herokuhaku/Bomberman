@@ -347,7 +347,7 @@ bool LoginScene::Matching(void)
 	end = lpSceneMng.GetNowTime();
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
 	{
-		if (lpNetWork.GetActive() == ActiveState::Matching)
+		if (lpNetWork.GetActive() == ActiveState::Matching || lpNetWork.GetActive() == ActiveState::Lost)
 		{
 			connect_ = true;
 			starttime_ = lpNetWork.TimeStart();
@@ -363,18 +363,16 @@ bool LoginScene::Matching(void)
 					updateMode_ = UpdateMode::GamePlay;
 				}
 			}
+			if (COUNT_LIMIT - countdown <= -OVER_LIMIT)
+			{
+				lpTiledLoader.Destroy();
+				lpNetWork.Destroy();
+				return true;
+			}
 		}
 		else if (lpNetWork.GetActive() == ActiveState::Init)
 		{
 			lpNetWork.SetActive(ActiveState::Matching);
-		}
-		else if (lpNetWork.GetActive() == ActiveState::Lost && connect_)
-		{
-			connect_ = false;
-		}
-		if (!connect_)
-		{
-			DrawFormatString(pos_.x, fpos_.y, 0xffffff, "接続時間オーバー : モード選択へ戻るまで : %d");
 		}
 	}
 	else if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)

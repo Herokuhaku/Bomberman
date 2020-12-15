@@ -1,6 +1,7 @@
 #pragma once
 #include <DxLib.h>
 #include <vector>
+#include <array>
 #include <mutex>
 #include <map>
 #include <utility>
@@ -28,6 +29,7 @@ enum class ActiveState
 	//Instance,	// インスタンス中
 	OFFLINE,
 	Lost,
+	Result,
 };
 
 union unionData
@@ -58,6 +60,7 @@ enum class MesType :unsigned char
 	POS,				// ゲーム中に送る
 	SET_BOMB,			// ボムの配置
 	DEATH,				// 死亡		どのキャラかわかるようにIDだけ付与する
+	RESULT,				
 	LOST,				// 接続時に生成(ホストは自分のネットワークキャラにもセットする)
 	MAX
 };
@@ -103,8 +106,12 @@ public:
 	virtual ActiveState ConnectHost(IPDATA hostip);
 	virtual int GetNetWorkHandle(void);
 	virtual void SetNetWorkHandle(int nethandle);
+	virtual void SetResult(std::array<int, 5> result);
+	virtual std::array<int, 5> GetResult(void);
+
 	virtual bool CheckNetWork(void);
 	virtual std::pair<bool, int> GetConnect();
+	virtual void AddDeathNote(int id);
 
 	void SetPlayerList(int id, MesList& list, std::mutex& mtx);
 	chronoi TimeStart(void);
@@ -138,4 +145,5 @@ protected:
 	std::chrono::system_clock::time_point end;
 	std::map<MesType, bool> mesFlag_;
 	std::list<int> deathnote_;
+	std::array<signed int, 5> result_;
 };

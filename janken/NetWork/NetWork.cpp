@@ -89,7 +89,7 @@ bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 		tmpmesdata_[1].iData = header.iheader[1];
 		header.header.sendid++;
 		
-		NetWorkSend(handle, tmpmesdata_.data(), tmpmesdata_.size() * sizeof(int));
+		NetWorkSend(handle, tmpmesdata_.data(),static_cast<int>(tmpmesdata_.size() * sizeof(int)));
 		
 		tmpmesdata_.erase(tmpmesdata_.begin() + 2, tmpmesdata_.end());
 		size_ = 0;
@@ -163,6 +163,26 @@ void NetWork::SendTmxSize(void)
 bool NetWork::GetNetWorkState(void)
 {
 	return network_state_ == nullptr;
+}
+
+void NetWork::SetResult(std::array<int, 5> result)
+{
+	if (network_state_ == nullptr)
+	{
+		return;
+	}
+	network_state_->SetResult(result);
+}
+
+std::array<int, 5> NetWork::GetResult(void)
+{
+	if (network_state_ == nullptr)
+	{
+		std::array<int, 5>tmp;
+		tmp.fill(-1);
+		return tmp;
+	}
+	return network_state_->GetResult();
 }
 
 std::pair<int, unsigned int> NetWork::GetLostPlayer(int lost)
@@ -239,6 +259,15 @@ std::list<int> NetWork::GetDeathNote(void)
 	return network_state_->GetDeathNote();
 }
 
+void NetWork::AddDeathNote(int id)
+{
+	if (network_state_ == nullptr)
+	{
+		return;
+	}
+	network_state_->AddDeathNote(id);
+}
+
 ActiveState NetWork::ConnectHost(IPDATA hostip)
 {
 	if (network_state_ == nullptr)
@@ -292,7 +321,7 @@ void NetWork::SetTimeStart(std::chrono::system_clock::time_point time)
 
 void NetWork::SetListID(void)
 {
-	int playermax_ = handlist_.size() + 1;
+	int playermax_ = static_cast<int>(handlist_.size()) + 1;
 
 	unionData data[2];
 	data[0].iData = 0;
@@ -341,7 +370,7 @@ void NetWork::RemoveList(int lost)
 
 int NetWork::ListSize(void)
 {
-	return handlist_.size();
+	return static_cast<int>(handlist_.size());
 }
 
 int NetWork::StanbyCountUp(int num)
@@ -380,8 +409,8 @@ bool NetWork::Setting(void)
 	getline(ifs,str);
 	if (str.find_first_of("=\"") != std::string::basic_string::npos)
 	{
-		int one = str.find_first_of("\"")+1;
-		int two = str.find_last_of("\"");
+		int one = static_cast<int>(str.find_first_of("\""))+1;
+		int two = static_cast<int>(str.find_last_of("\""));
 		int three = two - one;
 		maxByte_ = atoi(str.substr(one,three).c_str());
 		return true;

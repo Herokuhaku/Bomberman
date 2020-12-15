@@ -20,6 +20,11 @@ Obj::~Obj()
 {
 }
 
+bool Obj::GetAlive(void)
+{
+	return alive_;
+}
+
 std::pair<ObjType,int> Obj::GetOwnerID(void)
 {
 	return {objtype_,id_};

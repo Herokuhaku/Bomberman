@@ -36,6 +36,7 @@ enum class Have
 	Speed
 };
 
+
 using DellistData = std::pair<std::pair<INPUT_ID, TrgBool>, bool>;
 
 class Player :
@@ -98,6 +99,7 @@ private:
 	int bomblist;									// Œ»óo‚µ‚Ä‚¢‚é”š’e‚Ì”
 
 	std::map<Have,std::tuple<int,int,int>> plm;		// first Œ»İ‚ÌŠ”  second ‚Á‚Ä‚à‚æ‚¢Å‘å” third@‰æ‘œ‚Ì•\”Ô†
+	int color_;
 public:
 	static int fallCount;
 };

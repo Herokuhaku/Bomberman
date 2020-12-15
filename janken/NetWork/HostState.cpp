@@ -86,7 +86,7 @@ bool HostState::CheckNetWork(void)
 			connect_ = true;
 		}
 		__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-		TRACE("%d \n",COUNT_LIMIT - seconds);
+		TRACE("%d \n",static_cast<int>(COUNT_LIMIT - seconds));
 		if (seconds >= COUNT_LIMIT)
 		{
 			active_ = ActiveState::Init;

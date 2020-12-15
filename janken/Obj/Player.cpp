@@ -41,6 +41,8 @@ void Player::Draw(void)
 		SetDrawScreen(DX_SCREEN_BACK);
 		DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6, 1.0f, 0.0f, screen, true);
 		DrawBox(centerpos_.x - size_.x / 2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2, 0xff00ff, false);
+
+		DrawFormatString(pos_.x,pos_.y,color_,"%d",playerid_/5+1);
 	}
 }
 
@@ -57,13 +59,14 @@ void Player::Update(void)
 	}
 	if (alive_)
 	{
+		centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x };
 		update_();
 	}
 }
 
 int Player::GetNo()
 {
-	return countid_;
+	return playerid_;
 }
 
 void Player::UpdateDef()
@@ -75,7 +78,7 @@ void Player::UpdateDef()
 	}
 	CheckItem();
 
-	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
+//	centerpos_ = { pos_.x + size_.x / 2,pos_.y + size_.y - size_.x};
 	bombpos_ = centerpos_;
 	bool flag = false;
 	for (auto& data : controller_->GetCntData())
@@ -123,6 +126,11 @@ void Player::UpdateDef()
 
 void Player::UpdateAuto()
 {
+	if (CheckDeath()) {
+		return;
+	}
+	CheckItem();
+
 	dirupdate_[pldir_](pos_,width);
 	Header tmp = { MesType::POS,0,0,1 };
 	MesPacket tmpmes;
@@ -137,6 +145,7 @@ void Player::UpdateAuto()
 
 void Player::UpdateNet()
 {
+	CheckItem();
 	while(meslist_.size() != 0)
 	{
 		auto tmp = meslist_.front();
@@ -180,6 +189,7 @@ void Player::Init(void)
 	animationdir_[DIR::UP] = 3;
 	animationdir_[DIR::DEATH] = 4;
 	frame_ = oneanimCnt*2;
+	color_ = 0x00ff00;
 
 	if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
 	{
@@ -229,9 +239,12 @@ void Player::Init(void)
 		else
 		{
 			update_ = std::bind(&Player::UpdateAuto, this);
+			type = MOVE_TYPE::Auto;
 		}
 	}
-
+	if (type == MOVE_TYPE::Def) {
+		color_ = 0xffff00;
+	}
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
 	dirupdate_[DIR::LEFT] = [&](Vector2 pos, int width) {DirLeft(pos, width);};
 	dirupdate_[DIR::UP] = [&](Vector2 pos, int width) {DirUp(pos, width);};
@@ -431,8 +444,8 @@ bool Player::CheckDeath(void)
 		if (alive_) {
 			lpNetWork.SendMesAll(MesType::DEATH, { uni });
 		}
-
 		alive_ = false;
+		lpNetWork.AddDeathNote(playerid_);
 		return true;
 	}
 	return false;

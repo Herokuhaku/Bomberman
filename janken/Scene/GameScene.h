@@ -29,6 +29,8 @@ public:
 	void SetBomb(int ownerID, int selfID, Vector2 pos,TimeP nowbool,double bombtime,int length,bool sendNet);
 	int BombCount(int ownerID);
 private:
+	void ImageDraw();
+	void ResultCheck();
 	std::vector<int> Image;
 	ListObj objlist_;
 	ShareObj fire_;

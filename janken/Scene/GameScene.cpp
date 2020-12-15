@@ -1,5 +1,6 @@
 #include <DxLib.h>
 #include <algorithm>
+#include <array>
 #include "GameScene.h"
 #include "../Graphic/ImageMng.h"
 #include "../NetWork/NetWork.h"
@@ -8,6 +9,8 @@
 #include "../Obj/Fire.h"
 #include "RotationScene.h"
 #include "LoginScene.h"
+#include "CrossOverScene.h"
+#include "ResultScene.h"
 #include "../_debug/_DebugDispOut.h"
 
 GameScene::GameScene():time{lpSceneMng.GetNowTime()}
@@ -17,8 +20,6 @@ GameScene::GameScene():time{lpSceneMng.GetNowTime()}
 
 GameScene::~GameScene()
 {
-	lpTiledLoader.Destroy();
-	lpNetWork.Destroy();
 }
 
 void GameScene::Init(void)
@@ -53,14 +54,7 @@ void GameScene::Init(void)
 
 	wall_ = std::make_shared<Wall>();
 	wall_->SetMapData(tmxdata_.MapData);
-	//while (ProcessMessage() == 0 && lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
-	//{
-	//	if (lpNetWork.GetActive() == ActiveState::Play)
-	//	{
-	//		playerID = lpNetWork.PlayerID();
-	//		break;
-	//	}
-	//}
+
 	if (lpNetWork.GetNetWorkMode() != NetWorkMode::OFFLINE)
 	{
 		playerID = lpNetWork.PlayerID();
@@ -96,29 +90,13 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 {
 	end = lpSceneMng.GetNowTime();
 	Draw();
-	__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
-	if (seconds <= START_LIMIT)
-	{
-		SetFontSize(32);
-		DrawFormatString(lpSceneMng.GetScreenSize().x / 2 - GetFontSize() * 4 + 5, lpSceneMng.GetScreenSize().y / 2 + 5, 0x000000, "開始まで　%d　秒", (START_LIMIT - seconds) / 1000);
-		DrawFormatString(lpSceneMng.GetScreenSize().x/2 - GetFontSize()*4, lpSceneMng.GetScreenSize().y / 2,0xff00ff,"開始まで　%d　秒",(START_LIMIT - seconds)/1000);
-		SetFontSize(16);
-	}
-	else {
-		for (auto& obj : objlist_)
-		{
-			obj->Update();
-			obj->Draw();
-		}
-	}
-	fire_->Update();
+	ImageDraw();
 	//if (std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() >= 5)
 	//{
 	//	begin = end;
 	//	fpsCnt_++;
 	//}
 	//_dbgDrawFormatString(100, 0, 0x000000, "%d",Player::fallCount/fpsCnt_);
-
 	objlist_.remove_if([&](std::shared_ptr<Obj>obj) {
 		bool flag = obj->GetDeleteFlag();
 		if (flag)
@@ -137,10 +115,18 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		return  flag;
 		
 		});
-	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_ESCAPE))
-	{
+	
+	ResultCheck();
+	
+	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_ESCAPE)){
+		lpTiledLoader.Destroy();
+		lpNetWork.Destroy();
 		return std::make_unique<RotationScene>(std::move(own), std::make_unique<LoginScene>());
 	}
+	else if (lpNetWork.GetActive() == ActiveState::Result){
+		return std::make_unique<CrossOverScene>(std::move(own),std::make_unique<ResultScene>(screenID));
+	}
+
 	return own;
 }
 
@@ -162,6 +148,7 @@ void GameScene::Draw(void)
 			if (x >= std::atoi(num["width"].c_str())) { y++; x = 0; }
 		}
 	}
+
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawGraph(0, 0, screenID, true);
 }
@@ -223,4 +210,76 @@ int GameScene::BombCount(int ownerID)
 		}
 	}
 	return count;
+}
+
+void GameScene::ImageDraw()
+{
+	__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - lpNetWork.TimeStart().now).count();
+	if (seconds <= START_LIMIT)
+	{
+		SetFontSize(32);
+		DrawFormatString(lpSceneMng.GetScreenSize().x / 2 - GetFontSize() * 4 + 5, lpSceneMng.GetScreenSize().y / 2 + 5, 0x000000, "開始まで　%d　秒", (START_LIMIT - seconds) / 1000);
+		DrawFormatString(lpSceneMng.GetScreenSize().x / 2 - GetFontSize() * 4, lpSceneMng.GetScreenSize().y / 2, 0xff00ff, "開始まで　%d　秒", (START_LIMIT - seconds) / 1000);
+		SetFontSize(16);
+	}
+	else {
+		for (auto& obj : objlist_)
+		{
+			obj->Update();
+		}
+	}
+	for (auto& obj : objlist_)
+	{
+		obj->Draw();
+	}
+	fire_->Update();
+}
+
+void GameScene::ResultCheck()
+{
+	if (lpNetWork.GetNetWorkMode() != NetWorkMode::GUEST)
+	{
+		MesPacket result;
+		result.resize(5);
+		int i = 0;
+		int count_ = 0;
+		bool end_ = true;
+		for (auto& obj : objlist_)
+		{
+			if (obj->GetAlive()) {
+				i++;
+				result[0].iData = obj->GetNo();
+				count_++;
+			}
+			if (obj->GetOwnerID().first == ObjType::Bomb)
+			{
+				end_ = false;
+			}
+		}
+		if (2 > i && end_) {
+			lpNetWork.SetActive(ActiveState::Result);
+			if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST) {
+				auto list = lpNetWork.GetDeathNote();
+				list.reverse();
+				for (auto& data : list) {
+					result[count_++].iData = data;
+					if (count_ == 5) {
+						break;
+					}
+				}
+				for (int i = count_; i < 5; i++)
+				{
+					result[i].iData = -1;
+				}
+				std::array<int, 5> tmp;
+				int i = 0;
+				for (auto& res : tmp)
+				{
+					res = result[i++].iData;
+				}
+				lpNetWork.SetResult(tmp);
+				lpNetWork.SendMesAll(MesType::RESULT,result);
+			}
+		}
+	}
 }

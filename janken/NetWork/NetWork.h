@@ -48,6 +48,9 @@ public:
 	void SendTmxSize(void);
 	bool GetNetWorkState(void);
 	
+	void SetResult(std::array<int, 5> result);
+	std::array<int, 5> GetResult(void);
+
 	std::pair<int, unsigned int> GetLostPlayer(int);
 	//IPDATA GetIP(void);		// ipdata‚Ì’†g‚ğ•Ô‚è’l‚Æ‚µ‚Ä•Ô‚·
 	std::array<IPDATA, 5> GetIP(void);
@@ -58,7 +61,7 @@ public:
 	bool GetRevStandby(void);
 	int GetMaxByte(void);
 	std::list<int> GetDeathNote(void);
-
+	void AddDeathNote(int id);
 	ActiveState ConnectHost(IPDATA hostip);
 	void AddMesList(int id,MesList&,std::mutex& mtx);
 	void DeleteMesList();
