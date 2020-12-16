@@ -21,6 +21,9 @@ LoginScene::LoginScene() :starttime_{std::chrono::system_clock::now()}
 	titleRun_[UpdateMode::inHostIp] = std::bind(&LoginScene::inHostIp, this);
 	titleRun_[UpdateMode::GamePlay] = std::bind(&LoginScene::GamePlay, this);
 	titleRun_[UpdateMode::Matching] = std::bind(&LoginScene::Matching, this);
+	titleRun_[UpdateMode::SetNet] = std::bind(&LoginScene::SetNet, this);
+	titleRun_[UpdateMode::SetUpdate] = std::bind(&LoginScene::SetUpdate, this);
+	titleRun_[UpdateMode::SetSaveIp] = std::bind(&LoginScene::SetSaveIp, this);
 }
 
 LoginScene::~LoginScene()
@@ -66,7 +69,8 @@ void LoginScene::Init(void)
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 {
 	Draw();
-	if (updateMode_ != UpdateMode::SetNetWorkMode && lpNetWork.GetNetWorkMode() == NetWorkMode::NON)
+	if ((updateMode_ != UpdateMode::SetNetWorkMode && updateMode_ != UpdateMode::SetNet && updateMode_ != UpdateMode::SetUpdate) &&
+		lpNetWork.GetNetWorkMode() == NetWorkMode::NON)
 	{
 		updateMode_ = UpdateMode::SetNetWorkMode;
 	}
@@ -117,7 +121,6 @@ void LoginScene::KeyLoad(void)
 
 bool LoginScene::SetNetWorkMode(void)
 {
-
 	Vector2 tmpos = fpos_;
 	int fsize = GetFontSize();
 	int nextf = false;
@@ -150,17 +153,6 @@ bool LoginScene::SetNetWorkMode(void)
 		}
 		else
 		{
-			std::string save;
-			std::istringstream stream(str);
-
-			auto oneip = [&]() {std::getline(stream, save, '.');
-			return atoi(save.c_str());
-			};
-			hostip_.d1 = oneip();
-			hostip_.d2 = oneip();
-			hostip_.d3 = oneip();
-			hostip_.d4 = oneip();
-
 			savehostip = true;
 		}
 	}
@@ -171,76 +163,16 @@ bool LoginScene::SetNetWorkMode(void)
 		DrawString(tmpos.x, tmpos.y, name, 0xffffff);
 	};
 	fauto("自分の選択するモードの値を入力してください");
-	fauto("HOST                     :0");
-	fauto("GUEST                    :1");
+	fauto("HOST                              :0");
+	fauto("GUEST                             :1");
 	if (savehostip)
 	{
-	fauto("GUEST【前回の接続先】     :2");
+	fauto("GUEST【前回の接続先を探す】        :2");
 	}
-	fauto("OFFLINE                  :3");
-	int num = -1;
+	fauto("OFFLINE                           :3");
 	if (nextf)
 	{
-		std::string tmp;
-		for (auto& key : inputKey) {
-			tmp += key;
-		}
-		num = atoi(tmp.c_str());
-		if (num == 0)
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::HOST);
-		}
-		else if (num == 1)
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
-			haveip_ = GuestMode::NOIP;
-		}
-		else if (num == 2 && savehostip)
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
-			haveip_ = GuestMode::IP;
-		}
-		else if (num == 3)
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
-		}
-		else if (num != -1)
-		{
-			TRACE("選択できないモードです\n");
-			num = -1;
-			inputKey.clear();
-		}
-	}
-	if (num != -1)
-	{
-		lpNetWork.Update();
-		switch (lpNetWork.GetNetWorkMode())
-		{
-		case NetWorkMode::HOST:
-			TRACE("ホストになりました\n");
-			updateMode_ = UpdateMode::Matching;
-			break;
-		case NetWorkMode::GUEST:
-			if (haveip_ == GuestMode::NOIP)
-			{
-				TRACE("ゲストになりました\n");
-				TRACE("IPを入力してください\n");
-			}
-			else {
-				TRACE("前回の接続先へ繋ぎます\n");
-				TRACE("検索中...\n");
-			}
-			updateMode_ = UpdateMode::inHostIp;
-			break;
-		case NetWorkMode::OFFLINE:
-			TRACE("オフラインモードです\n");
-			updateMode_ = UpdateMode::StartInit;
-			break;
-		default:
-			TRACE("\n\n存在しないモードです\n");
-			break;
-		}
-		inputKey.clear();
+		updateMode_ = UpdateMode::SetNet;
 	}
 	return true;
 }
@@ -411,6 +343,85 @@ bool LoginScene::Matching(void)
 			updateMode_ = UpdateMode::StartInit;
 		}
 	}
+	return true;
+}
+
+bool LoginScene::SetNet(void)
+{
+	netno_  = -1;
+	std::string tmp;
+	for (auto& key : inputKey) {
+		tmp += key;
+	}
+	netno_ = atoi(tmp.c_str());
+	if (netno_ == 0)
+	{
+		lpNetWork.SetNetWorkMode(NetWorkMode::HOST);
+	}
+	else if (netno_ == 1)
+	{
+		lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
+		haveip_ = GuestMode::NOIP;
+	}
+	else if (netno_ == 2 && savehostip)
+	{
+		lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
+		haveip_ = GuestMode::IP;
+		updateMode_ = UpdateMode::SetSaveIp;
+	}
+	else if (netno_ == 3)
+	{
+		lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
+	}
+	else if (netno_ != -1)
+	{
+		TRACE("選択できないモードです\n");
+		netno_ = -1;
+		inputKey.clear();
+		updateMode_ = UpdateMode::SetNetWorkMode;
+		return true;
+	}
+	updateMode_ = UpdateMode::SetUpdate;
+	return true;
+}
+
+bool LoginScene::SetUpdate(void)
+{
+	lpNetWork.Update();
+	switch (lpNetWork.GetNetWorkMode())
+	{
+	case NetWorkMode::HOST:
+		TRACE("ホストになりました\n");
+		updateMode_ = UpdateMode::Matching;
+		break;
+	case NetWorkMode::GUEST:
+		if (haveip_ == GuestMode::NOIP)
+		{
+			TRACE("ゲストになりました\n");
+			TRACE("IPを入力してください\n");
+		}
+		else {
+			TRACE("前回の接続先へ繋ぎます\n");
+			TRACE("検索中...\n");
+		}
+		updateMode_ = UpdateMode::inHostIp;
+		break;
+	case NetWorkMode::OFFLINE:
+		TRACE("オフラインモードです\n");
+		updateMode_ = UpdateMode::StartInit;
+		break;
+	default:
+		TRACE("\n\n存在しないモードです\n");
+		updateMode_ = UpdateMode::SetNetWorkMode;
+		break;
+	}
+	inputKey.clear();
+	return true;
+}
+
+bool LoginScene::SetSaveIp(void)
+{
+	std::ifstream;
 	return true;
 }
 

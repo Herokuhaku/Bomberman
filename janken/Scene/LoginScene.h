@@ -21,6 +21,9 @@ enum class UpdateMode
 	StartInit,
 	Matching,
 	GamePlay,
+	SetNet,
+	SetUpdate,
+	SetSaveIp,
 	MAX
 };
 
@@ -49,6 +52,9 @@ private:
 	bool inHostIp(void);
 	bool GamePlay(void);
 	bool Matching(void);
+	bool SetNet(void);
+	bool SetUpdate(void);
+	bool SetSaveIp(void);
 
 	void SendData();
 	void NumPadInput(void);
@@ -80,5 +86,7 @@ private:
 
 	bool connect_;
 	std::chrono::system_clock::time_point overtime_;
+
+	int netno_;
 };
 
