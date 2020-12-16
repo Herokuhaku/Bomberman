@@ -42,7 +42,7 @@ void Player::Draw(void)
 		DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6, 1.0f, 0.0f, screen, true);
 		DrawBox(centerpos_.x - size_.x / 2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2, 0xff00ff, false);
 
-		DrawFormatString(pos_.x,pos_.y,color_,"%d",playerid_/5+1);
+		DrawFormatString(pos_.x,pos_.y,color_,"%dP",playerid_/5+1);
 	}
 }
 
@@ -243,7 +243,7 @@ void Player::Init(void)
 		}
 	}
 	if (type == MOVE_TYPE::Def) {
-		color_ = 0xffff00;
+		color_ = 0xff9900;
 	}
 	dirupdate_[DIR::RIGHT] = [&](Vector2 pos,int width) {DirRight(pos,width);};
 	dirupdate_[DIR::LEFT] = [&](Vector2 pos, int width) {DirLeft(pos, width);};

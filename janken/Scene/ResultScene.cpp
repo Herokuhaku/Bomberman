@@ -24,6 +24,8 @@ void ResultScene::Init(void)
 std::unique_ptr<BaseScene> ResultScene::Update(std::unique_ptr<BaseScene> own)
 {
 	Draw();
+
+
 	if (CheckHitKey(KEY_INPUT_SPACE))
 	{
 		lpNetWork.SetNetWorkMode(NetWorkMode::NON);
@@ -39,12 +41,14 @@ void ResultScene::Draw(void)
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
 	pos_ = { 0,0 };
+	
+	DrawString(pos_.x, pos_.y += 50,"èáà  : ÉLÉÉÉâID",0xffffff);
 	int rank = 1;
 	for (auto& id : lpNetWork.GetResult()) {
 		if (id == -1) {
 			break;
 		}
-		DrawFormatString(pos_.x,pos_.y+= 50,0xffffff,"%dà   :  %d",rank++,id/5+1);
+		DrawFormatString(pos_.x,pos_.y+= 50,0xffffff,"%dà   :  %dP",rank++,id/5+1);
 	}
 
 	SetDrawScreen(DX_SCREEN_BACK);

@@ -77,7 +77,11 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	}
 	KeyLoad();
 
-
+	if (CheckHitKey(KEY_INPUT_ESCAPE)) 
+	{
+		lpTiledLoader.Destroy();
+		lpNetWork.Destroy();
+	}
 
 	return own;
 }
@@ -273,7 +277,7 @@ bool LoginScene::inHostIp(void)
 	Vector2 pos = pos_;
 
 	ViewIP(tmpos,tmpip,fsize);			// IP表示
-	DrawString(pos.x, tmpos.y/* + 100*/,"IPを入力してください", 0xffffff, true);
+	DrawString(pos.x, tmpos.y,"IPを入力してください", 0xffffff, true);
 	tmpos.y += fsize;
 	if (haveip_ == GuestMode::IP)
 	{
@@ -352,7 +356,12 @@ bool LoginScene::Matching(void)
 			connect_ = true;
 			starttime_ = lpNetWork.TimeStart();
 			__int64 countdown = std::chrono::duration_cast<std::chrono::milliseconds>(end - starttime_.now).count();
-			DrawFormatString(pos_.x, fpos_.y, 0xffffff, "開始まであと　%d ms", COUNT_LIMIT - countdown);
+			std::string str[2];
+			str[0] = COUNT_LIMIT - countdown > 0 ? "開始まであと  " : "開始合図無し  ～経過時間～  ";
+			str[1] = "%d ms";
+			fpos_.y = GetFontSize()*3;
+			DrawFormatString(pos_.x, fpos_.y+=GetFontSize(), 0xffffff, (str[0]+str[1]).c_str(), abs(COUNT_LIMIT - countdown));
+			DrawString(pos_.x, fpos_.y += GetFontSize(),"モード選択へ戻る  :  ESCキー",0xffffff);
 			if (countdown >= COUNT_LIMIT)
 			{
 				if (lpNetWork.GetRevStandby() && lpNetWork.GetNetWorkMode() == NetWorkMode::GUEST)
@@ -388,7 +397,13 @@ bool LoginScene::Matching(void)
 		if (connect.first)
 		{
 			DrawString(tmpos.x, tmpos.y+=fsize, "一人目の接続を確認済", 0xffffff, true);
-			DrawFormatString(tmpos.x, tmpos.y+=fsize,0xffffff,"開始まで　%d ms",connect.second);
+			if (connect.second > 0)
+			{
+				DrawFormatString(tmpos.x, tmpos.y += fsize, 0xffffff, "開始まで　%d ms", connect.second);
+			}
+			else {
+				lpNetWork.SetActive(ActiveState::Init);
+			}
 		}
 		if (lpNetWork.GetActive() == ActiveState::Init)
 		{

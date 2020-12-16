@@ -428,5 +428,9 @@ NetWork::NetWork()
 
 NetWork::~NetWork()
 {
+	for (auto& hl : handlist_)
+	{
+		CloseNetWork(hl.first);
+	}
 	delflag = true;
 }

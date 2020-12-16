@@ -118,7 +118,7 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 	
 	ResultCheck();
 	
-	if (lpNetWork.GetActive() == ActiveState::Lost || CheckHitKey(KEY_INPUT_ESCAPE)){
+	if (lpNetWork.GetActive() == ActiveState::Lost || (CheckHitKey(KEY_INPUT_ESCAPE) && lpNetWork.GetNetWorkMode() == NetWorkMode::OFFLINE)){
 		lpTiledLoader.Destroy();
 		lpNetWork.Destroy();
 		return std::make_unique<RotationScene>(std::move(own), std::make_unique<LoginScene>());

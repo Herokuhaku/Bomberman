@@ -14,6 +14,7 @@ HostState::HostState()
 
 HostState::~HostState()
 {
+	StopListenNetWork();
 }
 
 bool HostState::CheckNetWork(void)
