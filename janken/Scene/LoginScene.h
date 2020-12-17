@@ -24,6 +24,7 @@ enum class UpdateMode
 	SetNet,
 	SetUpdate,
 	SetSaveIp,
+	IpNotBeFound,
 	MAX
 };
 
@@ -55,12 +56,14 @@ private:
 	bool SetNet(void);
 	bool SetUpdate(void);
 	bool SetSaveIp(void);
+	bool IpNotBeFound(void);
 
 	void SendData();
 	void NumPadInput(void);
 	bool Trg(int id);
 
 	void ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& ip,int fsize);
+	bool InsertView(Vector2& tmpos);			// input‚ğ•`‰æ‚·‚éBEnter‚ğ‰Ÿ‚µ‚½‚çtrue‚ğ•Ô‚·
 	std::map<UpdateMode, std::function<bool(void)>> titleRun_;
 	int screen_size_x_;
 	int screen_size_y_;
@@ -68,6 +71,8 @@ private:
 	int plimage_;
 	Vector2 pos_;
 	Vector2 fpos_;
+	int page_;
+	const int pagecount_;
 	bool sendpos_;
 	UpdateMode updateMode_;
 
@@ -88,5 +93,6 @@ private:
 	std::chrono::system_clock::time_point overtime_;
 
 	int netno_;
+	std::pair<bool,int> ipfirst_;
 };
 
