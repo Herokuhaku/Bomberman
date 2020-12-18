@@ -17,6 +17,10 @@ void BaseScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
+void BaseScene::NoBackDraw(void)
+{
+}
+
 
 void BaseScene::DrawOwnScreen(void)
 {
@@ -27,5 +31,6 @@ void BaseScene::Draw(double ex, double rad)
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	DrawRotaGraph(lpSceneMng.GetScreenSize().x/2, lpSceneMng.GetScreenSize().y / 2,ex,rad,screenID,true);
-	//DrawGraph(0, 0, screenID, true);
 }
+
+

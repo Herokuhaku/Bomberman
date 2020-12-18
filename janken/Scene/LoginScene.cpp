@@ -12,6 +12,7 @@
 #include "../Graphic/ImageMng.h"
 #include "CrossOverScene.h"
 #include "RotationScene.h"
+#include "OpenCloseScene.h"
 #include "GameScene.h"
 #include "SceneMng.h"
 
@@ -83,7 +84,8 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 
 	if (!titleRun_[updateMode_]())
 	{
-		return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
+		return std::make_unique<OpenCloseScene>(std::move(own), std::make_unique<GameScene>());
+		//return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
 	}
 	KeyLoad();
 
@@ -98,6 +100,13 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 
 void LoginScene::Draw(void)
 {
+	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
+}
+
+void LoginScene::NoBackDraw(void)
+{
+	SetDrawScreen(screenID);
+	ClsDrawScreen();
 	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
 }
 
