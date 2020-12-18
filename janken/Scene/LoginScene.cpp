@@ -1,4 +1,6 @@
 #include "LoginScene.h"
+#include <winuser.h>
+
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -67,6 +69,7 @@ void LoginScene::Init(void)
 	connect_ = false;
 	ipfirst_ = { false,-1};
 	page_ = 0;
+	backframe_ = 0;
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
@@ -84,20 +87,17 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 	}
 	KeyLoad();
 
-	if (CheckHitKey(KEY_INPUT_ESCAPE)) 
+	if (Trg(VK_ESCAPE))
 	{
 		lpTiledLoader.Destroy();
-		lpNetWork.Destroy();	
+		lpNetWork.Destroy();
 		fpos_ = { 0,32 };
 	}
-
 	return own;
 }
 
 void LoginScene::Draw(void)
 {
-	//DrawGraph(0, 0, plimage_, true);
-	//lpImageMng.AddDraw({ lpImageMng.GetID("image/謎のにこちゃん.png")[0],pos_.x,pos_.y,1.0f,0.0f,LAYER::BG,100 });
 	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
 }
 
@@ -115,12 +115,15 @@ void LoginScene::Draw(double ex, double rad)
 void LoginScene::KeyLoad(void)
 {
 	int i = 0;
-	for (auto& buf : nowbuf)
+	for (auto& buf : nowbuf_)
 	{
-		oldbuf[i++] = buf;
+		oldbuf_[i++] = buf & 0xf0;
 	}
-	GetHitKeyStateAll(nowbuf);
-	NumPadInput();
+	if (!GetKeyboardState(nowbuf_))
+	{
+		TRACE("キーボードの状態取得失敗");
+	}
+	NumInput();
 }
 
 bool LoginScene::SetNetWorkMode(void)
@@ -158,13 +161,13 @@ bool LoginScene::SetNetWorkMode(void)
 		DrawString(tmpos.x, tmpos.y, name, 0xffffff);
 	};
 	fauto("自分の選択するモードの値を入力してください");
-	fauto("HOST                              :0");
-	fauto("GUEST                             :1");
+	fauto("HOST                           :0");
+	fauto("GUEST                          :1");
 	if (savehostip)
 	{
-	fauto("GUEST【前回の接続先を探す】        :2");
+	fauto("GUEST【保存IPから探す】      　 :2");
 	}
-	fauto("OFFLINE                           :3");
+	fauto("OFFLINE                        :3");
 	if (nextf)
 	{
 		updateMode_ = UpdateMode::SetNet;
@@ -483,8 +486,11 @@ bool LoginScene::SetSaveIp(void)
 {
 	Vector2 tmpos = fpos_;
 	int fsize = GetFontSize();
-	DrawString(tmpos.x,tmpos.y,"左矢印キーで一列左にずれる,右矢印キーで一列右にずれる",0xffffff);
-	tmpos.y += fsize * 3;
+	DrawString(tmpos.x,tmpos.y+=fsize,"左矢印キーで一列左にずれる,右矢印キーで一列右にずれる",0xffffff);
+	DrawString(tmpos.x, tmpos.y += fsize, "モード選択へ戻る  :  ESCキー", 0xffffff);
+	//tmpos.y += fsize * 3;
+	Vector2 savepos_ = { tmpos.x,tmpos.y+fsize*3};
+	tmpos = savepos_;
 	std::pair<bool, int> maxposy;
 	maxposy.second = tmpos.y;
 	std::ifstream ifs("ini/Ip.txt");
@@ -510,7 +516,7 @@ bool LoginScene::SetSaveIp(void)
 			tmpos.x += fsize*14;
 			maxposy.first = true;
 			maxposy.second = tmpos.y;
-			tmpos.y = fpos_.y+fsize*3;
+			tmpos.y = savepos_.y;
 		}
 	}
 	if (maxposy.first) {
@@ -555,8 +561,8 @@ bool LoginScene::SetSaveIp(void)
 		}
 	}
 
-	if (Trg(KEY_INPUT_LEFT) && 0 < page_) { page_ -= pagecount_; }
-	if (Trg(KEY_INPUT_RIGHT)&& page_ < line.size()-pagecount_) { page_ += pagecount_; }
+	if (Trg(VK_LEFT) && 0 < page_) { page_ -= pagecount_; }
+	if (Trg(VK_RIGHT)&& page_ < line.size()-pagecount_) { page_ += pagecount_; }
 	return true;
 }
 
@@ -567,8 +573,15 @@ bool LoginScene::IpNotBeFound(void)
 	tmpos.y += fsize * 3;
 
 	DrawFormatString(tmpos.x,tmpos.y+=fsize,0xffffff,"IP : %d.%d.%d.%d が 見つかりませんでした", hostip_.d1, hostip_.d2, hostip_.d3, hostip_.d4);
+	tmpos.y += fsize * 2;
+	DrawString(tmpos.x, tmpos.y += fsize, "もう一度同じIPで探す :  ENTERキー", 0xffffff);
 	DrawString(tmpos.x, tmpos.y+=fsize, "モード選択へ戻る  :  ESCキー", 0xffffff);
-	
+
+	if (Trg(VK_RETURN))
+	{
+		haveip_ = GuestMode::IP;
+		updateMode_ = UpdateMode::inHostIp;
+	}
 	return true;
 }
 
@@ -649,38 +662,26 @@ void LoginScene::SendData()
 	}
 }
 
-void LoginScene::NumPadInput(void)
+void LoginScene::NumInput(void)
 {
 	auto trg = [&](int inp, std::string str) {if(Trg(inp))inputKey.emplace_back(str); };
-	trg(KEY_INPUT_NUMPAD0,"0");
-	trg(KEY_INPUT_NUMPAD1, "1");
-	trg(KEY_INPUT_NUMPAD2, "2");
-	trg(KEY_INPUT_NUMPAD3, "3");
-	trg(KEY_INPUT_NUMPAD4, "4");
-	trg(KEY_INPUT_NUMPAD5, "5");
-	trg(KEY_INPUT_NUMPAD6, "6");
-	trg(KEY_INPUT_NUMPAD7, "7");
-	trg(KEY_INPUT_NUMPAD8, "8");
-	trg(KEY_INPUT_NUMPAD9, "9");
-	trg(KEY_INPUT_0, "0");
-	trg(KEY_INPUT_1, "1");
-	trg(KEY_INPUT_2, "2");
-	trg(KEY_INPUT_3, "3");
-	trg(KEY_INPUT_4, "4");
-	trg(KEY_INPUT_5, "5");
-	trg(KEY_INPUT_6, "6");
-	trg(KEY_INPUT_7, "7");
-	trg(KEY_INPUT_8, "8");
-	trg(KEY_INPUT_9, "9");
-	trg(KEY_INPUT_DECIMAL,".");
-	trg(KEY_INPUT_NUMPADENTER,"Enter");
+	int num[2] = { VK_NUMPAD0,0x30};
+	for (int i = 0; i < 10; i++)
+	{
+		trg(num[0]++,std::to_string(i));
+		trg(num[1]++, std::to_string(i));
+	}
 
-	if (Trg(KEY_INPUT_BACK)) { if(inputKey.size() > 0)inputKey.pop_back(); }
+	trg(VK_OEM_PERIOD,".");
+	trg(VK_DECIMAL, ".");
+	trg(VK_RETURN,"Enter");
+
+	if (Trg(VK_BACK)) { if(inputKey.size() > 0)inputKey.pop_back(); }
 }
 
 bool LoginScene::Trg(int id)
 {
-	return !oldbuf[id] && nowbuf[id];
+	return !oldbuf_[id] && (nowbuf_[id] & 0xf0);
 }
 
 
@@ -715,7 +716,6 @@ bool LoginScene::InsertView(Vector2& tmpos)
 			next = true;
 		}
 		DrawString(pos.x, tmpos.y + 100, key.c_str(), 0xffffff, true);
-		//tmpos.y += 100;
 		pos.x += GetFontSize() / 2;
 	}
 	return next;

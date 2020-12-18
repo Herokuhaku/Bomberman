@@ -59,7 +59,7 @@ private:
 	bool IpNotBeFound(void);
 
 	void SendData();
-	void NumPadInput(void);
+	void NumInput(void);
 	bool Trg(int id);
 
 	void ViewIP(Vector2& tmpos, std::array<IPDATA, 5>& ip,int fsize);
@@ -80,8 +80,8 @@ private:
 	IPDATA hostip_;
 	GuestMode haveip_;
 	std::vector<std::string> inputKey;
-	char oldbuf[256];
-	char nowbuf[256];
+	unsigned char oldbuf_[256];
+	unsigned char nowbuf_[256];
 
 	chronoi starttime_;
 	std::chrono::system_clock::time_point end;
@@ -94,5 +94,7 @@ private:
 
 	int netno_;
 	std::pair<bool,int> ipfirst_;
+	
+	int backframe_;
 };
 
