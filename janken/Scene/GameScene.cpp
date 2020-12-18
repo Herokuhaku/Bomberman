@@ -124,7 +124,7 @@ std::unique_ptr<BaseScene> GameScene::Update(std::unique_ptr<BaseScene> own)
 		return std::make_unique<RotationScene>(std::move(own), std::make_unique<LoginScene>());
 	}
 	else if (lpNetWork.GetActive() == ActiveState::Result){
-		return std::make_unique<CrossOverScene>(std::move(own),std::make_unique<ResultScene>(screenID));
+		return std::make_unique<CrossOverScene>(std::move(own),std::make_unique<ResultScene>(screenID,playerID.first));
 	}
 
 	return own;

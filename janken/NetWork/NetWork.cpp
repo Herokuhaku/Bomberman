@@ -70,10 +70,12 @@ bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 		return false;
 	}
 	header = { type,0,0,0 };
-	size_ = 0;
+	//size_ = 0;
+	__int64 maxcnt = maxByte_ / sizeof(int) - (sizeof(MesHeader) / sizeof(int));
 	do
 	{
-		for (int i = 0;data.size() > i && i < MaxCnt; i++)
+		size_ = 0;
+		for (int i = 0; data.size() > i && i < maxcnt; i++)
 		{
 			tmpmesdata_.emplace_back(data[i]);
 			size_++;
@@ -88,13 +90,17 @@ bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 		tmpmesdata_[0].iData = header.iheader[0];
 		tmpmesdata_[1].iData = header.iheader[1];
 		header.header.sendid++;
-		
-		NetWorkSend(handle, tmpmesdata_.data(),static_cast<int>(tmpmesdata_.size() * sizeof(int)));
-		
+
+		NetWorkSend(handle, tmpmesdata_.data(), static_cast<int>(tmpmesdata_.size() * sizeof(int)));
+
 		tmpmesdata_.erase(tmpmesdata_.begin() + 2, tmpmesdata_.end());
+		if (tmpmesdata_.size() > 2)
+		{
+			int i = 0;
+		}
 		size_ = 0;
 	} while (header.header.next);
-
+	
 	return true;
 }
 
@@ -110,11 +116,31 @@ bool NetWork::SendMesData(MesType type)
 
 bool NetWork::SendMesAll(MesType type, MesPacket data)
 {
-	for (auto& hl : handlist_)
 	{
-		SendMesData(type,data,hl.first);
+		std::lock_guard<std::mutex> mut(send_);
+		for (auto& hl : handlist_)
+		{
+			MesPacket data_ = data;
+			SendMesData(type, data_, hl.first);
+		}
 	}
-	return false;
+	return true;
+}
+
+bool NetWork::SendMesNotAll(MesType type, MesPacket data, int handle)
+{
+	{
+		std::lock_guard<std::mutex> mut(send_);
+		for (auto& hl : handlist_)
+		{
+			if (handle == hl.first) {
+				continue;
+			}
+			MesPacket data_ = data;
+			SendMesData(type, data_, hl.first);
+		}
+	}
+	return true;
 }
 
 void NetWork::SendStandby(void)
@@ -403,7 +429,6 @@ bool NetWork::Setting(void)
 	maxByte_ = 0;
 	tmpmesdata_.resize(2);
 	size_ = 0;
-	MaxCnt = maxByte_ / sizeof(int) - (sizeof(MesHeader) / sizeof(int));
 	std::ifstream ifs("ini/setting.txt");
 	std::string str;
 	getline(ifs,str);

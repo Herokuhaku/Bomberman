@@ -43,6 +43,7 @@ public:
 	bool SendMesData(MesType type, MesPacket data,int handle);
 	bool SendMesData(MesType type);
 	bool SendMesAll(MesType type,MesPacket data);
+	bool SendMesNotAll(MesType type, MesPacket data, int handle);
 	void SendStandby(void);
 	void SendStart(void);
 	void SendTmxSize(void);
@@ -94,7 +95,6 @@ private:
 	MesPacket tmpmesdata_;
 	int size_;
 	Header header;
-	unsigned long long MaxCnt;
 	ListInt handlist_;
 	int StanbyCount_;
 	bool delflag;
@@ -102,6 +102,7 @@ private:
 	NetWork();
 	~NetWork();
 
+	std::mutex send_;
 	static NetWork* sInstance;
 };
 

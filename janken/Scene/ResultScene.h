@@ -6,7 +6,7 @@ class ResultScene :
     public BaseScene
 {
 public:
-    ResultScene(int screen);
+    ResultScene(int screen,int id);
     ~ResultScene();
 
     void Init(void);
@@ -15,5 +15,6 @@ public:
 private:
     int gameScreen_;
     Vector2 pos_;
+    int id_;
 };
 

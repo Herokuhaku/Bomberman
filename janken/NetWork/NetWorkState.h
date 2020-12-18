@@ -137,7 +137,7 @@ protected:
 	chronoi timestart_;		// ŽžŠÔ•ÏŠ·—p
 	std::pair<int, int> player;	// ID‚ÆMax
 
-	std::map<MesType, std::function<bool(MesHeader,MesPacket,int&)>> MesTypeList_;
+	std::map<MesType, std::function<bool(MesHeader,MesPacket,int&,int)>> MesTypeList_;
 
 	std::map<std::string, int> num;
 

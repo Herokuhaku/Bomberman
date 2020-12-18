@@ -5,9 +5,10 @@
 #include "LoginScene.h"
 #include "RotationScene.h"
 
-ResultScene::ResultScene(int screen)
+ResultScene::ResultScene(int screen, int id)
 {
 	gameScreen_ = screen;
+	id_ = id;
 	Init();
 }
 
@@ -40,15 +41,22 @@ void ResultScene::Draw(void)
 {
 	SetDrawScreen(screenID);
 	ClsDrawScreen();
-	pos_ = { 0,0 };
+	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, 0x00ff00, true);
+	pos_ = { 0,50 };
 	
-	DrawString(pos_.x, pos_.y += 50,"èáà  : ÉLÉÉÉâID",0xffffff);
+	DrawString(pos_.x, pos_.y,"èáà  : ÉLÉÉÉâID",0xffffff);
+	pos_.y += 50;
 	int rank = 1;
 	for (auto& id : lpNetWork.GetResult()) {
 		if (id == -1) {
 			break;
 		}
-		DrawFormatString(pos_.x,pos_.y+= 50,0xffffff,"%dà   :  %dP",rank++,id/5+1);
+		DrawFormatString(pos_.x,pos_.y,0xffffff,"%dà   :  %dP",rank++,id/5+1);
+		if (id == id_)
+		{
+			DrawString(pos_.x + GetFontSize()*10 ,pos_.y,"Å©------ ME",0xffffff);
+		}
+		pos_.y += 50;
 	}
 
 	SetDrawScreen(DX_SCREEN_BACK);

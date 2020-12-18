@@ -41,7 +41,7 @@ bool HostState::CheckNetWork(void)
 						{
 							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
 						}
-						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_))
+						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_,hl.first))
 						{
 							break;
 						}

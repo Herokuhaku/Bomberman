@@ -9,9 +9,10 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 {
 	result_.fill(-1);
 	active_ = ActiveState::Non;
-	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
+	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int&,int hl) {
 		bool flag = false;
-		if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1)
+		if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1 ||
+			lpNetWork.GetActive() != ActiveState::Play)
 		{
 			return true;
 		}
@@ -34,19 +35,20 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 			}
 		}
 		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST) {
-			lpNetWork.SendMesAll(MesType::POS, tmpdata);
+			lpNetWork.SendMesNotAll(MesType::POS, tmpdata,hl);
 		}
 			return true;
 		});
 
-	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int& revcount_) {
+	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int&,int hl) {
 		if (tmpdata.size() >= 2)
 		{
 			__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
 			if (tmpdata[0].iData / 5 == tmpdata[1].iData / 5 && tmpdata[0].iData != tmpdata[1].iData &&
 				mesFlag_[MesType::COUNT_DOWN_GAME] && seconds >= START_LIMIT)
 			{
-				if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1)
+				if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1 ||
+					lpNetWork.GetActive() != ActiveState::Play)
 				{
 					return true;
 				}
@@ -56,14 +58,14 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 					revlist[tmpdata[0].iData / 5].first.emplace_back(data);
 				}
 				if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST) {
-					lpNetWork.SendMesAll(MesType::SET_BOMB, tmpdata);
+					lpNetWork.SendMesNotAll(MesType::SET_BOMB, tmpdata,hl);
 				}
 			}
 		}
 		return true;
 		});
 
-	MesTypeList_.try_emplace(MesType::TMX_DATA, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::TMX_DATA, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_,int) {
 		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		{
 			std::lock_guard<std::mutex> mut(mtx_);
@@ -84,7 +86,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 
-	MesTypeList_.try_emplace(MesType::TMX_SIZE, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::TMX_SIZE, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		unionData uni;
 		uni = tmpdata[0];
@@ -100,7 +102,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		return true;
 		});
 
-	MesTypeList_.try_emplace(MesType::STANBY_HOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::STANBY_HOST, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		if (lpNetWork.GetActive() != ActiveState::Matching)return true;
 		OutCsv();		// 送られてきたデータに","と"\n"を付加してファイルを作成する
 		OutData();		// csvと元々あるデータを参考にtmxデータを作成する
@@ -110,7 +112,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		lpNetWork.SetRevStandby(true);
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::COUNT_DOWN_ROOM, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::COUNT_DOWN_ROOM, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		mesFlag_.try_emplace(MesType::COUNT_DOWN_ROOM,false);
 		if (tmpdata.size() >= 2 && !mesFlag_[MesType::COUNT_DOWN_ROOM])
 		{
@@ -121,7 +123,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::ID, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::ID, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		if (tmpdata.size() >= 2 && tmpdata[0].iData % 5 == 0&& tmpdata[0].iData <= tmpdata[1].iData*5-5
 			&& !mesFlag_[MesType::ID])
 		{
@@ -131,7 +133,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::STNBY_GUEST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::STNBY_GUEST, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		if (lpNetWork.GetNetWorkMode() != NetWorkMode::HOST)return true;
 		int num = lpNetWork.StanbyCountUp(1);
 		if (num == lpNetWork.ListSize())
@@ -143,7 +145,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::COUNT_DOWN_GAME, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::COUNT_DOWN_GAME, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		if (lpNetWork.GetActive() != ActiveState::Play)return true;
 		if (tmpdata.size() >= 2 && !mesFlag_[MesType::COUNT_DOWN_GAME])
 		{
@@ -153,7 +155,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::DEATH, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::DEATH, [&](MesHeader tmp, MesPacket tmpdata, int&,int hl) {
 		for (auto& note : deathnote_)
 		{
 			if (note == tmpdata[0].iData)return true;
@@ -164,11 +166,11 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
 		{
-			lpNetWork.SendMesAll(MesType::DEATH, tmpdata);
+			lpNetWork.SendMesNotAll(MesType::DEATH, tmpdata,hl);
 		}
 		return true;
 		});
-	MesTypeList_.try_emplace(MesType::LOST, [&](MesHeader tmp, MesPacket tmpdata, int& revcount_) {
+	MesTypeList_.try_emplace(MesType::LOST, [&](MesHeader tmp, MesPacket tmpdata, int&,int) {
 		for (auto& note : deathnote_)
 		{
 			if (note == tmpdata[0].iData)return true;
@@ -179,7 +181,7 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		return true;
 	});
-	MesTypeList_.try_emplace(MesType::RESULT, [&](MesHeader tmp,MesPacket tmpdata,int& revcount_) {
+	MesTypeList_.try_emplace(MesType::RESULT, [&](MesHeader tmp,MesPacket tmpdata,int&,int) {
 		int i = 0;
 		result_.fill(-1);
 		for (auto& ary : result_)
