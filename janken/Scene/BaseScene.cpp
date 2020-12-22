@@ -17,7 +17,7 @@ void BaseScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
-void BaseScene::NoBackDraw(void)
+void BaseScene::NoBackDraw(int scr)
 {
 }
 

@@ -13,6 +13,7 @@
 #include "CrossOverScene.h"
 #include "RotationScene.h"
 #include "OpenCloseScene.h"
+#include "OpenCloseScene_ver2.h"
 #include "GameScene.h"
 #include "SceneMng.h"
 
@@ -71,6 +72,7 @@ void LoginScene::Init(void)
 	ipfirst_ = { false,-1};
 	page_ = 0;
 	backframe_ = 0;
+	change_ = ScreenChangeMode::CrossOver;
 }
 
 std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
@@ -84,8 +86,20 @@ std::unique_ptr<BaseScene> LoginScene::Update(std::unique_ptr<BaseScene> own)
 
 	if (!titleRun_[updateMode_]())
 	{
-		return std::make_unique<OpenCloseScene>(std::move(own), std::make_unique<GameScene>());
-		//return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
+		switch (change_)
+		{
+		case ScreenChangeMode::CrossOver:
+			return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
+		case ScreenChangeMode::OpenClose:
+			return std::make_unique<OpenCloseScene>(std::move(own), std::make_unique<GameScene>());
+		case ScreenChangeMode::OpenClose_ver2:
+			return std::make_unique<OpenCloseScene_ver2>(std::move(own), std::make_unique<GameScene>());
+		case ScreenChangeMode::Rotation:
+			return std::make_unique<RotationScene>(std::move(own), std::make_unique<GameScene>());
+		default:
+			TRACE("スクリーンチェンジの値が異常値");
+			return std::make_unique<CrossOverScene>(std::move(own), std::make_unique<GameScene>());
+		}
 	}
 	KeyLoad();
 
@@ -103,11 +117,14 @@ void LoginScene::Draw(void)
 	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
 }
 
-void LoginScene::NoBackDraw(void)
+void LoginScene::NoBackDraw(int scr)
 {
-	SetDrawScreen(screenID);
+	int tmp = GetDrawScreen();
+	SetDrawScreen(scr);
 	ClsDrawScreen();
+
 	DrawBox(0, 0, lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, GetColor(col_.Red, col_.Green, col_.Blue), true);
+	SetDrawScreen(tmp);
 }
 
 void LoginScene::Draw(double ex, double rad)
@@ -427,21 +444,25 @@ bool LoginScene::SetNet(void)
 	if (netno_ == 0)
 	{
 		lpNetWork.SetNetWorkMode(NetWorkMode::HOST);
+		change_ = ScreenChangeMode::Rotation;
 	}
 	else if (netno_ == 1)
 	{
 		lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
+		change_ = ScreenChangeMode::OpenClose_ver2;
 		haveip_ = GuestMode::NOIP;
 	}
 	else if (netno_ == 2 && savehostip)
 	{
 		lpNetWork.SetNetWorkMode(NetWorkMode::GUEST);
+		change_ = ScreenChangeMode::CrossOver;
 		haveip_ = GuestMode::IP;
 		updateMode_ = UpdateMode::SetSaveIp;
 	}
 	else if (netno_ == 3)
 	{
 		lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
+		change_ = ScreenChangeMode::OpenClose;
 	}
 	else if (netno_ != -1)
 	{

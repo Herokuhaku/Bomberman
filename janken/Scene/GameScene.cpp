@@ -153,9 +153,10 @@ void GameScene::Draw(void)
 	DrawGraph(0, 0, screenID, true);
 }
 
-void GameScene::NoBackDraw(void)
+void GameScene::NoBackDraw(int scr)
 {
-	SetDrawScreen(screenID);
+	int tmp = GetDrawScreen();
+	SetDrawScreen(scr);
 	ClsDrawScreen();
 	auto map = wall_->GetMapData();
 	mapdata_ = map;
@@ -171,6 +172,7 @@ void GameScene::NoBackDraw(void)
 			if (x >= std::atoi(num["width"].c_str())) { y++; x = 0; }
 		}
 	}
+	SetDrawScreen(tmp);
 }
 
 void GameScene::Draw(double ex, double rad)

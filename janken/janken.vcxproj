@@ -155,6 +155,7 @@
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
     <ClCompile Include="Scene\OpenCloseScene.cpp" />
+    <ClCompile Include="Scene\OpenCloseScene_ver2.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Scene\RotationScene.cpp" />
     <ClCompile Include="Scene\CrossOverScene.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Obj\Obj.h" />
     <ClInclude Include="Obj\Player.h" />
     <ClInclude Include="Scene\OpenCloseScene.h" />
+    <ClInclude Include="Scene\OpenCloseScene_ver2.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Scene\RotationScene.h" />
     <ClInclude Include="Scene\CrossOverScene.h" />

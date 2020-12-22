@@ -35,6 +35,13 @@ struct Color
 	unsigned char Blue;
 };
 
+enum class ScreenChangeMode
+{
+	CrossOver,
+	Rotation,
+	OpenClose,
+	OpenClose_ver2,
+};
 class LoginScene :
 	public BaseScene
 {
@@ -44,7 +51,7 @@ public:
 	void Init(void)override;
 	std::unique_ptr<BaseScene> Update(std::unique_ptr<BaseScene> own) override;
 	void Draw(void)override;
-	void NoBackDraw(void)override;
+	void NoBackDraw(int scr)override;
 	void Draw(double ex, double rad)override;
 
 private:
@@ -97,5 +104,6 @@ private:
 	std::pair<bool,int> ipfirst_;
 	
 	int backframe_;
+	ScreenChangeMode change_;
 };
 
