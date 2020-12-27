@@ -77,8 +77,8 @@ struct MesHeader
 union Header
 {
 	MesHeader header;
-	unsigned int iheader[2];
-	int uheader[2];
+	unsigned int uiheader[2];
+	int iheader[2];
 	unionData uniheader[2];
 };
 

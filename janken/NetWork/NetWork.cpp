@@ -87,8 +87,8 @@ bool NetWork::SendMesData(MesType type, MesPacket data,int handle)
 			header.header.next = 1;
 		}
 		else { header.header.next = 0; }
-		tmpmesdata_[0].iData = header.iheader[0];
-		tmpmesdata_[1].iData = header.iheader[1];
+		tmpmesdata_[0].iData = header.uiheader[0];
+		tmpmesdata_[1].iData = header.uiheader[1];
 		header.header.sendid++;
 
 		NetWorkSend(handle, tmpmesdata_.data(), static_cast<int>(tmpmesdata_.size() * sizeof(int)));

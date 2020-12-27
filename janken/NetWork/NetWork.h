@@ -8,7 +8,7 @@
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
-#define MAXSENDBYTE 400
+#define MAXSENDBYTE 500
 
 class NetWork
 {

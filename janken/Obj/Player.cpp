@@ -41,9 +41,9 @@ void Player::Draw(void)
 		SetDrawScreen(DX_SCREEN_BACK);
 		DrawRotaGraph(pos_.x + size_.x / 2, pos_.y + size_.y / 6, 1.0f, 0.0f, screen, true);
 		DrawBox(centerpos_.x - size_.x / 2, centerpos_.y - size_.x / 2, centerpos_.x + size_.x / 2, centerpos_.y + size_.x / 2, 0xff00ff, false);
-
 		DrawFormatString(pos_.x,pos_.y,color_,"%dP",playerid_/5+1);
 	}
+
 }
 
 void Player::Update(void)
@@ -148,10 +148,10 @@ void Player::UpdateNet()
 	CheckItem();
 	while(meslist_.size() != 0)
 	{
-		auto tmp = meslist_.front();
+		auto& tmp = meslist_.front();
 		if (tmp.first == MesType::POS)
 		{
-			if (tmp.second.size() != 0)
+			if (tmp.second.size() >= 4)
 			{
 				pos_.x = tmp.second[1].iData;
 				pos_.y = tmp.second[2].iData;
@@ -161,7 +161,7 @@ void Player::UpdateNet()
 		}
 		else if (tmp.first == MesType::SET_BOMB)
 		{
-			if (tmp.second.size() != 0)
+			if (tmp.second.size() >= 4)
 			{
 				Vector2 tmpos = { tmp.second[2].iData ,tmp.second[3].iData };
 				chronoi tmptime{std::chrono::system_clock::time_point()};

@@ -12,10 +12,12 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 	MesTypeList_.try_emplace(MesType::POS, [&](MesHeader tmp,MesPacket tmpdata,int&,int hl) {
 		bool flag = false;
 		if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1 ||
-			lpNetWork.GetActive() != ActiveState::Play)
+			lpNetWork.GetActive() != ActiveState::Play || (tmpdata.size() >= 4 &&
+			(tmpdata[1].iData <= 0 || tmpdata[2].iData <= 0 || tmpdata[1].iData > lpSceneMng.GetScreenSize().x || tmpdata[2].iData > lpSceneMng.GetScreenSize().y)))
 		{
 			return true;
 		}
+
 		for (auto& rev : revlist[tmpdata[0].iData / 5].first)
 		{
 			if (rev.first == MesType::POS)
@@ -41,6 +43,12 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		});
 
 	MesTypeList_.try_emplace(MesType::SET_BOMB, [&](MesHeader tmp, MesPacket tmpdata,int&,int hl) {
+		if (static_cast<unsigned int>(revlist.size()) < static_cast<unsigned int>(tmpdata[0].iData / 5) + 1 ||
+			lpNetWork.GetActive() != ActiveState::Play || (tmpdata.size() >= 4 &&
+				(tmpdata[1].iData <= 0 || tmpdata[2].iData <= 0 || tmpdata[1].iData > lpSceneMng.GetScreenSize().x || tmpdata[2].iData > lpSceneMng.GetScreenSize().y)))
+		{
+			return true;
+		}
 		if (tmpdata.size() >= 2)
 		{
 			__int64 seconds = std::chrono::duration_cast<std::chrono::milliseconds>(lpSceneMng.GetNowTime() - lpNetWork.TimeStart().now).count();
@@ -162,7 +170,10 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		if (tmpdata.size() >= 1)
 		{
-			deathnote_.emplace_back(tmpdata[0].iData);
+			if (tmpdata[0].iData < player.second*5)
+			{
+				deathnote_.emplace_back(tmpdata[0].iData);
+			}
 		}
 		if (lpNetWork.GetNetWorkMode() == NetWorkMode::HOST)
 		{
@@ -177,19 +188,37 @@ NetWorkState::NetWorkState() :timestart_{std::chrono::system_clock::now()}
 		}
 		if (tmpdata.size() >= 1)
 		{
-			deathnote_.emplace_back(tmpdata[0].iData);
+			if (tmpdata[0].iData < player.second * 5)
+			{
+				deathnote_.emplace_back(tmpdata[0].iData);
+			}
 		}
 		return true;
 	});
 	MesTypeList_.try_emplace(MesType::RESULT, [&](MesHeader tmp,MesPacket tmpdata,int&,int) {
 		int i = 0;
-		result_.fill(-1);
-		for (auto& ary : result_)
+		//result_.fill(-1);
+		std::map<int,bool> check;
+		std::array<int, 5> tmpres_;
+		tmpres_.fill(-1);
+		if (tmpdata.size() > 5)
 		{
-			if (tmpdata.size() > i) {
-				ary = tmpdata[i++].iData;
-			}
+			return true;
 		}
+		for (auto& ary : tmpres_)
+		{
+			if ((tmpdata.size() > i && tmpdata.size() <= result_.size() && check.find(tmpdata[i].iData) == check.end() && 
+				!mesFlag_[MesType::RESULT]) || (tmpdata.size() > i && tmpdata[i].iData == -1))
+				{
+					ary = tmpdata[i++].iData;
+					check.emplace(ary,true);
+				}
+				else {
+					return true;
+				}
+		}
+		result_ = tmpres_;
+		mesFlag_[MesType::RESULT] = true;
 		lpNetWork.SetActive(ActiveState::Result);
 		return true;
 	});
