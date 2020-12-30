@@ -55,57 +55,80 @@ bool GuestState::CheckNetWork(void)
 						tmpdata.resize(tmp.length);
 						if (tmp.type < MesType::NON || MesType::MAX < tmp.type || tmp.length > MAXSENDBYTE / 4 || (tmp.next != 0 && tmp.next != 1))
 						{
-							MesPacket Error;
-							Error.resize(GetNetWorkDataLength(hl.first));
-							NetWorkRecvToPeek(hl.first, Error.data(), GetNetWorkDataLength(hl.first));
 							continue;
 						}
 						if (GetNetWorkDataLength(hl.first) > static_cast<int>(tmp.length))
 						{
 							tmpdata.resize(tmp.length);
 							NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
-						}
-						bool flag = false;
-						if (GetNetWorkDataLength(hl.first) > static_cast<int>(sizeof(tmp)))
+						}	
+						bool count = false;			// 全て0のパターン回避用
+						bool bombcount = false;		// tmpdataにbombがいた時用
+						int bombNo_ = 0;			// その場所の番号
+						for (int i = 0;i < tmpdata.size();i++)
 						{
-							MesPacket t;
-							t.resize(2);
-							while ((tmp.length >= 1 && !flag) || tmpdata.size() < 2)
+							count |= tmpdata[i].iData;
+							if (tmpdata[i].iData == 109 && tmpdata[i+1].iData == 7)
 							{
-								for (int i = 0;i+1 < tmpdata.size(); i++)
+								bombcount = true;
+								bombNo_ = i;
+							}
+						}
+						if (lpNetWork.GetActive() == ActiveState::Play && GetNetWorkDataLength(hl.first) > 0 )
+						{
+							MesPacket Rev;
+							Header head;	
+							MesPacket tmpbomb;
+							Rev.resize(GetNetWorkDataLength(hl.first));
+							NetWorkRecvToPeek(hl.first, Rev.data(), GetNetWorkDataLength(hl.first));
+
+							if (bombcount)
+							{
+								head.iheader[0] = tmpdata[bombNo_].iData;
+								head.iheader[1] = tmpdata[bombNo_+1].iData;
+								tmpdata.erase(tmpdata.begin(),tmpdata.begin()+bombNo_+2);
+								int mem = 0;
+								for (int i = 0;i < tmpdata.size();i++)
 								{
-									if (tmpdata[i].iData == 108 && tmpdata[i+1].iData == 4)
+									tmpbomb.emplace_back(tmpdata[i]);
+									mem++;
+								}
+								for (auto& c : Rev)
+								{
+									if (mem < 7)
 									{
-										if (tmpdata.size() == 2)
-										{
-											flag = true;
-										}
-										int mem = 0;
-										for (int k = i;k + 2 < tmpdata.size();k++)
-										{
-											tmpdata[k].iData = tmpdata[k + 2].iData;
-											mem = k+1;
-										}
-										if (mem == 0)
-										{
-											mem = i;
-										}
-										NetWorkRecv(hl.first, t.data(),8);
-										tmpdata[mem++] = t[0];
-										tmpdata[mem++] = t[1];
-										flag = false;
+										tmpbomb.emplace_back(c);
+										mem++;
 									}
-									else
+									else {
+										break;
+									}
+								}
+								MesTypeList_[head.header.type](head.header, tmpbomb, revcount_, hl.first);
+								Rev.resize(GetNetWorkDataLength(hl.first));
+								NetWorkRecv(hl.first, Rev.data(), GetNetWorkDataLength(hl.first));
+								break;
+							}
+							else {
+								for (int i = 0;i + 1 < Rev.size();i++)
+								{
+									if (Rev[i].iData == 109 && Rev[i + 1].iData == 7 && i + 8 < Rev.size())
 									{
-										flag = true;
+										head.iheader[0] = Rev[i].iData;
+										head.iheader[1] = Rev[i + 1].iData;
+										for (int k = 1;k < 8;k++)
+										{
+											tmpbomb.emplace_back(Rev[i + 1 + k]);
+										}
+										if (tmpbomb.size() == 7 && !count) {
+											MesTypeList_[head.header.type](head.header, tmpbomb, revcount_, hl.first);
+											break;
+										}
 									}
 								}
 							}
 						}
-						//if (GetNetWorkDataLength(hl.first) > static_cast<int>(tmp.length))
-						//{
-						//	NetWorkRecv(hl.first, tmpdata.data(), tmp.length * 4);
-						//}
+
 						if (MesTypeList_[tmp.type](tmp, tmpdata, revcount_,hl.first))
 						{
 							break;
@@ -114,6 +137,10 @@ bool GuestState::CheckNetWork(void)
 						{
 							continue;
 						}
+					}
+					else if(GetNetWorkDataLength(hl.first))
+					{
+						BombCheck(hl.first);
 					}
 				}
 				else
