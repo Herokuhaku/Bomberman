@@ -123,6 +123,7 @@ public:
 	void OutData(void);
 	std::list<int> GetDeathNote(void);
 	void BombCheck(int hl);
+	void DeathCheck(int hl);
 protected:
 
 	const int portNum_ = 8086;

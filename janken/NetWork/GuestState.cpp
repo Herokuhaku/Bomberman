@@ -68,7 +68,7 @@ bool GuestState::CheckNetWork(void)
 						for (int i = 0;i < tmpdata.size();i++)
 						{
 							count |= tmpdata[i].iData;
-							if (tmpdata[i].iData == 109 && tmpdata[i+1].iData == 7)
+							if (tmpdata[i].iData == static_cast<int>(MesType::SET_BOMB) && tmpdata[i+1].iData == 7)
 							{
 								bombcount = true;
 								bombNo_ = i;
@@ -112,7 +112,7 @@ bool GuestState::CheckNetWork(void)
 							else {
 								for (int i = 0;i + 1 < Rev.size();i++)
 								{
-									if (Rev[i].iData == 109 && Rev[i + 1].iData == 7 && i + 8 < Rev.size())
+									if (Rev[i].iData == static_cast<int>(MesType::SET_BOMB) && Rev[i + 1].iData == 7 && i + 8 < Rev.size())
 									{
 										head.iheader[0] = Rev[i].iData;
 										head.iheader[1] = Rev[i + 1].iData;

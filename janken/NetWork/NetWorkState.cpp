@@ -439,13 +439,14 @@ void NetWorkState::BombCheck(int hl)
 	MesPacket Rev;
 	Header head;
 	MesPacket tmpbomb;
+	MesPacket tmpdeath;
 	if (GetNetWorkDataLength(hl) >= 1)
 	{
 		Rev.resize(GetNetWorkDataLength(hl));
 		NetWorkRecv(hl, Rev.data(), GetNetWorkDataLength(hl));
 		for (int i = 0;i + 1 < Rev.size();i++)
 		{
-			if (Rev[i].iData == 109 && Rev[i + 1].iData == 7 && i + 8 < Rev.size())
+			if (Rev[i].iData == static_cast<int>(MesType::SET_BOMB) && Rev[i + 1].iData == 7 && i + 8 < Rev.size())
 			{
 				head.iheader[0] = Rev[i].iData;
 				head.iheader[1] = Rev[i + 1].iData;
@@ -458,5 +459,48 @@ void NetWorkState::BombCheck(int hl)
 				}
 			}
 		}
+		for (int i = 0;i + 1 < Rev.size();i++)
+		{
+			if (Rev[i].iData == static_cast<int>(MesType::DEATH) && Rev[i + 1].iData == 1 && i + 1 < Rev.size())
+			{
+				head.iheader[0] = Rev[i].iData;
+				head.iheader[1] = Rev[i + 1].iData;
+				for (int k = 1;k < 2;k++)
+				{
+					tmpbomb.emplace_back(Rev[i + 1 + k]);
+				}
+				if (tmpbomb.size() == 1) {
+					MesTypeList_[head.header.type](head.header, tmpbomb, revcount_, hl);
+				}
+			}
+		}
 	}
 }
+
+//void NetWorkState::DeathCheck(int hl)
+//{
+//	int revcount_ = 0;
+//	MesPacket Rev;
+//	Header head;
+//	MesPacket tmpbomb;
+//	if (GetNetWorkDataLength(hl) >= 1)
+//	{
+//		Rev.resize(GetNetWorkDataLength(hl));
+//		NetWorkRecv(hl, Rev.data(), GetNetWorkDataLength(hl));
+//		for (int i = 0;i + 1 < Rev.size();i++)
+//		{
+//			if (Rev[i].iData == 110 && Rev[i + 1].iData == 1 && i + 1< Rev.size())
+//			{
+//				head.iheader[0] = Rev[i].iData;
+//				head.iheader[1] = Rev[i + 1].iData;
+//				for (int k = 1;k < 2;k++)
+//				{
+//					tmpbomb.emplace_back(Rev[i + 1 + k]);
+//				}
+//				if (tmpbomb.size() == 1) {
+//					MesTypeList_[head.header.type](head.header, tmpbomb, revcount_, hl);
+//				}
+//			}
+//		}
+//	}
+//}
